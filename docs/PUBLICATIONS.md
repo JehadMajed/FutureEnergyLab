@@ -11,6 +11,7 @@ Status values: **published**, **accepted**, **submitted**, **in preparation**.
 | 2 | Comparative study of arc-fault detection methods | Arc-fault detection | in preparation |
 | 3 | Hybrid LSTM–CUSUM Framework for Electricity Theft Detection in Residential Smart Grids | Smart metering / AMI | submitted |
 | 4 | Time-series analysis of photovoltaic curtailment in radial distribution networks | Distribution networks | Published , [Time-series analysis of photovoltaic curtailment in radial distribution networks](https://www.sciencedirect.com/science/article/abs/pii/S2352467726003127)]|
+| 5 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework with Infrared Thermal Validation | Distribution networks | Accepted |
 
 ## Conference
 
