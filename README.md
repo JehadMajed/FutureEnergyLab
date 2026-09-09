@@ -91,7 +91,7 @@ Full list with status in [`docs/PUBLICATIONS.md`](docs/PUBLICATIONS.md).
 
 - Dr. Mohammed Alqahtani
 - Dr. Ibrahim Marabet
-- Dr. Malik Aldhaimi
+- Dr. Malik Alduhaymi
 
 ### Students & Researchers
 
