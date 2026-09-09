@@ -23,5 +23,4 @@
 | Omar Amir Fadl |
 | Abdullah Alowairdhi |
 
-> Names are English transliterations of the team roster. Please open a pull request to
-> correct spelling, add roles, ORCID iDs, or contact details.
+
