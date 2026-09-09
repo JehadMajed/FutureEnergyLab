@@ -10,13 +10,13 @@ Status values: **published**, **accepted**, **submitted**, **in preparation**.
 | 1 | A Physics-Informed Neural Network Framework for Arc-Fault Detection | Arc-fault detection | Submitted |
 | 2 | Comparative study of arc-fault detection methods | Arc-fault detection | in preparation |
 | 3 | Hybrid LSTM–CUSUM Framework for Electricity Theft Detection in Residential Smart Grids | Smart metering / AMI | submitted |
-| 4 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework with Infrared Thermal Validation | Distribution networks | submitted |
+| 4 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework | Distribution networks | Published |
 
 ## Conference
 
 | # | Title | Topic | Status |
 |---|---|---|---|
-| 1 | Low-voltage distribution R&D (title TBD) | Distribution networks | in preparation |
+| 1 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework | Distribution networks | Published,[https://ieeexplore.ieee.org/document/11365432] |
 
 ## Intellectual property
 
