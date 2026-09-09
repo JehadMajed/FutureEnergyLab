@@ -1,0 +1,32 @@
+# Local development secrets
+# Copy this file to .dev.vars and fill in your values.
+# NEVER commit .dev.vars — it is in .gitignore.
+
+# ── Home Assistant ─────────────────────────────────────────────────
+HA_BASE=https://YOUR_NABU_CASA_URL.ui.nabu.casa
+HA_TOKEN=your_long_lived_access_token_here
+
+# ── MQTT Broker 1 (Primary) ────────────────────────────────────────
+MQTT_TOPIC=dt/lamps/YOUR_SECRET_TOPIC/telemetry
+MQTT1_NAME=HiveMQ Cloud
+MQTT1_HOST=your-cluster.hivemq.cloud
+MQTT1_PORT=8884
+MQTT1_USER=your_mqtt_username
+MQTT1_PASS=your_mqtt_password
+
+# ── MQTT Broker 2 (Failover, optional) ────────────────────────────
+# MQTT2_NAME=EMQX Cloud
+# MQTT2_HOST=your-cluster.emqxsl.com
+# MQTT2_PORT=8084
+# MQTT2_USER=your_mqtt_username
+# MQTT2_PASS=your_mqtt_password
+
+# ── MQTT Broker 3 (Tertiary, optional) ────────────────────────────
+# MQTT3_NAME=HiveMQ Public
+# MQTT3_HOST=broker.hivemq.com
+# MQTT3_PORT=8000
+# MQTT3_USER=
+# MQTT3_PASS=
+
+# ── Access Control (optional) ─────────────────────────────────────
+# REQUIRE_ACCESS=true

@@ -1,0 +1,7 @@
+name,rated_w,on_h,measured_wh,is_motor,critical,PF
+Air Conditioner,1300,6,7800,1,0,0.94
+Hoover,1600,1,1600,1,0,0.98
+Iron,1200,0.5,600,0,0,1
+Water Cooler,600,4,2400,1,1,0.6
+Fan,53,8,424,0,1,0.9
+Blender,330,0.083,27.39,1,0,0.84

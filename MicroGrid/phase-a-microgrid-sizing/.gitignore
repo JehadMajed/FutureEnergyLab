@@ -1,0 +1,8 @@
+# Python
+__pycache__/
+*.pyc
+
+# Generated simulation outputs (re-created by running sizing.py / sim.py)
+simulation/sizing_output.json
+simulation/sim_output.json
+simulation/figs/

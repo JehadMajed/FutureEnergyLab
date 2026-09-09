@@ -1,0 +1,13 @@
+# Copy to config.yaml (git-ignored) and edit.
+
+base_url: "http://192.168.1.50:8123"      # Home Assistant address
+token: "PASTE_LONG_LIVED_ACCESS_TOKEN"     # HA -> profile -> Long-Lived Access Tokens
+
+# name -> Home Assistant entity_id of the active-power sensor for that appliance.
+appliances:
+  refrigerator:        sensor.daq_node_01_active_power
+  kettle:              sensor.daq_node_02_active_power
+  washing_machine:     sensor.daq_node_03_active_power
+  dishwasher:          sensor.daq_node_04_active_power
+  air_conditioner:     sensor.daq_node_05_active_power
+  # ... one line per DAQ node

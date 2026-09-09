@@ -1,0 +1,26 @@
+name = "digital-twin-lamps-panel"
+pages_build_output_dir = "./dist"
+compatibility_date = "2024-01-01"
+
+# ── Secrets are NOT declared here ──────────────────────────────────────
+# There used to be a [vars] block listing HA_BASE, HA_TOKEN, MQTT1_PASS and
+# the rest, all set to "". Those deploy as real plaintext environment
+# variables with empty values, and an empty var SHADOWS the secret of the
+# same name. With the functions now failing closed, that combination would
+# have made /api/control answer "server_misconfigured" on every request and
+# /api/mqtt-config return zero brokers — a deployment that looks fine and
+# silently does nothing.
+#
+# Set them as secrets instead (values never touch this file or Git):
+#
+#   npx wrangler pages secret put HA_BASE
+#   npx wrangler pages secret put HA_TOKEN
+#   npx wrangler pages secret put MQTT_TOPIC
+#   npx wrangler pages secret put MQTT1_HOST
+#   npx wrangler pages secret put MQTT1_PORT
+#   npx wrangler pages secret put MQTT1_USER
+#   npx wrangler pages secret put MQTT1_PASS
+#   npx wrangler pages secret put REQUIRE_ACCESS      # "true" once Access is on
+#
+# Repeat MQTT2_* / MQTT3_* only if you want the failover brokers.
+# List what is set:  npx wrangler pages secret list

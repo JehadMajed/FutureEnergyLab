@@ -1,0 +1,35 @@
+{
+  "name": "digital-twin-lamps-panel",
+  "version": "2.0.0",
+  "description": "Industrial SCADA Digital Twin for the NB2 Residential Lamps Panel — real-time MQTT telemetry, 3D visualization, thermal simulation, and Cloudflare Pages deployment.",
+  "author": "Jehad Majed — Prince Sattam bin Abdulaziz University",
+  "keywords": [
+    "digital-twin",
+    "iot",
+    "mqtt",
+    "scada",
+    "cloudflare-pages",
+    "home-assistant",
+    "3d-visualization",
+    "model-viewer",
+    "chart-js",
+    "electrical-engineering"
+  ],
+  "dependencies": {
+    "@gltf-transform/core": "^4.5.0",
+    "@gltf-transform/extensions": "^4.5.0",
+    "@gltf-transform/functions": "^4.5.0",
+    "draco3dgltf": "^1.5.7",
+    "meshoptimizer": "^1.2.0",
+    "puppeteer": "^25.8.0"
+  },
+  "scripts": {
+    "build": "node tools/build-dist.cjs",
+    "deploy": "node tools/build-dist.cjs && npx wrangler pages deploy --project-name digital-twin-lamps-panel --branch digitaltwin",
+    "dev": "node tools/build-dist.cjs && npx wrangler pages dev",
+    "deploy:preview": "node tools/build-dist.cjs && npx wrangler pages deploy --project-name digital-twin-lamps-panel --branch preview"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,33 @@
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+
+# ---- MS Office lock/temp files ----
+~$*
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# ---- Node ----
+node_modules/
+dist/
+.wrangler/
+npm-debug.log*
+
+# ---- Secrets / local config ----
+.env
+.dev.vars
+config.yaml
+secrets.yaml
+*.local
+
+# ---- Large / generated data (keep samples only) ----
+*.log

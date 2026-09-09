@@ -1,0 +1,959 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Twin - Lamps Panel</title>
+  <meta name="description"
+    content="Industrial SCADA Digital Twin for the NB2 Residential Lamps Panel. Real-time telemetry, verified historical analytics, 3D visualization, and physics-based thermal simulation." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+  <!-- MQTT.js v5 — WebSocket client for real-time HiveMQ data channel -->
+  <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.4/dist/mqtt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="brand-block">
+        <div class="logo-wrap">
+          <img src="psau-logo.png" alt="PSAU Logo" class="logo" />
+        </div>
+        <div class="brand-text">
+          <div class="uni-name">Prince Sattam bin Abdulaziz University</div>
+          <div class="org-line">College of Engineering — Electrical Engineering Dept.</div>
+        </div>
+      </div>
+      <div class="topbar-center">
+        <div class="project-pill">Lamp Panel Digital Twin</div>
+      </div>
+      <div class="topbar-right">
+        <div class="time-badge" id="clock-badge">--:--:--</div>
+        <div class="status-badge" id="net-badge">
+          <span class="dot ok" id="net-dot"></span>
+          <span id="net-text">Online</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN NAVIGATION -->
+    <nav class="tab-nav" role="tablist" aria-label="Digital Twin Navigation">
+      <button class="tab-btn active" data-tab="overview" id="tab-btn-overview" role="tab" aria-selected="true"
+        aria-controls="tab-overview">
+        <span class="tab-label">Data Overview</span>
+      </button>
+      <button class="tab-btn" data-tab="model" id="tab-btn-model" role="tab" aria-selected="false"
+        aria-controls="tab-model">
+        <span class="tab-label">3D Model &amp; Control</span>
+      </button>
+      <button class="tab-btn" data-tab="simulation" id="tab-btn-simulation" role="tab" aria-selected="false"
+        aria-controls="tab-simulation">
+        <span class="tab-label">Simulation &amp; Scenarios</span>
+      </button>
+      <button class="tab-btn" data-tab="about" id="tab-btn-about" role="tab" aria-selected="false"
+        aria-controls="tab-about">
+        <span class="tab-label">About</span>
+      </button>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="tab-content">
+
+      <!-- TAB 1 : DATA OVERVIEW -->
+      <section id="tab-overview" class="tab-panel active" role="tabpanel" aria-labelledby="tab-btn-overview">
+
+        <div class="section-hdr">
+          <div class="section-title-wrap">
+            <span class="sec-tag">Live Telemetry Feed</span>
+            <h2 class="sec-heading">Real-Time Electrical Parameters</h2>
+          </div>
+          <span class="live-pill"><span class="dot ok"></span>Online</span>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card" id="kpi-power-card">
+            <div class="kpi-body">
+              <div class="kpi-label">Active Power</div>
+              <div class="kpi-val"><span id="kpi-power">--</span><span class="kpi-unit">W</span></div>
+              <div class="kpi-sub" id="kpi-power-sub">Awaiting telemetry stream</div>
+            </div>
+          </div>
+          <div class="kpi-card" id="kpi-current-card">
+            <div class="kpi-body">
+              <div class="kpi-label">Operating Current</div>
+              <div class="kpi-val"><span id="kpi-current">--</span><span class="kpi-unit">A</span></div>
+              <div class="kpi-sub">Measured: 2.91 - 2.95 A</div>
+            </div>
+          </div>
+          <div class="kpi-card" id="kpi-voltage-card">
+            <div class="kpi-body">
+              <div class="kpi-label">Supply Voltage</div>
+              <div class="kpi-val"><span id="kpi-voltage">--</span><span class="kpi-unit">V</span></div>
+              <div class="kpi-sub">Measured: 229.7 V AC</div>
+            </div>
+          </div>
+          <div class="kpi-card accent-card" id="kpi-daily-card">
+            <div class="kpi-body">
+              <div class="kpi-label">Est. Daily Energy</div>
+              <div class="kpi-val"><span id="kpi-daily-kwh">--</span><span class="kpi-unit">kWh</span></div>
+              <div class="kpi-sub">Projected at active load</div>
+            </div>
+          </div>
+          <div class="kpi-card accent-card" id="kpi-monthly-card">
+            <div class="kpi-body">
+              <div class="kpi-label">Monthly Energy</div>
+              <div class="kpi-val"><span id="kpi-monthly-kwh">--</span><span class="kpi-unit">kWh</span></div>
+              <div class="kpi-sub">30-day active historian</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Charts -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-eyebrow">Real-Time Telemetry</div>
+                <h3 class="chart-title">Active Power Stream (W)</h3>
+              </div>
+              <span class="live-pill sm"><span class="dot ok"></span>Live</span>
+            </div>
+            <div class="chart-wrap"><canvas id="chart-24h" aria-label="Active Power Stream"></canvas></div>
+            <div class="chart-footer" id="chart-24h-footer">Streaming live...</div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-eyebrow">Real-Time Telemetry</div>
+                <h3 class="chart-title">Operating Current Stream (A)</h3>
+              </div>
+              <span class="live-pill sm"><span class="dot ok"></span>Live</span>
+            </div>
+            <div class="chart-wrap"><canvas id="chart-30d" aria-label="Operating Current Stream"></canvas></div>
+            <div class="chart-footer" id="chart-30d-footer">Streaming live...</div>
+          </div>
+        </div>
+
+        <!-- Verified Operational Data Section -->
+        <div class="industrial-section">
+          <div class="section-hdr">
+            <div class="section-title-wrap">
+              <span class="sec-tag">Verified Field Data — July 2026</span>
+              <h2 class="sec-heading">Running Time vs. Zero-Current Downtime Analysis</h2>
+            </div>
+            <span class="badge-verified">1,872,587 readings</span>
+          </div>
+
+          <div class="real-kpi-grid">
+            <div class="real-tile">
+              <div class="tile-label">Operational Uptime</div>
+              <div class="tile-value" id="real-uptime-val">-- %</div>
+              <div class="tile-sub">Active load vs. idle ratio</div>
+            </div>
+            <div class="real-tile run-tile">
+              <div class="tile-label">Total Running Time</div>
+              <div class="tile-value" id="real-run-hours-val">-- h</div>
+              <div class="tile-sub">Current &gt; 0.10 A threshold</div>
+            </div>
+            <div class="real-tile zero-tile">
+              <div class="tile-label">Zero-Current Duration</div>
+              <div class="tile-value" id="real-zero-hours-val">-- h</div>
+              <div class="tile-sub">Current &le; 0.10 A</div>
+            </div>
+            <div class="real-tile">
+              <div class="tile-label">Avg Power Factor</div>
+              <div class="tile-value" id="real-pf-val">--</div>
+              <div class="tile-sub">Non-PFC LED drivers</div>
+            </div>
+          </div>
+
+          <div class="chart-card real-chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-eyebrow">Field Record — July 2026</div>
+                <h3 class="chart-title">Daily Operating vs. Zero-Current Hours</h3>
+              </div>
+              <div class="chart-legend-custom">
+                <span class="leg-item"><span class="leg-box run-box"></span>Running</span>
+                <span class="leg-item"><span class="leg-box zero-box"></span>Zero-Current</span>
+              </div>
+            </div>
+            <div class="chart-wrap-large"><canvas id="chart-real-uptime"
+                aria-label="Running vs zero-current hours"></canvas></div>
+            <div class="chart-footer" id="real-chart-footer">Synchronizing...</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB 2 : 3D MODEL & CONTROL (Physical Twin only) -->
+      <section id="tab-model" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-model">
+        <div class="model-layout">
+          <div class="model-col primary-col">
+            <div class="model-card">
+              <div class="model-hdr">
+                <div class="model-badge-row">
+                  <span class="model-chip live-chip">Live</span>
+                  <span class="model-title-text">Physical Panel State</span>
+                </div>
+                <span class="model-meta-text" id="model-last-update">Last update: --</span>
+              </div>
+
+              <div class="viewer-wrap">
+                <div class="viewer-overlay">
+                  <div class="overlay-chip">
+                    <span class="oc-key">Project</span>
+                    <span class="oc-val">NB2 Lamps Panel</span>
+                  </div>
+                  <div class="overlay-chip" id="model-stream-chip">
+                    <span class="oc-key">Data Stream</span>
+                    <span class="oc-val">Connecting...</span>
+                  </div>
+                  <!-- Show Camera Button -->
+                  <button class="overlay-chip" id="cam-show-btn"
+                    style="cursor: pointer; font-weight: 600; display: none; align-items: center; gap: 6px;">
+                    <span
+                      style="display:inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--primary);"></span>
+                    <span class="oc-val" style="color: var(--primary);">Show Camera Feed</span>
+                  </button>
+                </div>
+
+                <!-- LIVE CAMERA FEED OVERLAY BOX -->
+                <div class="cam-overlay-box" id="cam-overlay-box">
+                  <!-- Section header with REC dot and toggle button -->
+                  <div class="cam-overlay-hdr">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                      <span class="camfeed-rec-dot" id="camfeed-rec-dot"></span>
+                      <span class="cam-overlay-badge">Live Optical Feed</span>
+                      <span class="cam-overlay-status" id="cam-status-text" style="display:none;">Unavailable</span>
+                    </div>
+                    <div style="display: flex; gap: 6px; margin-left: auto; align-items: center;">
+                      <select id="cam-server-select" class="cam-select-sm">
+                        <option value="server1">Server 1</option>
+                        <option value="server2">Server 2</option>
+                      </select>
+                      <button id="cam-restart-btn" class="cam-ctrl-btn-sm" title="Restart Feed">Restart</button>
+                      <button class="log-toggle" id="btn-camfeed-toggle" title="Hide Camera Feed" style="width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text-muted); cursor:pointer;">
+                        <svg id="camfeed-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"
+                            xmlns="http://www.w3.org/2000/svg" style="transform: rotate(0deg); transition: transform 0.2s;">
+                            <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Collapsible Body -->
+                  <div id="camfeed-body" style="width:100%; display:flex; flex-direction:column; gap:0; flex-shrink:0;">
+                    <!-- Viewport frame -->
+                    <div class="camfeed-viewport" id="camfeed-viewport">
+                      <!-- Error overlay -->
+                      <div id="camfeed-error" class="camfeed-error" style="display:none;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6;">
+                          <circle cx="12" cy="12" r="10"/>
+                          <line x1="12" y1="8" x2="12" y2="12"/>
+                          <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                        </svg>
+                        <span class="camfeed-error-title">Server Not Available</span>
+                        <span class="camfeed-error-sub">Feed source unreachable</span>
+                      </div>
+
+                      <!-- Loading spinner -->
+                      <div id="camfeed-loading" class="camfeed-loading">
+                        <div class="camfeed-spinner"></div>
+                        <span>Connecting to feed…</span>
+                      </div>
+
+                      <!-- Zoom/Pan Media wrapper -->
+                      <div id="cam-zoom-wrapper" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; transform-origin: center center; overflow:hidden;">
+                        <img id="cam-feed-img" class="cam-media hidden" alt="Live Camera Stream" style="pointer-events:none;" />
+                        <video id="cam-feed-video" class="cam-media hidden" autoplay muted playsinline style="background:#000;"></video>
+                        <iframe id="cam-feed-iframe" class="cam-media hidden" title="Live Camera Stream"
+                          allow="autoplay; fullscreen" scrolling="no" muted
+                          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+                      </div>
+                    </div>
+
+                    <!-- Production Line style controls bar (Zoom + D-pad) -->
+                    <div class="camfeed-controls">
+                      <!-- Zoom controls -->
+                      <div class="camfeed-zoom-group">
+                        <button id="cam-zoom-in" class="cam-ctrl-btn" title="Zoom In">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        </button>
+                        <div class="camfeed-zoom-track">
+                          <div class="camfeed-zoom-fill" id="camfeed-zoom-fill" style="width:0%;"></div>
+                        </div>
+                        <button id="cam-zoom-out" class="cam-ctrl-btn" title="Zoom Out">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        </button>
+                        <button id="cam-zoom-reset" class="cam-ctrl-btn-sm" title="Reset Zoom">1:1</button>
+                      </div>
+
+                      <!-- D-pad controls -->
+                      <div class="camfeed-dpad">
+                        <button id="cam-pan-up"    class="dpad-btn dpad-up"    title="Pan Up"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5,3 8,7"/></svg></button>
+                        <button id="cam-pan-left"  class="dpad-btn dpad-left"  title="Pan Left"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,2 3,5 7,8"/></svg></button>
+                        <div class="dpad-center"></div>
+                        <button id="cam-pan-right" class="dpad-btn dpad-right" title="Pan Right"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,2 7,5 3,8"/></svg></button>
+                        <button id="cam-pan-down"  class="dpad-btn dpad-down"  title="Pan Down"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,3 5,7 8,3"/></svg></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <model-viewer id="main-model" src="Panel.glb"
+                  camera-controls shadow-intensity="1.8" exposure="1.12" auto-rotate rotation-per-second="1deg"
+                  camera-orbit="0deg 74deg 6.4m" field-of-view="20deg" min-camera-orbit="auto auto 5.6m"
+                  max-camera-orbit="auto auto 8.8m" disable-tap>
+                </model-viewer>
+              </div>
+
+              <!-- Live Telemetry Strip -->
+              <div class="tele-strip">
+                <div class="tele-item">
+                  <div class="tele-label">Power</div>
+                  <div class="tele-val"><span id="tele-power">--</span> <span class="tele-unit">W</span></div>
+                </div>
+                <div class="tele-item">
+                  <div class="tele-label">Current</div>
+                  <div class="tele-val"><span id="tele-current">--</span> <span class="tele-unit">A</span></div>
+                </div>
+                <div class="tele-item">
+                  <div class="tele-label">Voltage</div>
+                  <div class="tele-val"><span id="tele-voltage">--</span> <span class="tele-unit">V</span></div>
+                </div>
+                <div class="tele-item">
+                  <div class="tele-label">NB2 Status</div>
+                  <div class="tele-val" id="tele-nb2">--</div>
+                </div>
+                <div class="tele-item">
+                  <div class="tele-label">Forecast</div>
+                  <div class="tele-val" id="tele-forecast">--</div>
+                </div>
+              </div>
+
+              <!-- ══════════════════════════════════════════════════════════════
+                   HIDDEN — Short-Term Load Forecasting
+
+                   Commented out deliberately, not broken. The values this panel
+                   displayed were not a forecast: script.js computed them as
+
+                       projP = power * (1 + 0.015 * Math.sin(Date.now() / 4000))
+
+                   i.e. the PRESENT measured value multiplied by a sine wave of
+                   the wall clock, with a "Range" of +/-5% of that same reading
+                   and a hardcoded "Confidence: 98.6%" written into the markup
+                   below. There was no model, no horizon and no error estimate
+                   behind any of it.
+
+                   Re-enabling it as-is would put a fabricated 98.6% accuracy
+                   claim two tabs away from Tab 3, where every number carries a
+                   MEASURED / DATASHEET / MODELLED provenance tag.
+
+                   To restore it properly rather than cosmetically, the panel
+                   needs a real predictor. A persistence/EWMA model over this
+                   panel's own data measures at MAE 7.05 W on a 60 s horizon
+                   (p95 1.90 W), and a genuine confidence figure would come from
+                   the observed residual distribution, not from a constant.
+
+                   The JS that fills these fields is guarded with `if (fcastX)`
+                   checks, so it no-ops safely while the markup is absent.
+                   ══════════════════════════════════════════════════════════════ -->
+              <!--
+              <div class="forecast-row-container">
+                <div class="forecast-hdr">
+                  <div class="forecast-title-wrap">
+                    <span class="badge-verified">PREDICTIVE TWIN</span>
+                    <h5 class="forecast-title">Short-Term Load Forecasting</h5>
+                  </div>
+                  <span class="state-pill info-pill">Status: Nominal</span>
+                </div>
+                <div class="tele-strip forecast-strip">
+                  <div class="tele-item">
+                    <div class="tele-label">Forecast Power</div>
+                    <div class="tele-val"><span id="fcast-power">--</span> <span class="tele-unit">W</span></div>
+                    <div class="tele-sub" id="fcast-power-band">Range: -- W</div>
+                  </div>
+                  <div class="tele-item">
+                    <div class="tele-label">Forecast Current</div>
+                    <div class="tele-val"><span id="fcast-current">--</span> <span class="tele-unit">A</span></div>
+                    <div class="tele-sub" id="fcast-current-band">Range: -- A</div>
+                  </div>
+                  <div class="tele-item">
+                    <div class="tele-label">Forecast Voltage</div>
+                    <div class="tele-val"><span id="fcast-voltage">--</span> <span class="tele-unit">V</span></div>
+                    <div class="tele-sub" id="fcast-voltage-band">Range: -- V</div>
+                  </div>
+                  <div class="tele-item">
+                    <div class="tele-label">Forecast Status</div>
+                    <div class="tele-val" id="fcast-status">STABLE</div>
+                    <div class="tele-sub">Confidence: 98.6%</div>
+                  </div>
+                </div>
+              </div>
+              -->
+            </div>
+          </div>
+
+          <!-- Secondary Right Column (Green Box Area) -->
+          <div class="model-col secondary-col">
+            <div class="model-card control-column-card">
+              <div class="control-section" id="control-section-panel">
+                <div class="ctrl-head">
+                  <div class="ctrl-label-group">
+                    <span class="panel-eyebrow">Command Interface</span>
+                    <h4 class="ctrl-title">Manual Panel Control</h4>
+                  </div>
+                  <span class="state-pill" id="control-pill">Control: Ready</span>
+                </div>
+                <p class="ctrl-desc">Send direct commands to the connected NB2 panel through the digital link.</p>
+                <div class="ctrl-grid">
+                  <button class="cmd-btn unlock" data-cmd="Unlock" id="btn-unlock">Unlock</button>
+                  <button class="cmd-btn open" data-cmd="Open" id="btn-open">Open</button>
+                  <button class="cmd-btn close" data-cmd="Close" id="btn-close">Close</button>
+                </div>
+
+                <div class="ctrl-link-specs">
+                  <div class="spec-ref-title">Digital Twin Link Info</div>
+                  <div class="spec-ref-grid">
+                    <div class="spec-row"><span class="spec-k">Target Hardware</span><span class="spec-v">NB2 Lamps Panel</span></div>
+                    <div class="spec-row"><span class="spec-k">Control Channel</span><span class="spec-v">Cloudflare / HiveMQ</span></div>
+                    <div class="spec-row"><span class="spec-k">Security Protocol</span><span class="spec-v">TLS 1.3 Encrypted</span></div>
+                    <div class="spec-row"><span class="spec-k">Telemetry Status</span><span class="spec-v">Physical Twin Active</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3 : SIMULATION & SCENARIOS -->
+      <section id="tab-simulation" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-simulation">
+
+        <!-- ── TOP HERO: LAMP GRID + SCENARIO RAIL ─────────────────────── -->
+        <div class="sim3-hero">
+
+          <!-- LEFT: 40-Lamp Grid Panel -->
+          <div class="sim3-grid-col">
+            <div class="sim3-card">
+              <div class="sim3-card-hdr">
+                <div class="sim3-card-hdr-left">
+                  <span class="sim3-eyebrow">NB2 Panel · Live Simulation State</span>
+                  <div class="sim3-card-title-row">
+                    <h2 class="sim3-card-title">40-Lamp Array</h2>
+                    <span class="sim3-badge" id="s3-state-badge">STANDBY</span>
+                  </div>
+                </div>
+                <div class="sim3-specs-row">
+                  <div class="sim3-spec-chip meas" title="Measured from 1,310 energised field readings">P <strong>402 W</strong></div>
+                  <div class="sim3-spec-chip meas" title="Measured mean supply voltage">230 V AC</div>
+                  <div class="sim3-spec-chip meas" title="Measured true power factor">PF <strong>0.60</strong></div>
+                  <div class="sim3-spec-chip data" title="Philips 929002299709 — 40 × 11 W">40 × <strong>11 W</strong></div>
+                  <div class="sim3-spec-chip data" title="Datasheet rated life to 70% lumen maintenance">L70 <strong>12,000 h</strong></div>
+                  <div class="sim3-spec-chip model" title="Modelled — no thermal sensor exists on this panel">Ea <strong>0.70 eV</strong></div>
+                </div>
+              </div>
+
+              <!-- 3D PANEL — per-lamp simulated state (replaces the old CSS matrix) -->
+              <div class="s3-viewer-wrap">
+                <model-viewer id="sim-model" src="Panel.glb"
+                  camera-controls shadow-intensity="1.2" exposure="1.0"
+                  camera-orbit="0deg 80deg 5.0m" field-of-view="24deg"
+                  min-camera-orbit="auto auto 3.4m" max-camera-orbit="auto auto 8.0m"
+                  disable-tap>
+                </model-viewer>
+                <div class="s3-viewer-legend">
+                  <span class="s3-lg"><i class="lg-on"></i>Nominal</span>
+                  <span class="s3-lg"><i class="lg-deg"></i>Degraded</span>
+                  <span class="s3-lg"><i class="lg-crit"></i>Critical / flicker</span>
+                  <span class="s3-lg"><i class="lg-cyc"></i>Thermal cycling</span>
+                  <span class="s3-lg"><i class="lg-fail"></i>Failed</span>
+                </div>
+              </div>
+
+              <!-- LAMP INSPECTOR -->
+              <div class="s3-inspect">
+                <div class="s3-inspect-head">
+                  <span class="sim3-eyebrow">Lamp Inspector</span>
+                  <div class="s3-inspect-pick">
+                    <label for="s3-lamp-pick">Lamp</label>
+                    <input type="number" id="s3-lamp-pick" min="1" max="40" value="1" class="s3-jump-input" style="width:64px">
+                    <button class="s3-btn-jump" id="s3-lamp-worst" title="Jump to the most degraded lamp">Worst</button>
+                  </div>
+                </div>
+                <div class="s3-inspect-grid" id="s3-inspect-body">
+                  <div class="s3-ins"><span class="s3-ins-k">State</span><span class="s3-ins-v" id="ins-state">OFF</span></div>
+                  <div class="s3-ins"><span class="s3-ins-k">Health</span><span class="s3-ins-v" id="ins-health">100.0%</span></div>
+                  <div class="s3-ins"><span class="s3-ins-k">Lumen output</span><span class="s3-ins-v" id="ins-lumens">0.0%</span></div>
+                  <div class="s3-ins"><span class="s3-ins-k">Junction temp</span><span class="s3-ins-v" id="ins-tj">25.0 °C</span></div>
+                  <div class="s3-ins"><span class="s3-ins-k">Hours run</span><span class="s3-ins-v" id="ins-hours">0 h</span></div>
+                  <div class="s3-ins"><span class="s3-ins-k">Arrhenius AF</span><span class="s3-ins-v" id="ins-af">1.00×</span></div>
+                  <div class="s3-ins"><span class="s3-ins-k">Flicker (% mod.)</span><span class="s3-ins-v" id="ins-flicker">0.0%</span></div>
+                  <div class="s3-ins"><span class="s3-ins-k">Fail mode</span><span class="s3-ins-v" id="ins-mode">—</span></div>
+                </div>
+              </div>
+
+              <!-- KPI STRIP -->
+              <div class="s3-kpi-strip">
+                <div class="s3-kpi">
+                  <div class="s3-kpi-label">Panel Health</div>
+                  <div class="s3-kpi-value" id="s3-health">100.0<span>%</span></div>
+                  <div class="s3-kpi-bar-track"><div class="s3-kpi-bar" id="s3-health-bar" style="width:100%;background:#22c55e"></div></div>
+                </div>
+                <div class="s3-kpi">
+                  <div class="s3-kpi-label">Lumen Output</div>
+                  <div class="s3-kpi-value" id="s3-lumens">100.0<span>%</span></div>
+                  <div class="s3-kpi-bar-track"><div class="s3-kpi-bar" id="s3-lumens-bar" style="width:100%;background:#f59e0b"></div></div>
+                </div>
+                <div class="s3-kpi">
+                  <div class="s3-kpi-label">Avg Tj</div>
+                  <div class="s3-kpi-value" id="s3-tj">25.0<span>°C</span></div>
+                  <div class="s3-kpi-bar-track"><div class="s3-kpi-bar" id="s3-tj-bar" style="width:5%;background:#22c55e"></div></div>
+                </div>
+                <div class="s3-kpi">
+                  <div class="s3-kpi-label">Failed</div>
+                  <div class="s3-kpi-value warn" id="s3-failed">0<span>/ 40</span></div>
+                  <div class="s3-kpi-bar-track"><div class="s3-kpi-bar" id="s3-failed-bar" style="width:0%;background:#ef4444"></div></div>
+                </div>
+                <div class="s3-kpi">
+                  <div class="s3-kpi-label">AF (Arrhenius)</div>
+                  <div class="s3-kpi-value" id="s3-af">1.00<span>×</span></div>
+                  <div class="s3-kpi-sub" id="s3-simhours">t = 0 h</div>
+                </div>
+              </div>
+
+              <!-- CONTROL BAR -->
+              <div class="s3-ctrl-bar">
+                <div class="s3-ctrl-left">
+                  <button class="s3-btn-run" id="sim-run-btn">RUN</button>
+                  <button class="s3-btn-pause" id="sim-pause-btn" disabled>PAUSE</button>
+                  <button class="s3-btn-reset" id="sim-reset-btn">RESET</button>
+                </div>
+                <div class="s3-ctrl-center">
+                  <span class="s3-speed-label">Speed</span>
+                  <div class="s3-speed-pills" id="s3-speed-pills">
+                    <button class="s3-speed-pill" data-step="0">0.1×</button>
+                    <button class="s3-speed-pill" data-step="1">0.5×</button>
+                    <button class="s3-speed-pill active" data-step="2">1×</button>
+                    <button class="s3-speed-pill" data-step="3">10×</button>
+                    <button class="s3-speed-pill" data-step="4">50×</button>
+                    <button class="s3-speed-pill" data-step="5">100×</button>
+                  </div>
+                </div>
+                <div class="s3-ctrl-right">
+                  <!-- Time Jump -->
+                  <input type="number" id="s3-jump-input" class="s3-jump-input" value="5000" min="100" max="100000" step="500">
+                  <span class="s3-speed-label">h</span>
+                  <button class="s3-btn-jump" id="s3-btn-jump">JUMP</button>
+                  <div class="s3-jump-presets">
+                    <button class="s3-jump-preset" data-h="1000">1k</button>
+                    <button class="s3-jump-preset" data-h="5000">5k</button>
+                    <button class="s3-jump-preset" data-h="15000">15k</button>
+                    <button class="s3-jump-preset" data-h="25000">25k</button>
+                  </div>
+                </div>
+              </div>
+              <div class="s3-jump-result" id="s3-jump-result"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Scenario Rail -->
+          <div class="sim3-scenario-col">
+            <div class="sim3-card">
+              <div class="sim3-card-hdr" style="padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:12px;">
+                <div class="sim3-card-hdr-left">
+                  <span class="sim3-eyebrow">Simulation Scenarios</span>
+                  <h2 class="sim3-card-title" style="font-size:15px;">Select & Run</h2>
+                </div>
+              </div>
+              <div class="s3-scenario-list" id="s3-scenario-list">
+                <!-- Built by JS -->
+              </div>
+
+              <!-- Fault Injection -->
+              <div class="s3-fault-section">
+                <div class="s3-fault-title">FAULT INJECTION</div>
+                <button id="lfi-overvolt" class="s3-fault-btn">Overvoltage +15%</button>
+                <button id="lfi-dust"     class="s3-fault-btn">Dust Accumulation</button>
+                <button id="lfi-row1"     class="s3-fault-btn">De-energise Row 1 (L01-L08)</button>
+                <button id="lfi-ambient"  class="s3-fault-btn">Ambient +20 °C</button>
+                <button id="lfi-reset"    class="s3-fault-btn s3-fault-clear">CLEAR ALL FAULTS</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── BOTTOM: GAUGES + CHARTS + LOG ─────────────────────────────── -->
+        <div class="sim3-bottom">
+
+          <!-- Gauge Row -->
+          <div class="sim3-gauges">
+            <div class="sim3-gauge-card" id="g-temp">
+              <svg class="gauge-svg" viewBox="0 0 120 70">
+                <path d="M10 65 A55 55 0 0 1 110 65" class="g-track"/>
+                <path d="M10 65 A55 55 0 0 1 110 65" class="g-arc temp-arc" id="g-temp-arc" stroke-dasharray="0 173"/>
+              </svg>
+              <div class="gauge-center">
+                <div class="gauge-num" id="g-temp-val">25.0</div>
+                <div class="gauge-unit-label">°C</div>
+              </div>
+              <div class="gauge-name">Junction Temp</div>
+              <div class="gauge-status" id="g-temp-status">Ambient</div>
+            </div>
+            <div class="sim3-gauge-card" id="g-power">
+              <svg class="gauge-svg" viewBox="0 0 120 70">
+                <path d="M10 65 A55 55 0 0 1 110 65" class="g-track"/>
+                <path d="M10 65 A55 55 0 0 1 110 65" class="g-arc power-arc" id="g-power-arc" stroke-dasharray="0 173"/>
+              </svg>
+              <div class="gauge-center">
+                <div class="gauge-num" id="g-power-val">0</div>
+                <div class="gauge-unit-label">W</div>
+              </div>
+              <div class="gauge-name">Simulated Power</div>
+              <div class="gauge-status" id="g-power-status">Offline</div>
+            </div>
+            <div class="sim3-gauge-card" id="g-voltage">
+              <svg class="gauge-svg" viewBox="0 0 120 70">
+                <path d="M10 65 A55 55 0 0 1 110 65" class="g-track"/>
+                <path d="M10 65 A55 55 0 0 1 110 65" class="g-arc voltage-arc" id="g-voltage-arc" stroke-dasharray="0 173"/>
+              </svg>
+              <div class="gauge-center">
+                <div class="gauge-num" id="g-voltage-val">220</div>
+                <div class="gauge-unit-label">V</div>
+              </div>
+              <div class="gauge-name">Supply Voltage</div>
+              <div class="gauge-status" id="g-voltage-status">Nominal</div>
+            </div>
+            <!-- Manual Controls inline -->
+            <div class="sim3-gauge-card sim3-manual-card">
+              <div class="sim3-eyebrow" style="margin-bottom:8px;">Manual Control</div>
+              <button class="sim3-power-btn" id="sim2-toggle-btn">CONTACTOR OPEN</button>
+
+              <!-- Only physically manipulable quantities are inputs. Power is an
+                   OUTPUT of (V, lamps energised, Tj) — you cannot inject watts. -->
+              <div class="sim3-slider-row">
+                <label class="sim3-slider-label">Supply voltage: <span id="sim2-volt-val">230</span> V</label>
+                <input type="range" id="sim2-volt-slider" min="180" max="260" step="1" value="230" class="styled-slider">
+                <div class="sim3-slider-note" id="sim2-volt-note">Within rated 220–240 V</div>
+              </div>
+              <div class="sim3-slider-row">
+                <label class="sim3-slider-label">Ambient: <span id="sim2-ambient-val">25</span> °C</label>
+                <input type="range" id="sim2-ambient-slider" min="10" max="70" step="1" value="25" class="styled-slider">
+                <div class="sim3-slider-note" id="sim2-ambient-note">Within rated −20…+45 °C</div>
+              </div>
+              <div class="sim3-slider-row">
+                <label class="sim3-slider-label">Lamps energised: <span id="sim2-lamps-val">40</span> / 40</label>
+                <input type="range" id="sim2-lamps-slider" min="0" max="40" step="1" value="40" class="styled-slider">
+              </div>
+
+              <div class="sim3-derived">
+                <div class="sim3-der"><span class="sim3-der-k">Power</span><span class="sim3-der-v" id="sim2-derived-p">0 W</span></div>
+                <div class="sim3-der"><span class="sim3-der-k">Current</span><span class="sim3-der-v" id="sim2-derived-i">0.00 A</span></div>
+                <div class="sim3-der"><span class="sim3-der-k">Avg Tj</span><span class="sim3-der-v" id="sim2-temp-val">25.0 °C</span></div>
+                <div class="sim3-der"><span class="sim3-der-k">Lumen out</span><span class="sim3-der-v"><span id="sim2-lumen-val">0.0</span>%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- POWER QUALITY / ENERGY / MAINTENANCE -->
+          <div class="s3-strip-row">
+            <div class="s3-strip-card">
+              <div class="s3-strip-hdr">
+                <span class="sim3-eyebrow">Power Quality — Non-PFC Driver</span>
+                <span class="s3-prov meas" title="Derived from the measured true power factor">MEASURED</span>
+              </div>
+              <div class="s3-strip-grid">
+                <div class="s3-ins"><span class="s3-ins-k">Current THD</span><span class="s3-ins-v" id="pq-thd">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">True PF</span><span class="s3-ins-v" id="pq-pf">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Displacement PF</span><span class="s3-ins-v" id="pq-dpf">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Crest factor</span><span class="s3-ins-v" id="pq-cf">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Apparent power</span><span class="s3-ins-v" id="pq-va">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Distortion power</span><span class="s3-ins-v" id="pq-d">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">3rd harmonic I</span><span class="s3-ins-v" id="pq-i3">--</span></div>
+                <!-- HIDDEN — Inrush (peak). The engine still computes it from the
+                     circuit model I_pk = V_pk / (Z_loop + Z_lamp/N), which gives
+                     ~214 A for 40 lamps and saturates at the wiring ceiling.
+                     The tile is hidden because Z_loop is a MODELLED value that
+                     was never measured on this installation, so the headline
+                     figure is not defensible as a number even though the
+                     saturating behaviour is correct. Un-comment once the real
+                     loop impedance is known.
+                <div class="s3-ins"><span class="s3-ins-k">Inrush (peak)</span><span class="s3-ins-v" id="pq-inrush">--</span></div>
+                     -->
+              </div>
+              <div class="s3-harm" id="pq-spectrum"></div>
+              <div class="s3-note" id="pq-note"></div>
+            </div>
+
+            <div class="s3-strip-card">
+              <div class="s3-strip-hdr">
+                <span class="sim3-eyebrow">Energy &amp; Cost — SEC Tariff</span>
+                <span class="s3-prov data">TARIFF</span>
+              </div>
+              <div class="s3-strip-grid two">
+                <div class="s3-ins"><span class="s3-ins-k">Energy consumed</span><span class="s3-ins-v" id="en-kwh">0.0 kWh</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Cost</span><span class="s3-ins-v" id="en-sar">0.00 SAR</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Monthly projection</span><span class="s3-ins-v" id="en-month">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Active tariff tier</span><span class="s3-ins-v" id="en-tier">Tier 1</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Wasted as heat</span><span class="s3-ins-v" id="en-heat">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Efficacy now</span><span class="s3-ins-v" id="en-eff">--</span></div>
+              </div>
+            </div>
+
+            <div class="s3-strip-card">
+              <div class="s3-strip-hdr">
+                <span class="sim3-eyebrow">Maintenance Forecast</span>
+                <span class="s3-prov model">PROJECTED</span>
+              </div>
+              <div class="s3-strip-grid two">
+                <div class="s3-ins"><span class="s3-ins-k">L70 reached at</span><span class="s3-ins-v" id="mf-l70">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Calendar date</span><span class="s3-ins-v" id="mf-date">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">10% failed at</span><span class="s3-ins-v" id="mf-b10">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Replacements to date</span><span class="s3-ins-v" id="mf-repl">0</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Lamp cost to date</span><span class="s3-ins-v" id="mf-cost">0.00 SAR</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Duty assumption</span><span class="s3-ins-v" id="mf-duty">12 h/day</span></div>
+              </div>
+              <div class="s3-note">Projection at the current operating point; recomputes as conditions change.</div>
+            </div>
+          </div>
+
+          <!-- MODEL VALIDATION — back-test + live residual -->
+          <div class="s3-validate-card">
+            <div class="s3-strip-hdr">
+              <div>
+                <span class="sim3-eyebrow">Model Validation</span>
+                <div class="sim3-chart-title">Back-test vs. Recorded Field Data</div>
+              </div>
+              <div class="s3-val-actions">
+                <button class="s3-btn-jump" id="bt-run">RUN BACK-TEST</button>
+                <button class="s3-btn-jump" id="bt-export">EXPORT CSV</button>
+              </div>
+            </div>
+            <div class="s3-strip-grid" id="bt-metrics">
+              <div class="s3-ins"><span class="s3-ins-k">Samples</span><span class="s3-ins-v" id="bt-n">--</span></div>
+              <div class="s3-ins"><span class="s3-ins-k">MAE (power)</span><span class="s3-ins-v" id="bt-mae">--</span></div>
+              <div class="s3-ins"><span class="s3-ins-k">RMSE (power)</span><span class="s3-ins-v" id="bt-rmse">--</span></div>
+              <div class="s3-ins"><span class="s3-ins-k">MAPE</span><span class="s3-ins-v" id="bt-mape">--</span></div>
+              <div class="s3-ins"><span class="s3-ins-k">Bias</span><span class="s3-ins-v" id="bt-bias">--</span></div>
+              <div class="s3-ins"><span class="s3-ins-k">MAE (current)</span><span class="s3-ins-v" id="bt-maei">--</span></div>
+              <div class="s3-ins"><span class="s3-ins-k">Within ±2%</span><span class="s3-ins-v" id="bt-cov">--</span></div>
+              <div class="s3-ins"><span class="s3-ins-k">Verdict</span><span class="s3-ins-v" id="bt-verdict">not run</span></div>
+            </div>
+            <div class="chart-wrap"><canvas id="chart-backtest"></canvas></div>
+
+            <div class="s3-resid" id="s3-resid">
+              <div class="s3-strip-hdr" style="margin-bottom:8px">
+                <span class="sim3-eyebrow">Live Residual Monitor — twin vs. physical panel</span>
+                <span class="s3-resid-pill" id="res-status">NO LIVE DATA</span>
+              </div>
+              <div class="s3-strip-grid">
+                <div class="s3-ins"><span class="s3-ins-k">Measured (live)</span><span class="s3-ins-v" id="res-meas">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Twin prediction</span><span class="s3-ins-v" id="res-pred">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Residual</span><span class="s3-ins-v" id="res-delta">--</span></div>
+                <div class="s3-ins"><span class="s3-ins-k">Residual (EWMA)</span><span class="s3-ins-v" id="res-ewma">--</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="sim3-charts three">
+            <div class="sim3-chart-card">
+              <div class="sim3-chart-hdr">
+                <div>
+                  <div class="sim3-eyebrow">Thermal Model (1st-Order RC)</div>
+                  <div class="sim3-chart-title">Junction Temperature vs. Time</div>
+                </div>
+                <span class="chart-badge-pill" id="sim-time-badge">t = 0 s</span>
+              </div>
+              <div class="chart-wrap"><canvas id="chart-temp"></canvas></div>
+            </div>
+            <div class="sim3-chart-card">
+              <div class="sim3-chart-hdr">
+                <div>
+                  <div class="sim3-eyebrow">Electrical Load</div>
+                  <div class="sim3-chart-title">Active Power &amp; Voltage</div>
+                </div>
+                <span class="chart-badge-pill">W / V</span>
+              </div>
+              <div class="chart-wrap"><canvas id="chart-power-volt"></canvas></div>
+            </div>
+            <div class="sim3-chart-card">
+              <div class="sim3-chart-hdr">
+                <div>
+                  <div class="sim3-eyebrow">Degradation (IES TM-21)</div>
+                  <div class="sim3-chart-title">Panel Health &amp; Lumen Maintenance</div>
+                </div>
+                <span class="chart-badge-pill" id="cmp-badge">%</span>
+              </div>
+              <div class="chart-wrap"><canvas id="chart-health"></canvas></div>
+            </div>
+          </div>
+
+          <!-- ALARM & EVENT LIST (ISA-101 style: severity, state, acknowledge) -->
+          <div class="sim3-log-card">
+            <div class="sim3-log-hdr" id="log-hdr-toggle" style="cursor:pointer">
+              <div style="display:flex;align-items:center;gap:8px">
+                <svg id="log-toggle-icon" width="11" height="11" viewBox="0 0 12 12" fill="none" style="transition:transform .2s;color:var(--text-muted)"><path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div>
+                  <div class="sim3-eyebrow">Simulation</div>
+                  <div class="sim3-chart-title">Alarms &amp; Events</div>
+                </div>
+                <span class="s3-alm-counts" id="alm-counts">
+                  <span class="s3-alm-c crit" id="alm-n-crit" title="Unacknowledged critical">0</span>
+                  <span class="s3-alm-c warn" id="alm-n-warn" title="Unacknowledged warning">0</span>
+                </span>
+              </div>
+              <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+                <select id="alm-filter" class="cam-select-sm">
+                  <option value="all">All</option>
+                  <option value="unack">Unacknowledged</option>
+                  <option value="crit">Critical</option>
+                  <option value="warn">Warning</option>
+                </select>
+                <button class="s3-log-clear" id="alm-ack-all">ACK ALL</button>
+                <button class="s3-log-clear" id="log-clear-btn">CLEAR</button>
+              </div>
+            </div>
+            <div class="alarm-table-hdr">
+              <span>Time</span><span>Sev</span><span>Source</span><span>Description</span><span>State</span>
+            </div>
+            <div class="log-body" id="sim-log"></div>
+          </div>
+
+          <!-- RUN TOOLBAR: export + scenario comparison -->
+          <div class="s3-toolbar">
+            <div class="s3-toolbar-group">
+              <span class="sim3-eyebrow">Run Data</span>
+              <button class="s3-btn-jump" id="exp-csv">EXPORT RUN CSV</button>
+              <button class="s3-btn-jump" id="exp-lamps">EXPORT LAMP TABLE</button>
+              <button class="s3-btn-jump" id="exp-report">SUMMARY REPORT</button>
+            </div>
+            <div class="s3-toolbar-group">
+              <span class="sim3-eyebrow">Comparison</span>
+              <button class="s3-btn-jump" id="cmp-store">STORE AS BASELINE</button>
+              <button class="s3-btn-jump" id="cmp-clear">CLEAR BASELINE</button>
+              <span class="s3-note" id="cmp-note">No baseline stored</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB 4 : ABOUT -->
+      <section id="tab-about" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-about">
+        <div class="about-layout">
+          <div class="about-hero">
+            <div class="about-logo-ring">
+              <img src="psau-logo.png" alt="PSAU Logo" class="about-logo" />
+            </div>
+            <div class="about-hero-body">
+              <div class="eyebrow">Digital Twin Research Project</div>
+              <h1 class="about-title">NB2 Lamps Panel — Digital Twin</h1>
+              <p class="about-subtitle">An industrial real-time virtual replica of a residential LED lighting
+                distribution panel, integrating live IoT telemetry, interactive 3D visualization, and thermal-electrical
+                physics simulation.</p>
+              <div class="about-chips">
+                <span class="meta-chip">Prince Sattam bin Abdulaziz University</span>
+                <span class="meta-chip">College of Engineering</span>
+                <span class="meta-chip">Electrical Engineering Dept.</span>
+              </div>
+            </div>
+          </div>
+          <div class="about-grid">
+            <div class="about-card">
+              <div class="about-card-icon-ind">DT</div>
+              <h3 class="about-card-title">What Is a Digital Twin?</h3>
+              <p>A <strong>Digital Twin</strong> is a dynamic, software-based virtual mirror of a physical asset or
+                industrial process. Unlike a static 3D model or offline simulation, a true digital twin is continuously
+                synchronized with its real-world counterpart through live IoT telemetry and sensor feeds.</p>
+              <p style="margin-top: 10px;">By fusing real-time empirical measurements with predictive mathematical
+                physics models, digital twins enable active real-time diagnostics, performance degradation forecasting,
+                and remote monitoring without disrupting ongoing operations.</p>
+            </div>
+            <div class="about-card">
+              <div class="about-card-icon-ind">SO</div>
+              <h3 class="about-card-title">System Overview</h3>
+              <p>Continuously synchronized with the physical NB2 Lamps Panel via real-time IoT sensors at sub-second
+                latency. The system monitors a residential-grade electrical distribution board feeding <strong>40 LED
+                  luminaires</strong> rated <strong>11 W</strong> each (440 W nameplate), drawing a measured
+                <strong>402 W</strong> at a measured 229.7 V AC supply.</p>
+            </div>
+            <div class="about-card">
+              <div class="about-card-icon-ind">UI</div>
+              <h3 class="about-card-title">University Information</h3>
+              <p>This industrial digital twin research platform was designed and developed at <strong>Prince Sattam bin
+                  Abdulaziz University (PSAU)</strong> as part of applied research in advanced power systems, IoT
+                telemetry, and smart grid automation.</p>
+              <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                <div class="about-info-box">
+                  <span class="about-info-label">Institution</span>
+                  <span class="about-info-val">Prince Sattam bin Abdulaziz University</span>
+                </div>
+                <div class="about-info-box">
+                  <span class="about-info-label">Faculty / College</span>
+                  <span class="about-info-val">College of Engineering</span>
+                </div>
+                <div class="about-info-box">
+                  <span class="about-info-label">Department</span>
+                  <span class="about-info-val">Electrical Engineering Dept.</span>
+                  <span class="about-info-label">Supervised by</span>
+                  <span class="about-info-val">Dr.Malek Alduhaimi</span>
+                  <span class="about-info-label">Prepared by</span>
+                  <span class="about-info-val">Jehad Majed</span>
+                </div>
+              </div>
+            </div>
+            <div class="about-card wide-card">
+              <div class="about-card-icon-ind">SP</div>
+              <h3 class="about-card-title">Core Specifications</h3>
+              <div class="spec-table-grid">
+                <div class="spec-th">Parameter</div>
+                <div class="spec-th">Value</div>
+                <div class="spec-td">Lamp</div>
+                <div class="spec-td">Philips Essential LEDbulb 11 W E27 4000 K (929002299709) &mdash; datasheet</div>
+                <div class="spec-td">Load Count</div>
+                <div class="spec-td">40 lamps (8 columns &times; 5 rows)</div>
+                <div class="spec-td">Nameplate Power</div>
+                <div class="spec-td">440 W (40 &times; 11 W) &mdash; datasheet</div>
+                <div class="spec-td">Measured Power</div>
+                <div class="spec-td">402 W (10.05 W per lamp) &mdash; measured</div>
+                <div class="spec-td">Supply Voltage</div>
+                <div class="spec-td">229.7 V measured; rated window 220&ndash;240 V</div>
+                <div class="spec-td">Operating Current</div>
+                <div class="spec-td">2.93 A at PF 0.597 &mdash; measured</div>
+                <div class="spec-td">Luminous Flux / Efficacy</div>
+                <div class="spec-td">1,200 lm at 109 lm/W &mdash; datasheet</div>
+                <div class="spec-td">Rated Life (L70)</div>
+                <div class="spec-td">12,000 h to 70&#37; lumen maintenance &mdash; datasheet</div>
+                <div class="spec-td">Max T-case / Ambient</div>
+                <div class="spec-td">95 &deg;C / &minus;20 to +45 &deg;C &mdash; datasheet</div>
+                <div class="spec-td">Thermal Resistance (R_th)</div>
+                <div class="spec-td">5.5 &deg;C/W &mdash; modelled (no thermal sensor fitted)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
