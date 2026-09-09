@@ -8,7 +8,7 @@
 |---|---|
 | Dr. Mohammed Alqahtani | Faculty member |
 | Dr. Ibrahim Marabet | Faculty member |
-| Dr. Malik Aldhaimi | Faculty member |
+| Dr. Malik Alduhaymi | Faculty member |
 
 ## Students & Researchers
 
