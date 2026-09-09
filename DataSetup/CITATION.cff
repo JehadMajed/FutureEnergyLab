@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "Data Setup — Appliance-Level Power Data Acquisition Toolkit"
+message: "If you use this toolkit, please cite it."
+type: software
+authors:
+  - given-names: Jehad
+    family-names: Majed
+version: 1.0.0
+date-released: 2026-09-09
+license: MIT

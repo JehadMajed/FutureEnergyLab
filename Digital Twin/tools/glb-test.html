@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GLB per-lamp test</title>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+  <style>
+    body { margin: 0; font: 13px system-ui; background: #eef2f6; }
+    .row { display: flex; gap: 8px; padding: 8px; }
+    .col { flex: 1; background: #fff; border: 1px solid #ccd; border-radius: 8px; overflow: hidden; }
+    h3 { margin: 0; padding: 6px 10px; background: #f6f8fa; border-bottom: 1px solid #e3e8ee; font-size: 12px; }
+    model-viewer { width: 100%; height: 420px; background: #dfe6ec; }
+    #out { padding: 10px; font-family: ui-monospace, monospace; white-space: pre-wrap; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="row">
+    <div class="col">
+      <h3>ORIGINAL — Panel_original.glb (32 bulbs, 1 shared material)</h3>
+      <model-viewer id="mv-old" src="/Panel_original.glb" camera-controls exposure="0.9"
+        camera-orbit="0deg 74deg 6.4m" field-of-view="20deg"></model-viewer>
+    </div>
+    <div class="col">
+      <h3>REBUILT — Panel.glb (40 bulbs, 40 materials)</h3>
+      <model-viewer id="mv-new" src="/Panel.glb" camera-controls exposure="0.9"
+        camera-orbit="0deg 74deg 6.4m" field-of-view="20deg"></model-viewer>
+    </div>
+  </div>
+  <div id="out">loading…</div>
+
+  <script>
+    const out = document.getElementById('out');
+    const log = s => { out.textContent += s + '\n'; };
+
+    function ready(el) {
+      return new Promise(res => { if (el.model) return res(); el.addEventListener('load', () => res(), { once: true }); });
+    }
+
+    (async () => {
+      out.textContent = '';
+      const oldMv = document.getElementById('mv-old');
+      const newMv = document.getElementById('mv-new');
+      await Promise.all([ready(oldMv), ready(newMv)]);
+
+      const names = m => m.model.materials.map(x => x.name);
+      log('ORIGINAL materials (' + names(oldMv).length + '): ' + names(oldMv).join(', '));
+      const nn = names(newMv);
+      log('REBUILT  materials (' + nn.length + '): ' + nn.filter(n => !/BULB/.test(n)).join(', ') + ' + ' + nn.filter(n => /BULB/.test(n)).length + ' bulb materials');
+
+      // ACCEPTANCE TEST: light individual lamps in a distinctive pattern
+      const pattern = { 1: [1, 0, 0], 8: [0, 1, 0], 9: [0, 0.4, 1], 16: [1, 0, 1], 17: [1, 0.6, 0], 24: [0, 1, 1], 25: [1, 1, 0], 32: [1, 1, 1] };
+      let hit = 0, miss = [];
+      for (let i = 1; i <= 32; i++) {
+        const target = 'MAT_LAMP_' + String(i).padStart(2, '0') + '_BULB';
+        const mat = newMv.model.materials.find(m => (m.name || '').toUpperCase() === target);
+        if (!mat) { miss.push(i); continue; }
+        hit++;
+        const c = pattern[i];
+        if (c) {
+          mat.pbrMetallicRoughness.setBaseColorFactor([...c, 1]);
+          mat.setEmissiveFactor(c.map(v => v * 0.9));
+        } else {
+          mat.pbrMetallicRoughness.setBaseColorFactor([0.10, 0.10, 0.12, 1]);
+          mat.setEmissiveFactor([0, 0, 0]);
+        }
+      }
+      log('');
+      log('per-lamp materials resolved: ' + hit + ' / 32' + (miss.length ? '  MISSING: ' + miss.join(',') : ''));
+      log('lit corners+edges in distinct colours; all others forced dark.');
+      log('If the render shows 8 individually coloured bulbs and 24 dark ones, per-lamp control WORKS.');
+      window.__testDone = { hit, miss, oldCount: names(oldMv).length, newCount: nn.length };
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Local config with secrets
+software/extractor/config.yaml
+*.token
+
+# Collected data (keep examples/ only)
+data/raw/
+data/output/
+*.parquet
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

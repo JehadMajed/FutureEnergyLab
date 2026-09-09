@@ -1,0 +1,26 @@
+notes 
+جزء من ال arc fault فيه ورقتين علميه
+وحدة المرفقة هنا والثانية المقارنة الي جالس يعملها @⁨عمر أمير⁩ 
+
+ايضا فيه ورقتين سلمت وحدة منهم قبلت:
+Hybrid LSTM-CUSUM Framework for Electricity
+Theft Detection in Residential Smart Grids
+
+
+
+وايضا
+
+Inferring Low-Voltage Distribution Topology from
+Trench Footprints: A Deep Learning Framework
+
+
+
+with Infrared Thermal Validation[08/09, 7:03 pm] مالك الدهيمي: فيعني خلال سنة ٤ اوراق علمية. 
+ايضا نعمل على براءة اختراع متعلقة ب arc fault
+[08/09, 7:03 pm] مالك الدهيمي: وورقة علمية خلال conference[08/09, 7:14 pm] مالك الدهيمي: 1-Metering techonology
+2-MV circuit breakers 
+3- Emerging technologies in Energy sector 
+4- EV technology
+5- cloud x here in PSAU
+[08/09, 7:14 pm] مالك الدهيمي: 1- Data centre can be used by utilising the microgrid 
+2- arc fault for microgrid

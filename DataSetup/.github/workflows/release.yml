@@ -1,0 +1,28 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build source archive
+        run: |
+          set -e
+          ver="${GITHUB_REF_NAME}"
+          git archive --format=zip --prefix="data-setup-${ver}/" -o "data-setup-${ver}.zip" HEAD
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Data Setup ${{ github.ref_name }}"
+          body_path: RELEASE_NOTES_v1.0.0.md
+          files: data-setup-*.zip
