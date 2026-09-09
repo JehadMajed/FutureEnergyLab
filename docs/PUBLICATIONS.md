@@ -7,7 +7,7 @@ Status values: **published**, **accepted**, **submitted**, **in preparation**.
 
 | # | Title | Topic | Status |
 |---|---|---|---|
-| 1 | A Physics-Informed Neural Network Framework for Arc-Fault Detection | Arc-fault detection | manuscript — see [`../Instructor Notes/arc_pinn_manuscript_final.pdf`](../Instructor%20Notes/arc_pinn_manuscript_final.pdf) |
+| 1 | A Physics-Informed Neural Network Framework for Arc-Fault Detection | Arc-fault detection | Submitted |
 | 2 | Comparative study of arc-fault detection methods | Arc-fault detection | in preparation |
 | 3 | Hybrid LSTM–CUSUM Framework for Electricity Theft Detection in Residential Smart Grids | Smart metering / AMI | submitted |
 | 4 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework with Infrared Thermal Validation | Distribution networks | submitted |
