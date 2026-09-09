@@ -10,7 +10,7 @@ Status values: **published**, **accepted**, **submitted**, **in preparation**.
 | 1 | A Physics-Informed Neural Network Framework for Arc-Fault Detection | Arc-fault detection | Submitted |
 | 2 | Comparative study of arc-fault detection methods | Arc-fault detection | in preparation |
 | 3 | Hybrid LSTM–CUSUM Framework for Electricity Theft Detection in Residential Smart Grids | Smart metering / AMI | submitted |
-| 4 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework | Distribution networks | Published |
+| 4 | Time-series analysis of photovoltaic curtailment in radial distribution networks | Distribution networks | Published , [Time-series analysis of photovoltaic curtailment in radial distribution networks]|
 
 ## Conference
 
