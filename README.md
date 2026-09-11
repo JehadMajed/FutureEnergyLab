@@ -92,6 +92,9 @@ Full list with status in [`docs/PUBLICATIONS.md`](docs/PUBLICATIONS.md).
 - Dr. Mohammed Alqahtani
 - Dr. Ibrahim Marabet
 - Dr. Malik Alduhaymi
+- Dr. Sulaiman Al-Mutairi
+- Dr. Ali Al-Jumaa
+- Dr. Osama Al-Jumaa
 
 ### Students & Researchers
 
@@ -123,7 +126,8 @@ Future Energy Lab/
 ├── ArcFault/                  # Arc-fault dataset + Colab analysis notebook
 ├── DataSetup/                 # Appliance-level power data acquisition toolkit
 ├── Digital Twin/             # SCADA digital twin of the NB2 lamps panel
-├── MicroGrid/                # Microgrid load analysis and Phase A sizing
+├── MicroGrid/                # Microgrid load analysis, Phase A sizing, and Simulink model
+├── Energy Management for Swarm of Drones/  # Placeholder — future project
 └── Instructor Notes/         # Reference material and manuscripts
 ```
 
