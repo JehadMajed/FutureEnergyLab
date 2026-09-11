@@ -90,6 +90,41 @@ Two integration paths depending on appliance behaviour (see
 
 See [`docs/01-system-architecture.md`](docs/01-system-architecture.md) for the full breakdown.
 
+## Node-RED automation
+
+**Node-RED** runs as a local workflow engine alongside ESPHome and Home Assistant, subscribing to
+the Home Assistant event bus and turning timing conditions, schedules, and measurement-driven
+events into ordered control actions — entirely local, no cloud dependency.
+
+| Flow type | What it does |
+|---|---|
+| **Binary-device flows** | Direct breaker ON/OFF for single-mode appliances (lamps, kettles, heaters) — the flow toggles the breaker's internal latch, no secondary routing |
+| **Multi-mode-device flows** | Coordinates breaker actuation with multi-channel relay routing to represent internal appliance modes (washing-machine cycles, oven modes): breaker delivers primary power, relay module selects the sub-cycle |
+
+Patterns used: schedule-driven operation (periodic triggers, CSV-based schedules, local-time
+logic), ordered switching sequences (breaker unlock → delayed actuation), and relay-path
+selection for multi-mode devices. Full detail: [`docs/06-automation.md`](docs/06-automation.md).
+
+## Commissioning challenges
+
+Deploying and commissioning the 21 independent DAQ nodes took roughly **6–8 months**. The main
+technical challenge encountered:
+
+> **Breaker over-frequency fault (60 Hz vs 65 Hz).** The CHINT NB2LE breakers exhibited
+> persistent over-frequency alarm trips — the internal protection falsely registered a ~65 Hz
+> network frequency and tripped immediately on the actual 60 Hz mains supply.
+>
+> **Resolution:** using the serial debug tool **SSCOM**, the breakers were interfaced directly
+> via an RS485-to-TTL USB module, and proprietary hex commands were sent to recalibrate the
+> frequency threshold and register mappings in the breaker's internal firmware. These are
+> undocumented, device-specific commands — recalibrating protection thresholds affects safety
+> behaviour, so this should only be attempted with a full understanding of the consequences for
+> the grid and hardware involved.
+
+After recalibration, communication was verified stable (see results below) and the poll interval
+was tuned to 1000 ms to fully eliminate bus collisions. Full detail:
+[`docs/07-commissioning-notes.md`](docs/07-commissioning-notes.md).
+
 ## Sample data
 
 ![Illustrative synthetic power profile](docs/figures/synthetic_sample_power_profile.png)
