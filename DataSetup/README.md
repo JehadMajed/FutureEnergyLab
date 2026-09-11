@@ -13,6 +13,15 @@ several months, with a 100% automated-switching success rate and 0.5–1.0 s com
 
 ---
 
+## Why this exists
+
+A smart meter's value is what it can infer from a single measurement point — but every
+inference model (theft detection, load forecasting, load disaggregation/NILM) has to be
+trained on **per-appliance ground-truth data** first, and that data doesn't exist off the
+shelf. This toolkit exists to produce exactly that: a labelled, time-synchronised,
+per-appliance active-power dataset with known switching events. It is the data foundation
+for the lab's **[Smart Meter](../Smart%20Meter/)** project.
+
 ## Who is this for?
 
 - **Energy / load-signature researchers** who need a ground-truth, per-appliance active-power
