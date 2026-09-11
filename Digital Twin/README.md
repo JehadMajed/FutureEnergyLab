@@ -1,5 +1,7 @@
 <div align="center">
 
+### 🟢 [Live Demo](https://digital-twin-lamps-panel.pages.dev/)
+
 ---
 
 ## 📋 Table of Contents
@@ -13,6 +15,7 @@
 - [Quick Start (Local Dev)](#quick-start-local-dev)
 - [Deployment (Cloudflare Pages)](#deployment-cloudflare-pages)
 - [Environment Variables / Secrets](#environment-variables--secrets)
+- [How It Works: The Decision Loop](#how-it-works-the-decision-loop)
 - [Academic Attribution](#academic-attribution)
 - [Contributing](#contributing)
 
@@ -266,6 +269,29 @@ npx wrangler pages secret put MQTT1_PASS
 > See `SECURITY.md` for responsible disclosure information.
 
 ---
+
+## How It Works: The Decision Loop
+
+A digital twin is not a static 3D picture — it is a software model kept **continuously
+synchronized** with the physical asset through live telemetry, closing a decision loop:
+
+```
+physical state → digital twin → analytics / alarm → operator decision or remote command → physical actuator
+```
+
+The system is built in four layers:
+
+| Layer | Role |
+|---|---|
+| **Physical / IoT** | The physical panel + CHINT NB2 smart breaker (V·I·P·PF) + Home Assistant automation hub |
+| **Real-time channel** | MQTT brokers (primary + failover) — sub-second telemetry up, commands down |
+| **Edge / Cloud** | Cloudflare Pages Functions — broker config, control proxy, history, analytics |
+| **Twin / Presentation** | Live KPIs & charts, 3D model, SCADA alarms, physics simulation, remote control |
+
+Two things worth being precise about:
+- **Continuous synchronization, not a one-off model** — telemetry flows in, commands flow out, in real time.
+- **Physics simulation and what-if scenarios run against the twin, never the real asset** — the Simulation
+  & Scenarios tab is a sandbox for testing aging, dimming, and failure conditions safely.
 
 ## Academic Attribution
 

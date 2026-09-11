@@ -9,6 +9,19 @@ Grid-forming inverter **5.08 kW / 5.40 kVA**.
 EMS policy: proactive non-critical (air-conditioner) shedding when **SOC < 40 %**
 (`PROACTIVE_SHED_SOC` in `sim.py`). Diversity = 1.0, safety margin = 1.0, SOC floor 10 %.
 
+## Result plots
+
+Generated directly by `simulation/sim.py` (`figs/<scenario>/`):
+
+| Base case — PV + battery vs. load | Base case — battery SOC | Worst case (low PV + high load) — battery SOC |
+|---|---|---|
+| ![Base case: PV + battery vs load](figures/base_case_pv_battery_vs_load.png) | ![Base case battery SOC](figures/base_case_battery_soc.png) | ![Worst case battery SOC](figures/worst_case_battery_soc.png) |
+
+The PV+battery/load plot shows the EMS covering the load with PV first, curtailing the midday
+surplus, then drawing on the battery for the evening peak. The base-case SOC never drops below
+37 %; the worst case (low PV + high load together) still clears the 10 % floor at 23 % thanks to
+the proactive air-conditioner shed at SOC < 40 %.
+
 ## How each scenario is set
 
 In `simulation/sizing.py`, only the **operating-scenario** knobs change (the design basis
