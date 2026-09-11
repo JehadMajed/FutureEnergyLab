@@ -9,6 +9,9 @@
 | Dr. Mohammed Alqahtani | Faculty member |
 | Dr. Ibrahim Marabet | Faculty member |
 | Dr. Malik Alduhaymi | Faculty member |
+| Dr. Sulaiman Al-Mutairi | Faculty member |
+| Dr. Ali Al-Jumaa | Faculty member |
+| Dr. Osama Al-Jumaa | Faculty member |
 
 ## Students & Researchers
 
