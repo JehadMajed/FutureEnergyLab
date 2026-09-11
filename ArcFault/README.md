@@ -1,5 +1,10 @@
 ﻿# ⚡ Arc Fault Data Study — Residential Loads Dataset
 
+![Trials](https://img.shields.io/badge/labelled%20trials-258-blue)
+![Devices](https://img.shields.io/badge/AFCI%20models-4%20(A--D)-informational)
+![Sampling](https://img.shields.io/badge/sampling-6.4%20kHz-success)
+![PINN](https://img.shields.io/badge/PINN%20detector-manuscript%20submitted-orange)
+
 > **A curated experimental dataset and analysis notebook for series and parallel arc fault detection on residential electrical loads.**
 
 ---
@@ -16,6 +21,8 @@
 - [Notebook Structure](#notebook-structure)
 - [Signal Description](#signal-description)
 - [Analysis Features](#analysis-features)
+- [Signal Analysis Examples](#signal-analysis-examples)
+- [PINN Detection Framework](#pinn-detection-framework)
 - [Requirements](#requirements)
 - [How to Use](#how-to-use)
 - [Dataset Statistics](#dataset-statistics)
@@ -185,6 +192,57 @@ The **Unified Research Dashboard** (implemented inside the notebook) provides in
 | 🔲 **Waveform View** | Raw current waveform with labeled no-arc and arc segments |
 
 A dropdown widget allows switching between trial numbers interactively.
+
+---
+
+## Signal Analysis Examples
+
+**Time domain** — the arc current visibly departs from the ideal sine wave: flat "shoulders"
+at current zero-crossing (the arc extinguishes and re-ignites) plus conduction collapse:
+
+![Time domain: ideal vs arc current, shoulders annotated](figures/time_domain_shoulders.png)
+
+**Frequency domain** — a clean sinusoid produces one sharp spectral line; the arc adds
+broadband energy and low-order harmonic content:
+
+![FFT: normal vs arc current spectrum](figures/fft_normal_vs_arc.png)
+
+---
+
+## PINN Detection Framework
+
+A **sampling-rate-independent, current-only Physics-Informed Neural Network (PINN)** for
+series arc-fault detection in switching power supplies — manuscript submitted (see
+[docs/PUBLICATIONS.md](../docs/PUBLICATIONS.md)). Rather than assuming an arc equation, the
+nominal (healthy) device dynamics are **discovered from data with SINDy** — a stable linear
+charge-balance contraction map, independently verified — and only then embedded in the
+detector.
+
+![Labelled recording: no-arc, transition, and arc regions](figures/pinn_dataset_labels.png)
+
+### Contribution
+
+- **Current-only, voltage-free detection** — no branch-voltage sensor required.
+- Nominal SMPS dynamics discovered from data with SINDy, independently verified — not an
+  assumed arc equation.
+- A causal period estimator removes all dependence on the sampling rate.
+- The classical Mayr / Cassie arc-plasma equations are shown to be **unidentifiable from
+  current-only data** — documented and rejected as a modelling basis.
+
+![Independent verification of the discovered device dynamics](figures/pinn_dynamics_verification.png)
+
+### Results (one-shot, leave-one-SMPS-model-out test)
+
+- **Average precision 0.9924** with no sampling-rate knowledge (0.9954 with it); **105/105**
+  arc events detected, median detection delay of 0 half-cycles.
+- **0.59 false alarms / 100 cycles** — 3–10× better than the accuracy-leading benchmarks
+  (GBM 2.0–5.6, FFT+LR 4.7–5.4 false alarms/100 cycles).
+- **Rate-robust**: AP 0.984–0.985 after resampling to 4.8 / 3.2 kHz with no rate information;
+  by contrast, a −20% assumed-rate error collapses a rate-*aware* detector to MCC 0.20.
+- Physics helps most when the encoder is weak (+0.05 to +0.07 AP) and is performance-neutral
+  at the accuracy ceiling — reported honestly rather than oversold.
+
+![One-shot outer test and sampling-rate robustness benchmark](figures/pinn_benchmark_results.png)
 
 ---
 

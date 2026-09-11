@@ -1,5 +1,10 @@
 <div align="center">
 
+![Status](https://img.shields.io/badge/status-live-success)
+![Panel](https://img.shields.io/badge/panel-40%20LED%20lamps-blue)
+![Telemetry](https://img.shields.io/badge/telemetry-MQTT%20sub--second-informational)
+![Stack](https://img.shields.io/badge/stack-Cloudflare%20Pages%20%2B%20Functions-orange)
+
 ### 🟢 [Live Demo](https://digital-twin-lamps-panel.pages.dev/)
 
 ---
@@ -56,6 +61,12 @@ Key capabilities:
 ---
 
 ## Features
+
+> **Live-verified:** all four tabs were checked against the running deployment while writing
+> this page — live KPI cards and streaming charts (Tab 1), a live optical feed of the physical
+> panel plus working Unlock/Open/Close commands (Tab 2), the interactive lamp-array simulation
+> with scenario cards and fault injection (Tab 3), and the About page (Tab 4) all render real,
+> current data from the deployment, not placeholders.
 
 ### 📊 Tab 1 — Data Overview
 
