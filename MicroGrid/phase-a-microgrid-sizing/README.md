@@ -20,10 +20,12 @@
 ![Energy balance](https://img.shields.io/badge/24h%20energy%20balance-closed-success)
 ![Model](https://img.shields.io/badge/model-energy%2Fpower%20balance-informational)
 
-Single-phase **230 V / 60 Hz** laboratory microgrid, **fully islanded (off-grid) for a continuous 24-hour cycle**.
-This repository contains the preliminary electrical sizing of the main components (PV array, PV/hybrid inverter,
-battery energy storage, grid-forming inverter, AC/DC cables, and supporting equipment) with **fully traceable
-calculations**.
+A scaled-down, low-voltage-side laboratory version of the **NEOM City microgrid concept**, sized for the
+Phase A loads only. Single-phase **230 V / 60 Hz** laboratory microgrid, **fully islanded (off-grid) for a
+continuous 24-hour cycle**. This repository contains the preliminary electrical sizing of the main components
+(PV array, PV/hybrid inverter, battery energy storage, grid-forming inverter, AC/DC cables, and supporting
+equipment) with **fully traceable calculations**, verified by a runnable energy/power-balance simulation
+across four operating cases (see `results/scenario_comparison.md` for the result plots).
 
 ## Ground-truth data source
 
@@ -130,3 +132,15 @@ conditioner is an **inverter (soft-start)** unit per its nameplate, so the inver
 
 Every rating follows the chain: **what → why → data used → assumption → equation → calculation → implication.**
 Start at `sizing/load_sizing.md`, then PV → battery → inverter → cables → components, then `results/`.
+
+## Broader application: data-centre resilience
+
+The same energy/power-balance model can be pointed at data-centre-style continuity questions — peak-load
+management, backup-power coordination, and renewable-integration scenarios — using this lab microgrid as a
+scaled testbed to validate approaches before any wider implementation. **Current status: concept and
+simulation only** — no data-centre partner, deployment, or approval exists yet; this is a research direction,
+not a running system.
+
+## Google Colab notebook
+
+A Google Colab version of this sizing/simulation workflow is planned and will be linked here once published.

@@ -58,14 +58,16 @@ See [`docs/RESEARCH.md`](docs/RESEARCH.md) for more detail.
 
 | Project | Description | Location |
 |---|---|---|
-| **Microgrid — Phase A Sizing** | Preliminary electrical sizing of an islanded single-phase 230 V / 60 Hz laboratory microgrid (PV, battery, inverter, cables) with fully traceable calculations and 24-hour energy-balance simulation. | [`MicroGrid/`](MicroGrid/) |
+| **Microgrid — Phase A Sizing** | Preliminary electrical sizing of an islanded single-phase 230 V / 60 Hz laboratory microgrid (PV, battery, inverter, cables) — a scaled-down version of the NEOM City microgrid concept — with fully traceable calculations and 24-hour energy-balance simulation across 4 operating cases. | [`MicroGrid/`](MicroGrid/) |
 | **Microgrid Load Analysis** | Load inventory, daily-energy calculation, phase-balance analysis, and component sizing for the PSAU laboratory microgrid, including assessment of the existing SonnenBatterie eco 8.0. | [`MicroGrid/Microgrid_Load_Analysis_and_Sizing.md`](MicroGrid/Microgrid_Load_Analysis_and_Sizing.md) |
 | **Arc Fault Data Study** | Curated experimental dataset and Google Colab analysis notebook for series and parallel arc-fault detection on residential loads (258 labeled trials, 4 AFCI models, 6.4 kHz sampling). | [`ArcFault/`](ArcFault/) |
-| **Appliance-Level Data Acquisition (Data Setup)** | Open, reproducible edge-computing rig for isolating, switching, and continuously logging per-appliance active-power signatures (ESP32-S3 + smart breaker + Home Assistant + Python pipeline). Reference deployment: 21 appliances, several months. | [`DataSetup/`](DataSetup/) |
-| **Digital Twin — NB2 Lamps Panel** | Full-stack cloud digital twin of a physical 40-lamp lighting distribution panel: sub-second MQTT telemetry, remote control, interactive 3D model, thermal-electrical simulation, and SCADA-style analytics. | [`Digital Twin/`](Digital%20Twin/) |
+| **Appliance-Level Data Acquisition (Data Setup)** | Open, reproducible edge-computing rig for isolating, switching, and continuously logging per-appliance active-power signatures (ESP32-S3 + smart breaker + Home Assistant + Python pipeline). Reference deployment: 21 appliances, several months. Data foundation for the Smart Meter project. | [`DataSetup/`](DataSetup/) |
+| **Digital Twin — NB2 Lamps Panel** | Full-stack cloud digital twin of a physical 40-lamp lighting distribution panel: sub-second MQTT telemetry, remote control, interactive 3D model, thermal-electrical simulation, and SCADA-style analytics. **[Live Demo](https://digital-twin-lamps-panel.pages.dev/)**. | [`Digital Twin/`](Digital%20Twin/) |
+| **Smart Meter — Next-Generation** | Theft detection, load forecasting, and NILM disaggregation trained on the Data Setup dataset, moving toward a fabricated smart meter; planned field pilot with Saudi Electricity (SEC) and CHINT. | [`Smart Meter/`](Smart%20Meter/) |
+| **LV Distribution Topology Inference** | Inferring low-voltage distribution topology from trench footprints with a deep-learning framework, validated with infrared thermal imaging. | [`Topology/`](Topology/) |
 
-> The **Microgrid Google Colab notebook** and additional research code/models will be added
-> to this repository as they are cleared for public release.
+> Additional research code/models will be added to this repository as they are cleared for
+> public release.
 
 ---
 
@@ -127,6 +129,8 @@ Future Energy Lab/
 ├── DataSetup/                 # Appliance-level power data acquisition toolkit
 ├── Digital Twin/             # SCADA digital twin of the NB2 lamps panel
 ├── MicroGrid/                # Microgrid load analysis, Phase A sizing, and Simulink model
+├── Smart Meter/               # Next-generation smart meter (theft/forecasting/NILM)
+├── Topology/                  # LV distribution topology inference research
 ├── Energy Management for Swarm of Drones/  # Placeholder — future project
 └── Instructor Notes/         # Reference material and manuscripts
 ```
