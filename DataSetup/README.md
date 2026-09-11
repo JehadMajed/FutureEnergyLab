@@ -24,8 +24,11 @@ A smart meter's value is what it can infer from a single measurement point — b
 inference model (theft detection, load forecasting, load disaggregation/NILM) has to be
 trained on **per-appliance ground-truth data** first, and that data doesn't exist off the
 shelf. This toolkit exists to produce exactly that: a labelled, time-synchronised,
-per-appliance active-power dataset with known switching events. It is the data foundation
-for the lab's **[Smart Meter](../Smart%20Meter/)** project.
+per-appliance active-power dataset with known switching events. It shares its core hardware
+approach (ESP32 + CHINT smart breaker) with the lab's **[Smart Meter](../Smart%20Meter/)**
+project (Intelli-Meter) and is expected to converge with it as both mature — see
+[Smart Meter's "Relationship to Data Setup"](../Smart%20Meter/README.md#relationship-to-data-setup)
+for the current state.
 
 ## Who is this for?
 
