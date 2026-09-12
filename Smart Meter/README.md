@@ -123,11 +123,20 @@ Three views, all built on the same backend:
 |---|---|---|
 | ![Dashboard disaggregation view](figures/dashboard_disaggregation.png) | ![Dashboard forecasting view](figures/dashboard_forecasting.png) | ![Dashboard health & theft view](figures/dashboard_health_theft.png) |
 
-## Google Colab notebook
+## Google Colab Notebook
 
 [Intelli-Meter.ipynb on Google Colab](https://colab.research.google.com/drive/1G199XtU2leIWHnVgL8FWiT7J4jNfE0ZU)
+(hosted on Google Drive — if the link asks for access, request it from the project owner).
 
-> Hosted on Google Drive — if the link asks for access, request it from the project owner.
+A **read-only PDF export** of the notebook (code + all outputs, as of the last run) is included
+directly in this repo: [`Intelli-Meter_Colab_notebook.pdf`](Intelli-Meter_Colab_notebook.pdf).
+
+## Project Files
+
+- [`Intelli-Meter_2.0.pptx`](Intelli-Meter_2.0.pptx) — the project presentation deck this page's
+  content and figures are sourced from.
+- [`Intelli-Meter_Colab_notebook.pdf`](Intelli-Meter_Colab_notebook.pdf) — PDF export of the
+  Colab notebook (see above for the live, editable version).
 
 ## Relationship to Data Setup
 
