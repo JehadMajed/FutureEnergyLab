@@ -91,7 +91,7 @@ SCADA-style analytics. **[Try the live demo →](https://digital-twin-lamps-pane
 
 Virtual-prototype next-generation smart meter: FHMM load disaggregation, LSTM load
 forecasting, and hybrid CUSUM+LSTM theft detection, plus a real ESP32/CHINT hardware node
-(currently in data-recording mode). A field pilot with Saudi Electricity (SEC) and CHINT is
+(currently in data-recording mode). A field pilot with Saudi Electricity (SE) and CHINT is
 planned but not yet formalized.
 
 ### 🗺️ LV Distribution Topology — [`Topology/`](Topology/) · `Research`
