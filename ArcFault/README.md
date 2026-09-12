@@ -4,6 +4,7 @@
 ![Devices](https://img.shields.io/badge/AFCI%20models-4%20(A--D)-informational)
 ![Sampling](https://img.shields.io/badge/sampling-6.4%20kHz-success)
 ![PINN](https://img.shields.io/badge/PINN%20detector-manuscript%20submitted-orange)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/JehadMajed/FutureEnergyLab/blob/main/ArcFault/Arc_Fault_Data_Study.ipynb)
 
 > **A curated experimental dataset and analysis notebook for series and parallel arc fault detection on residential electrical loads.**
 
