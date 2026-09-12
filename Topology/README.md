@@ -4,6 +4,7 @@
 ![Conference status](https://img.shields.io/badge/IEEE%20conference-published-success)
 ![Model](https://img.shields.io/badge/model-YOLO11--seg-blue)
 ![Task](https://img.shields.io/badge/task-instance%20segmentation-orange)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/JehadMajed/FutureEnergyLab/blob/main/Topology/trench_footprint_segmentation.ipynb)
 
 Research on inferring **low-voltage (LV) distribution network topology** — part of the lab's
 broader work on management and operation of distribution networks: topology inference, state
