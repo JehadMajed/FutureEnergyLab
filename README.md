@@ -56,54 +56,20 @@ See [`docs/RESEARCH.md`](docs/RESEARCH.md) for more detail.
 
 ## Current Projects & Code
 
-Each project below is a self-contained folder with its own `README.md`, code, and data.
-**Status** shows how far along it is — `Live` and `Validated` are running today; `Prototype`
-and `Research` are working but not field-deployed; `Placeholder` has no content yet.
+**Status** shows how far along a project is — Live and Validated are running today; Prototype
+and Research are working but not field-deployed; Placeholder has no content yet.
 
-### ⚡ Arc Fault Detection — [`ArcFault/`](ArcFault/) · `Research`
+| Project                                       | Status                 | Description                                                                                                                                                                                                  | Location                                                                                     |
+| --------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| Arc Fault Detection                           | Research               | 258 labelled trials, 4 AFCI models, 6.4 kHz sampling, signal-analysis notebook; submitted PINN detection framework.                                                                                          | [`ArcFault/`](ArcFault/)                                                                     |
+| Appliance-Level Data Acquisition (Data Setup) | Validated              | ESP32 + CHINT-breaker DAQ rig. Reference deployment: 21 appliances, several months, 100% automation success rate.                                                                                            | [`DataSetup/`](DataSetup/)                                                                   |
+| Microgrid                                     | Validated (simulation) | Islanded 230 V / 60 Hz Phase A sizing verified by a 24-hour energy-balance simulation, plus a separate [load analysis](MicroGrid/Microgrid_Load_Analysis_and_Sizing.md) of the lab's SonnenBatterie eco 8.0. | [`MicroGrid/`](MicroGrid/)                                                                   |
+| Digital Twin — NB2 Lamps Panel                | Live                   | Cloud digital twin of a 40-lamp panel: MQTT telemetry, remote control, 3D model, SCADA alarms. [Live demo](https://digital-twin-lamps-panel.pages.dev/).                                                     | [`Digital Twin/`](Digital%20Twin/)                                                           |
+| Smart Meter — Intelli-Meter                   | Prototype              | FHMM load disaggregation, LSTM forecasting, hybrid CUSUM+LSTM theft detection, plus an ESP32/CHINT hardware node. Field pilot with Saudi Electricity (SE) and CHINT planned.                                 | [`Smart Meter/`](Smart%20Meter/)                                                             |
+| LV Distribution Topology                      | Research               | YOLO11-seg model detecting trench footprints for LV cable-route inference; backs an accepted journal paper and a published IEEE conference paper.                                                            | [`Topology/`](Topology/)                                                                     |
+| Energy Management for Swarm of Drones         | Placeholder            | Reserved for an upcoming project — no content yet.                                                                                                                                                           | [`Energy Management for Swarm of Drones/`](Energy%20Management%20for%20Swarm%20of%20Drones/) |
 
-Curated dataset (258 labelled trials, 4 AFCI models, 6.4 kHz sampling) with a signal-analysis
-notebook, plus a submitted physics-informed neural network (PINN) detection framework.
-**[Open the notebook in Colab →](https://colab.research.google.com/github/JehadMajed/FutureEnergyLab/blob/main/ArcFault/Arc_Fault_Data_Study.ipynb)**
-
-### 🔌 Appliance-Level Data Acquisition (Data Setup) — [`DataSetup/`](DataSetup/) · `Validated`
-
-Open, reproducible ESP32 + CHINT-breaker DAQ rig that isolates, switches, and continuously
-logs per-appliance power signatures. Reference deployment: **21 appliances, several months,
-100% automation success rate.** Shares its hardware approach with, and is expected to
-converge with, the Smart Meter project below.
-
-### 🏠 Microgrid — [`MicroGrid/`](MicroGrid/) · `Validated (simulation)`
-
-Preliminary electrical sizing (PV, battery, inverter, cables) for an islanded 230 V / 60 Hz
-lab microgrid — a scaled-down NEOM City microgrid concept — verified by a 24-hour
-energy-balance simulation across 4 operating cases. Also includes a separate
-[load analysis](MicroGrid/Microgrid_Load_Analysis_and_Sizing.md) of the lab's existing
-SonnenBatterie eco 8.0 system.
-
-### 🖥️ Digital Twin — NB2 Lamps Panel — [`Digital Twin/`](Digital%20Twin/) · `Live`
-
-Full-stack cloud digital twin of a physical 40-lamp lighting distribution panel: sub-second
-MQTT telemetry, remote control, interactive 3D model, thermal-electrical simulation, and
-SCADA-style analytics. **[Try the live demo →](https://digital-twin-lamps-panel.pages.dev/)**
-
-### 📟 Smart Meter — Intelli-Meter — [`Smart Meter/`](Smart%20Meter/) · `Prototype`
-
-Virtual-prototype next-generation smart meter: FHMM load disaggregation, LSTM load
-forecasting, and hybrid CUSUM+LSTM theft detection, plus a real ESP32/CHINT hardware node
-(currently in data-recording mode). A field pilot with Saudi Electricity (SE) and CHINT is
-planned but not yet formalized.
-
-### 🗺️ LV Distribution Topology — [`Topology/`](Topology/) · `Research`
-
-YOLO11-seg instance-segmentation model that detects trench footprints (repaired cable-route
-pavement) from street-level photos and video, to help infer real LV cable routing. Backs an
-accepted journal paper and a published IEEE conference paper.
-
-### 🛸 Energy Management for Swarm of Drones — [`Energy Management for Swarm of Drones/`](Energy%20Management%20for%20Swarm%20of%20Drones/) · `Placeholder`
-
-Reserved for an upcoming project on energy management strategies for drone swarms — no
-content yet.
+Arc Fault notebook: [open directly in Colab](https://colab.research.google.com/github/JehadMajed/FutureEnergyLab/blob/main/ArcFault/Arc_Fault_Data_Study.ipynb).
 
 > Additional research code/models will be added to this repository as they are cleared for
 > public release.
