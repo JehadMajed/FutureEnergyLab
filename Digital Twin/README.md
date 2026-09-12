@@ -7,11 +7,14 @@
 
 ### 🟢 [Live Demo](https://digital-twin-lamps-panel.pages.dev/)
 
+</div>
+
 ---
 
 ## 📋 Table of Contents
 
 - [What Is This?](#what-is-this)
+- [How It Works: The Decision Loop](#how-it-works-the-decision-loop)
 - [Live System Specifications](#live-system-specifications)
 - [Features](#features)
 - [System Architecture](#system-architecture)
@@ -20,7 +23,6 @@
 - [Quick Start (Local Dev)](#quick-start-local-dev)
 - [Deployment (Cloudflare Pages)](#deployment-cloudflare-pages)
 - [Environment Variables / Secrets](#environment-variables--secrets)
-- [How It Works: The Decision Loop](#how-it-works-the-decision-loop)
 - [Academic Attribution](#academic-attribution)
 - [Contributing](#contributing)
 
@@ -43,20 +45,45 @@ Key capabilities:
 
 ---
 
+## How It Works: The Decision Loop
+
+A digital twin is not a static 3D picture — it is a software model kept **continuously
+synchronized** with the physical asset through live telemetry, closing a decision loop:
+
+```
+physical state → digital twin → analytics / alarm → operator decision or remote command → physical actuator
+```
+
+The system is built in four layers:
+
+| Layer                   | Role                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| **Physical / IoT**      | The physical panel + CHINT NB2 smart breaker (V·I·P·PF) + Home Assistant hub   |
+| **Real-time channel**   | MQTT brokers (primary + failover) — sub-second telemetry up, commands down     |
+| **Edge / Cloud**        | Cloudflare Pages Functions — broker config, control proxy, history, analytics  |
+| **Twin / Presentation** | Live KPIs & charts, 3D model, SCADA alarms, physics simulation, remote control |
+
+Two things worth being precise about:
+
+- **Continuous synchronization, not a one-off model** — telemetry flows in, commands flow out, in real time.
+- **Physics simulation and what-if scenarios run against the twin, never the real asset** — the Simulation & Scenarios tab is a sandbox for testing aging, dimming, and failure conditions safely.
+
+---
+
 ## Live System Specifications
 
 | Parameter                | Value                                                    |
 | ------------------------ | -------------------------------------------------------- |
 | Lamp Model               | Philips Essential LEDbulb 11 W E27 4000 K (929002299709) |
-| Load Count               | **40 lamps** (8 columns × 5 rows)                 |
-| Nameplate Power          | 440 W (40 × 11 W)                                       |
-| Measured Power           | **402 W** (10.05 W per lamp)                       |
-| Supply Voltage           | 229.7 V measured · 220–240 V rated window              |
-| Operating Current        | 2.93 A at PF 0.597 — measured                           |
-| Luminous Flux / Efficacy | 1,200 lm at 109 lm/W — datasheet                        |
+| Load Count               | **40 lamps** (8 columns × 5 rows)                        |
+| Nameplate Power          | 440 W (40 × 11 W)                                        |
+| Measured Power           | **402 W** (10.05 W per lamp)                             |
+| Supply Voltage           | 229.7 V measured · 220–240 V rated window                |
+| Operating Current        | 2.93 A at PF 0.597 — measured                            |
+| Luminous Flux / Efficacy | 1,200 lm at 109 lm/W — datasheet                         |
 | Rated Life (L70)         | 12,000 h to 70% lumen maintenance                        |
-| Max T-case / Ambient     | 95 °C / −20 to +45 °C                                 |
-| Thermal Resistance Rₜₕ | 5.5 °C/W — modelled                                    |
+| Max T-case / Ambient     | 95 °C / −20 to +45 °C                                    |
+| Thermal Resistance Rₜₕ   | 5.5 °C/W — modelled                                      |
 
 ---
 
@@ -75,7 +102,7 @@ Key capabilities:
 - Historical analytics with date-range picker (energy, efficiency, cost, CO₂, comparison)
 - Panel snapshot: per-circuit breaker status
 
-### Tab 2 — 3D Model & Control
+### 🧊 Tab 2 — 3D Model & Control
 
 - Interactive 3D GLB model of the physical panel (drag, rotate, zoom)
 - Remote control buttons (Unlock / Open / Close) relayed via Cloudflare → Home Assistant
@@ -142,18 +169,18 @@ flowchart TD
 
 ## Tech Stack
 
-| Layer                  | Technology                                                 |
-| ---------------------- | ---------------------------------------------------------- |
-| **Frontend**     | Vanilla HTML5 · CSS3 · JavaScript (ES2022 modules)       |
-| **3D Viewer**    | Google`<model-viewer>` v3.3 · GLB / glTF                |
-| **Charts**       | Chart.js 4.x · chartjs-adapter-date-fns                   |
-| **Real-time**    | MQTT.js v5 over WebSocket Secure (WSS)                     |
-| **Backend**      | Cloudflare Pages Functions (edge workers)                  |
-| **IoT Hardware** | CHINT NB2 Smart Circuit Breaker (built-in metering + WiFi) |
-| **Automation Hub** | Home Assistant (control relay — Open / Close / Unlock) |
-| **MQTT Brokers** | HiveMQ Cloud (primary) · EMQX Cloud (failover)            |
-| **Build Tools**  | Node.js ·`@gltf-transform` · Puppeteer · Wrangler CLI |
-| **Fonts**        | Google Fonts — Inter · JetBrains Mono                    |
+| Layer              | Technology                                                 |
+| ------------------ | ---------------------------------------------------------- |
+| **Frontend**       | Vanilla HTML5 · CSS3 · JavaScript (ES2022 modules)         |
+| **3D Viewer**      | Google `<model-viewer>` v3.3 · GLB / glTF                  |
+| **Charts**         | Chart.js 4.x · chartjs-adapter-date-fns                    |
+| **Real-time**      | MQTT.js v5 over WebSocket Secure (WSS)                     |
+| **Backend**        | Cloudflare Pages Functions (edge workers)                  |
+| **IoT Hardware**   | CHINT NB2 Smart Circuit Breaker (built-in metering + WiFi) |
+| **Automation Hub** | Home Assistant (control relay — Open / Close / Unlock)     |
+| **MQTT Brokers**   | HiveMQ Cloud (primary) · EMQX Cloud (failover)             |
+| **Build Tools**    | Node.js · `@gltf-transform` · Puppeteer · Wrangler CLI     |
+| **Fonts**          | Google Fonts — Inter · JetBrains Mono                      |
 
 ---
 
@@ -161,37 +188,37 @@ flowchart TD
 
 ```
 .
-├── index.html              # Single-page app shell (4 tabs)
-├── style.css               # All styles — dark SCADA theme
-├── script.js               # All client logic — MQTT, charts, simulation, 3D
-├── Panel.glb               # Optimized 3D model of the physical panel
-├── psau-logo.png           # University logo
-├── wrangler.toml           # Cloudflare Pages config (no secrets)
-├── package.json            # Node scripts + dependencies
-├── soak_test.js            # Load / soak testing script
-├── history.json            # Sample historical telemetry dataset
-├── real_analytics.json     # Sample verified analytics dataset
-├── .dev.vars.example       # Template for local dev secrets
+├── index.html                 # Single-page app shell (4 tabs)
+├── style.css                  # All styles — dark SCADA theme
+├── script.js                  # All client logic — MQTT, charts, simulation, 3D
+├── Panel.glb                  # Optimized 3D model of the physical panel
+├── psau-logo.png              # University logo
+├── wrangler.toml              # Cloudflare Pages config (no secrets)
+├── package.json               # Node scripts + dependencies
+├── soak_test.js               # Load / soak testing script
+├── history.json               # Sample historical telemetry dataset
+├── real_analytics.json        # Sample verified analytics dataset
+├── .dev.vars.example          # Template for local dev secrets
 │
 ├── functions/
 │   └── api/
-│       ├── control.js      # POST /api/control → Home Assistant button press
-│       ├── data.js         # GET  /api/data    → Live telemetry
-│       ├── history.js      # GET  /api/history  → Historical data
-│       ├── mqtt-config.js  # GET  /api/mqtt-config → Broker credentials (safe)
-│       └── real_analytics.js # GET /api/real_analytics
+│       ├── control.js         # POST /api/control      → Home Assistant button press
+│       ├── data.js            # GET  /api/data          → Live telemetry
+│       ├── history.js         # GET  /api/history       → Historical data
+│       ├── mqtt-config.js     # GET  /api/mqtt-config   → Broker credentials (safe)
+│       └── real_analytics.js  # GET  /api/real_analytics
 │
 ├── tools/
-│   ├── build-dist.cjs      # Assembles the dist/ folder for deployment
-│   ├── rebuild-panel.cjs   # Optimizes and re-bakes the GLB model
-│   ├── static-server.cjs   # Minimal local HTTP server
-│   ├── sim-tests.js        # Simulation unit tests
+│   ├── build-dist.cjs         # Assembles the dist/ folder for deployment
+│   ├── rebuild-panel.cjs      # Optimizes and re-bakes the GLB model
+│   ├── static-server.cjs      # Minimal local HTTP server
+│   ├── sim-tests.js           # Simulation unit tests
 │   └── ...
 │
 ├── docs/
-│   ├── architecture.md     # Detailed system architecture
-│   ├── deployment.md       # Step-by-step Cloudflare deployment guide
-│   └── contributing.md     # Contribution guidelines
+│   ├── architecture.md        # Detailed system architecture
+│   ├── deployment.md          # Step-by-step Cloudflare deployment guide
+│   └── contributing.md        # Contribution guidelines
 │
 └── .github/
     ├── ISSUE_TEMPLATE/
@@ -261,19 +288,19 @@ npx wrangler pages secret put MQTT1_PASS
 
 ## Environment Variables / Secrets
 
-| Secret Name                        | Required | Description                                        |
-| ---------------------------------- | -------- | -------------------------------------------------- |
-| `HA_BASE`                        | ✅       | Home Assistant URL (e.g. Nabu Casa cloud URL)      |
-| `HA_TOKEN`                       | ✅       | Long-lived access token from HA Profile page       |
-| `MQTT_TOPIC`                     | ✅       | Shared telemetry MQTT topic                        |
-| `MQTT1_HOST`                     | ✅       | Primary MQTT broker hostname                       |
-| `MQTT1_PORT`                     | ✅       | Primary broker WSS port (e.g.`8884`)             |
-| `MQTT1_USER`                     | ✅       | Primary broker username                            |
-| `MQTT1_PASS`                     | ✅       | Primary broker password                            |
-| `MQTT1_NAME`                     | ⬜       | Display name for the broker in the UI              |
-| `MQTT2_HOST/PORT/USER/PASS/NAME` | ⬜       | Failover broker (optional)                         |
-| `MQTT3_HOST/PORT/USER/PASS/NAME` | ⬜       | Tertiary broker (optional)                         |
-| `REQUIRE_ACCESS`                 | ⬜       | Set to`"true"` to enforce Cloudflare Access auth |
+| Secret Name                      | Required | Description                                       |
+| -------------------------------- | :------: | ------------------------------------------------- |
+| `HA_BASE`                        | ✅        | Home Assistant URL (e.g. Nabu Casa cloud URL)     |
+| `HA_TOKEN`                       | ✅        | Long-lived access token from HA Profile page      |
+| `MQTT_TOPIC`                     | ✅        | Shared telemetry MQTT topic                       |
+| `MQTT1_HOST`                     | ✅        | Primary MQTT broker hostname                      |
+| `MQTT1_PORT`                     | ✅        | Primary broker WSS port (e.g. `8884`)             |
+| `MQTT1_USER`                     | ✅        | Primary broker username                           |
+| `MQTT1_PASS`                     | ✅        | Primary broker password                           |
+| `MQTT1_NAME`                     | ⬜        | Display name for the broker in the UI             |
+| `MQTT2_HOST/PORT/USER/PASS/NAME` | ⬜        | Failover broker (optional)                        |
+| `MQTT3_HOST/PORT/USER/PASS/NAME` | ⬜        | Tertiary broker (optional)                        |
+| `REQUIRE_ACCESS`                 | ⬜        | Set to `"true"` to enforce Cloudflare Access auth |
 
 > [!CAUTION]
 > **Never hardcode these values in source code.** Set them as Cloudflare secrets only.
@@ -281,33 +308,10 @@ npx wrangler pages secret put MQTT1_PASS
 
 ---
 
-## How It Works: The Decision Loop
-
-A digital twin is not a static 3D picture — it is a software model kept **continuously
-synchronized** with the physical asset through live telemetry, closing a decision loop:
-
-```
-physical state → digital twin → analytics / alarm → operator decision or remote command → physical actuator
-```
-
-The system is built in four layers:
-
-| Layer | Role |
-|---|---|
-| **Physical / IoT** | The physical panel + CHINT NB2 smart breaker (V·I·P·PF) + Home Assistant automation hub |
-| **Real-time channel** | MQTT brokers (primary + failover) — sub-second telemetry up, commands down |
-| **Edge / Cloud** | Cloudflare Pages Functions — broker config, control proxy, history, analytics |
-| **Twin / Presentation** | Live KPIs & charts, 3D model, SCADA alarms, physics simulation, remote control |
-
-Two things worth being precise about:
-- **Continuous synchronization, not a one-off model** — telemetry flows in, commands flow out, in real time.
-- **Physics simulation and what-if scenarios run against the twin, never the real asset** — the Simulation
-  & Scenarios tab is a sandbox for testing aging, dimming, and failure conditions safely.
-
 ## Academic Attribution
 
-| Role                              | Person                                        |
-| --------------------------------- | --------------------------------------------- |
+| Role                        | Person                                        |
+| --------------------------- | --------------------------------------------- |
 | **Supervised by**           | Dr. Malek Alduhaimi                           |
 | **Designed & Developed by** | Jehad Majed                                   |
 | **Institution**             | Prince Sattam bin Abdulaziz University (PSAU) |
