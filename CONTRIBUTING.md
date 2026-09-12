@@ -6,7 +6,7 @@ University. Contributions from lab members, students, and collaborators are welc
 ## Where to work
 
 Each project is self-contained under its own top-level folder (`ArcFault/`, `DataSetup/`,
-`Digital Twin/`, `MicroGrid/`, `Smart Meter/`, `Topology/`, ...) with its own `README.md`.
+`Digital Twin/`, `MicroGrid/`, `Smart Meter/`, ...) with its own `README.md`.
 Start there for that project's setup, structure, and conventions before making changes.
 
 ## Making a change
