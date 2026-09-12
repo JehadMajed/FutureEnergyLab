@@ -76,13 +76,12 @@ See [`docs/RESEARCH.md`](docs/RESEARCH.md) for more detail.
 Papers published, submitted, or in preparation in connection with the lab's work.
 Full list with status in [`docs/PUBLICATIONS.md`](docs/PUBLICATIONS.md).
 
-- **A Physics-Informed Neural Network Framework for Arc-Fault Detection** — manuscript
-  ([`Instructor Notes/arc_pinn_manuscript_final.pdf`](Instructor%20Notes/arc_pinn_manuscript_final.pdf)).
+- **A Physics-Informed Neural Network Framework for Arc-Fault Detection** — submitted; see [`ArcFault/`](ArcFault/).
 - **Comparative study on arc-fault detection methods** — in preparation.
-- **Hybrid LSTM–CUSUM Framework for Electricity Theft Detection in Residential Smart Grids** — submitted.
+- **Hybrid LSTM–CUSUM Framework for Electricity Theft Detection in Residential Smart Grids** — submitted; see [`Smart Meter/`](Smart%20Meter/).
 - **Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning
-  Framework with Infrared Thermal Validation** — submitted.
-- Conference paper on low-voltage distribution R&D — in preparation.
+  Framework with Infrared Thermal Validation** — accepted (journal) / published (IEEE conference); see [`Topology/`](Topology/).
+- **Time-series analysis of photovoltaic curtailment in radial distribution networks** — published.
 - A patent application related to arc-fault detection is in progress.
 
 ---
@@ -131,8 +130,7 @@ Future Energy Lab/
 ├── MicroGrid/                # Microgrid load analysis, Phase A sizing, and Simulink model
 ├── Smart Meter/               # Next-generation smart meter (theft/forecasting/NILM)
 ├── Topology/                  # LV distribution topology inference research
-├── Energy Management for Swarm of Drones/  # Placeholder — future project
-└── Instructor Notes/         # Reference material and manuscripts
+└── Energy Management for Swarm of Drones/  # Placeholder — future project
 ```
 
 ---
