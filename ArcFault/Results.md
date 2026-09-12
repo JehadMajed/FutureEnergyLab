@@ -41,3 +41,6 @@ Figure: Confusion Matrix
 Figure: ROC Curve
 <img width="1051" height="871" alt="ROC Curve" src="https://github.com/user-attachments/assets/ae62f0e2-bc4d-4108-8a3e-f732a1405b5d" />
 *Receiver Operating Characteristic (ROC) curve of the ResNet-1D detector on held-out Model D trial recordings. The curve sweeps the full range of classification thresholds, plotting the true positive rate (arc detection rate) against the false positive rate (nuisance trip rate) at each threshold. The area under the curve (AUC = 0.9993) indicates near-perfect class separability across all operating points, independent of the fixed 0.5 decision threshold used for the confusion matrix. The shaded region between the curve and the diagonal (random-chance baseline) represents the discriminative capacity of the model.*
+
+
+
