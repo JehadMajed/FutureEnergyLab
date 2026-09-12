@@ -146,16 +146,16 @@ lab's **[Data Setup](../DataSetup/)** toolkit (ESP32 + CHINT smart breaker), and
 recording a custom, localized Saudi-appliance dataset for future model retraining — the two
 efforts are expected to converge as both mature.
 
-## Pilot deployment: SEC + CHINT (planned)
+## Pilot deployment: SE + CHINT (planned)
 
 The project's CHINT funding and hardware already connect it to the lab's broader
-smart-metering direction: a planned field pilot with **Saudi Electricity (SEC)** and **CHINT**
+smart-metering direction: a planned field pilot with **Saudi Electricity (SE)** and **CHINT**
 to move from lab data to field validation.
 
 | Partner | Role |
 |---|---|
 | **CHINT** | Smart metering / breaker hardware and integration; project co-funder |
-| **Saudi Electricity (SEC)** | Host premises, field load data, grid-code alignment |
+| **Saudi Electricity (SE)** | Host premises, field load data, grid-code alignment |
 | **Future Energy Lab** | Data Setup replication, model development, validation protocol |
 
 **Path:** Lab dataset → Field pilot → Scale-up.
