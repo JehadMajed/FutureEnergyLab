@@ -13,6 +13,7 @@ approximately four AC cycles at 6.4 kHz). Per-load breakdowns are provided along
 aggregate metrics to surface load-specific detection difficulty, which aggregate accuracy
 alone conceals.
 
+Per-load breakdown available in [per_load_breakdown](per_load_breakdown.csv)
 
 Figure: Per-Load Accuracy
 <img width="1590" height="961" alt="Per-Load Accuracy" src="https://github.com/user-attachments/assets/797f61f1-b930-4a0d-9fe1-ae3da887a721" />
