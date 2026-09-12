@@ -11,13 +11,13 @@ Status values: **published**, **accepted**, **submitted**, **in preparation**.
 | 2 | Comparative study of arc-fault detection methods | Arc-fault detection | in preparation |
 | 3 | Hybrid LSTM–CUSUM Framework for Electricity Theft Detection in Residential Smart Grids | Smart metering / AMI | submitted — see [`Smart Meter/`](../Smart%20Meter/) |
 | 4 | Time-series analysis of photovoltaic curtailment in radial distribution networks | Distribution networks | Published — [sciencedirect.com/science/article/abs/pii/S2352467726003127](https://www.sciencedirect.com/science/article/abs/pii/S2352467726003127) |
-| 5 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework with Infrared Thermal Validation | Distribution networks | Accepted — see [`Topology/`](../Topology/) |
+| 5 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework with Infrared Thermal Validation | Distribution networks | Accepted |
 
 ## Conference
 
 | # | Title | Topic | Status |
 |---|---|---|---|
-| 1 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework | Distribution networks | Published, [ieeexplore.ieee.org/document/11365432](https://ieeexplore.ieee.org/document/11365432) — see [`Topology/`](../Topology/) |
+| 1 | Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning Framework | Distribution networks | Published, [ieeexplore.ieee.org/document/11365432](https://ieeexplore.ieee.org/document/11365432) |
 
 ## Intellectual property
 
