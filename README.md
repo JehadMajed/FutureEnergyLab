@@ -69,7 +69,10 @@ and Research are working but not field-deployed; Placeholder has no content yet.
 | LV Distribution Topology                      | Research               | YOLO11-seg model detecting trench footprints for LV cable-route inference; backs an accepted journal paper and a published IEEE conference paper.                                                            | [`Topology/`](Topology/)                                                                     |
 | Energy Management for Swarm of Drones         | Placeholder            | Reserved for an upcoming project — no content yet.                                                                                                                                                           | [`Energy Management for Swarm of Drones/`](Energy%20Management%20for%20Swarm%20of%20Drones/) |
 
-Arc Fault notebook: [open directly in Colab](https://colab.research.google.com/github/JehadMajed/FutureEnergyLab/blob/main/ArcFault/Arc_Fault_Data_Study.ipynb).
+Open the notebooks directly in Colab:
+[Arc Fault Data Study](https://colab.research.google.com/github/JehadMajed/FutureEnergyLab/blob/main/ArcFault/Arc_Fault_Data_Study.ipynb) ·
+[Trench Footprint Segmentation](https://colab.research.google.com/github/JehadMajed/FutureEnergyLab/blob/main/Topology/trench_footprint_segmentation.ipynb) ·
+[Intelli-Meter](https://colab.research.google.com/drive/1G199XtU2leIWHnVgL8FWiT7J4jNfE0ZU) (Google Drive — access-restricted).
 
 > Additional research code/models will be added to this repository as they are cleared for
 > public release.
