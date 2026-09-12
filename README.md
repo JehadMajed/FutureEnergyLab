@@ -56,15 +56,54 @@ See [`docs/RESEARCH.md`](docs/RESEARCH.md) for more detail.
 
 ## Current Projects & Code
 
-| Project | Description | Location |
-|---|---|---|
-| **Microgrid — Phase A Sizing** | Preliminary electrical sizing of an islanded single-phase 230 V / 60 Hz laboratory microgrid (PV, battery, inverter, cables) — a scaled-down version of the NEOM City microgrid concept — with fully traceable calculations and 24-hour energy-balance simulation across 4 operating cases. | [`MicroGrid/`](MicroGrid/) |
-| **Microgrid Load Analysis** | Load inventory, daily-energy calculation, phase-balance analysis, and component sizing for the PSAU laboratory microgrid, including assessment of the existing SonnenBatterie eco 8.0. | [`MicroGrid/Microgrid_Load_Analysis_and_Sizing.md`](MicroGrid/Microgrid_Load_Analysis_and_Sizing.md) |
-| **Arc Fault Data Study** | Curated experimental dataset and Google Colab analysis notebook for series and parallel arc-fault detection on residential loads (258 labeled trials, 4 AFCI models, 6.4 kHz sampling). | [`ArcFault/`](ArcFault/) |
-| **Appliance-Level Data Acquisition (Data Setup)** | Open, reproducible edge-computing rig for isolating, switching, and continuously logging per-appliance active-power signatures (ESP32-S3 + smart breaker + Home Assistant + Python pipeline). Reference deployment: 21 appliances, several months. Data foundation for the Smart Meter project. | [`DataSetup/`](DataSetup/) |
-| **Digital Twin — NB2 Lamps Panel** | Full-stack cloud digital twin of a physical 40-lamp lighting distribution panel: sub-second MQTT telemetry, remote control, interactive 3D model, thermal-electrical simulation, and SCADA-style analytics. **[Live Demo](https://digital-twin-lamps-panel.pages.dev/)**. | [`Digital Twin/`](Digital%20Twin/) |
-| **Smart Meter — Intelli-Meter** | Virtual-prototype smart meter: FHMM load disaggregation, LSTM load forecasting, and hybrid CUSUM+LSTM theft detection, plus an ESP32/CHINT hardware node; planned field pilot with Saudi Electricity (SEC) and CHINT. | [`Smart Meter/`](Smart%20Meter/) |
-| **LV Distribution Topology — Trench Footprint Segmentation** | YOLO11-seg instance-segmentation model trained to detect trench footprints (repaired cable-route pavement) from street-level photos and video, for inferring real LV cable routing. | [`Topology/`](Topology/) |
+Each project below is a self-contained folder with its own `README.md`, code, and data.
+**Status** shows how far along it is — `Live` and `Validated` are running today; `Prototype`
+and `Research` are working but not field-deployed; `Placeholder` has no content yet.
+
+### ⚡ Arc Fault Detection — [`ArcFault/`](ArcFault/) · `Research`
+
+Curated dataset (258 labelled trials, 4 AFCI models, 6.4 kHz sampling) with a signal-analysis
+notebook, plus a submitted physics-informed neural network (PINN) detection framework.
+**[Open the notebook in Colab →](https://colab.research.google.com/github/JehadMajed/FutureEnergyLab/blob/main/ArcFault/Arc_Fault_Data_Study.ipynb)**
+
+### 🔌 Appliance-Level Data Acquisition (Data Setup) — [`DataSetup/`](DataSetup/) · `Validated`
+
+Open, reproducible ESP32 + CHINT-breaker DAQ rig that isolates, switches, and continuously
+logs per-appliance power signatures. Reference deployment: **21 appliances, several months,
+100% automation success rate.** Shares its hardware approach with, and is expected to
+converge with, the Smart Meter project below.
+
+### 🏠 Microgrid — [`MicroGrid/`](MicroGrid/) · `Validated (simulation)`
+
+Preliminary electrical sizing (PV, battery, inverter, cables) for an islanded 230 V / 60 Hz
+lab microgrid — a scaled-down NEOM City microgrid concept — verified by a 24-hour
+energy-balance simulation across 4 operating cases. Also includes a separate
+[load analysis](MicroGrid/Microgrid_Load_Analysis_and_Sizing.md) of the lab's existing
+SonnenBatterie eco 8.0 system.
+
+### 🖥️ Digital Twin — NB2 Lamps Panel — [`Digital Twin/`](Digital%20Twin/) · `Live`
+
+Full-stack cloud digital twin of a physical 40-lamp lighting distribution panel: sub-second
+MQTT telemetry, remote control, interactive 3D model, thermal-electrical simulation, and
+SCADA-style analytics. **[Try the live demo →](https://digital-twin-lamps-panel.pages.dev/)**
+
+### 📟 Smart Meter — Intelli-Meter — [`Smart Meter/`](Smart%20Meter/) · `Prototype`
+
+Virtual-prototype next-generation smart meter: FHMM load disaggregation, LSTM load
+forecasting, and hybrid CUSUM+LSTM theft detection, plus a real ESP32/CHINT hardware node
+(currently in data-recording mode). A field pilot with Saudi Electricity (SEC) and CHINT is
+planned but not yet formalized.
+
+### 🗺️ LV Distribution Topology — [`Topology/`](Topology/) · `Research`
+
+YOLO11-seg instance-segmentation model that detects trench footprints (repaired cable-route
+pavement) from street-level photos and video, to help infer real LV cable routing. Backs an
+accepted journal paper and a published IEEE conference paper.
+
+### 🛸 Energy Management for Swarm of Drones — [`Energy Management for Swarm of Drones/`](Energy%20Management%20for%20Swarm%20of%20Drones/) · `Placeholder`
+
+Reserved for an upcoming project on energy management strategies for drone swarms — no
+content yet.
 
 > Additional research code/models will be added to this repository as they are cleared for
 > public release.
@@ -117,20 +156,20 @@ Full team page: [`docs/TEAM.md`](docs/TEAM.md).
 
 ```
 Future Energy Lab/
-├── README.md                  # This page — lab overview
-├── LICENSE                    # MIT License
-├── CONTRIBUTING.md            # How to contribute
+├── README.md                                # This page — lab overview
+├── LICENSE                                  # MIT License
+├── CONTRIBUTING.md                          # How to contribute
 ├── docs/
-│   ├── TEAM.md                # Team members
-│   ├── PUBLICATIONS.md        # Publication list and status
-│   └── RESEARCH.md            # Research areas in detail
-├── ArcFault/                  # Arc-fault dataset + Colab analysis notebook
-├── DataSetup/                 # Appliance-level power data acquisition toolkit
-├── Digital Twin/             # SCADA digital twin of the NB2 lamps panel
-├── MicroGrid/                # Microgrid load analysis, Phase A sizing, and Simulink model
-├── Smart Meter/               # Next-generation smart meter (theft/forecasting/NILM)
-├── Topology/                  # LV distribution topology — trench footprint segmentation
-└── Energy Management for Swarm of Drones/  # Placeholder — future project
+│   ├── TEAM.md                              # Team members
+│   ├── PUBLICATIONS.md                      # Publication list and status
+│   └── RESEARCH.md                          # Research areas in detail
+├── ArcFault/                                # Arc-fault dataset + Colab analysis notebook
+├── DataSetup/                               # Appliance-level power data acquisition toolkit
+├── Digital Twin/                            # SCADA digital twin of the NB2 lamps panel
+├── MicroGrid/                               # Microgrid load analysis, Phase A sizing, and Simulink model
+├── Smart Meter/                             # Next-generation smart meter (theft/forecasting/NILM)
+├── Topology/                                # LV distribution topology — trench footprint segmentation
+└── Energy Management for Swarm of Drones/   # Placeholder — future project
 ```
 
 ---
@@ -140,14 +179,17 @@ Future Energy Lab/
 Each project folder is self-contained and has its own `README.md` with setup instructions.
 
 ```bash
-git clone https://github.com/<org-or-user>/future-energy-lab.git
-cd future-energy-lab
+git clone https://github.com/JehadMajed/FutureEnergyLab.git
+cd FutureEnergyLab
 ```
 
 - **Arc Fault Data Study** — open `ArcFault/Arc_Fault_Data_Study.ipynb` in Google Colab; set `BASE_PATH`.
 - **Data Setup** — see [`DataSetup/README.md`](DataSetup/README.md) (`software/extractor` quick start).
 - **Microgrid** — see [`MicroGrid/phase-a-microgrid-sizing/README.md`](MicroGrid/phase-a-microgrid-sizing/README.md) (Python 3.11+, stdlib + matplotlib).
 - **Digital Twin** — see [`Digital Twin/README.md`](Digital%20Twin/README.md) (Node.js ≥ 18, Cloudflare Pages).
+- **Smart Meter** — see [`Smart Meter/README.md`](Smart%20Meter/README.md), or open the
+  [Colab notebook](https://colab.research.google.com/drive/1G199XtU2leIWHnVgL8FWiT7J4jNfE0ZU) directly.
+- **Topology** — open `Topology/trench_footprint_segmentation.ipynb` in Google Colab (needs a GPU runtime).
 
 ---
 
