@@ -64,6 +64,7 @@ See [`docs/RESEARCH.md`](docs/RESEARCH.md) for more detail.
 | **Appliance-Level Data Acquisition (Data Setup)** | Open, reproducible edge-computing rig for isolating, switching, and continuously logging per-appliance active-power signatures (ESP32-S3 + smart breaker + Home Assistant + Python pipeline). Reference deployment: 21 appliances, several months. Data foundation for the Smart Meter project. | [`DataSetup/`](DataSetup/) |
 | **Digital Twin — NB2 Lamps Panel** | Full-stack cloud digital twin of a physical 40-lamp lighting distribution panel: sub-second MQTT telemetry, remote control, interactive 3D model, thermal-electrical simulation, and SCADA-style analytics. **[Live Demo](https://digital-twin-lamps-panel.pages.dev/)**. | [`Digital Twin/`](Digital%20Twin/) |
 | **Smart Meter — Intelli-Meter** | Virtual-prototype smart meter: FHMM load disaggregation, LSTM load forecasting, and hybrid CUSUM+LSTM theft detection, plus an ESP32/CHINT hardware node; planned field pilot with Saudi Electricity (SEC) and CHINT. | [`Smart Meter/`](Smart%20Meter/) |
+| **LV Distribution Topology — Trench Footprint Segmentation** | YOLO11-seg instance-segmentation model trained to detect trench footprints (repaired cable-route pavement) from street-level photos and video, for inferring real LV cable routing. | [`Topology/`](Topology/) |
 
 > Additional research code/models will be added to this repository as they are cleared for
 > public release.
@@ -79,7 +80,7 @@ Full list with status in [`docs/PUBLICATIONS.md`](docs/PUBLICATIONS.md).
 - **Comparative study on arc-fault detection methods** — in preparation.
 - **Hybrid LSTM–CUSUM Framework for Electricity Theft Detection in Residential Smart Grids** — submitted; see [`Smart Meter/`](Smart%20Meter/).
 - **Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning
-  Framework with Infrared Thermal Validation** — accepted (journal) / published (IEEE conference).
+  Framework with Infrared Thermal Validation** — accepted (journal) / published (IEEE conference); see [`Topology/`](Topology/).
 - **Time-series analysis of photovoltaic curtailment in radial distribution networks** — published.
 - A patent application related to arc-fault detection is in progress.
 
@@ -128,6 +129,7 @@ Future Energy Lab/
 ├── Digital Twin/             # SCADA digital twin of the NB2 lamps panel
 ├── MicroGrid/                # Microgrid load analysis, Phase A sizing, and Simulink model
 ├── Smart Meter/               # Next-generation smart meter (theft/forecasting/NILM)
+├── Topology/                  # LV distribution topology — trench footprint segmentation
 └── Energy Management for Swarm of Drones/  # Placeholder — future project
 ```
 
