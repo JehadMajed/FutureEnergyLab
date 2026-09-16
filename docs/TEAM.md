@@ -13,6 +13,14 @@
 | Dr. Ali Al-Jumaa | Faculty member |
 | Dr. Osama Al-Jumaa | Faculty member |
 
+## PhD Students
+
+| Name |
+|---|
+| Hamad Alsubaie |
+| Abdullah Alowairdhi |
+| Muhammad Ameer Hamza |
+
 ## Students & Researchers
 
 | Name |
@@ -24,7 +32,5 @@
 | Kareem Mohammed |
 | Jehad Majed Aldayeh |
 | Omar Amir Fadl |
-| Abdullah Alowairdhi |
-| Hamad Alsubaie |
 
 
