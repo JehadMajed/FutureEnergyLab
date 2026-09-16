@@ -105,6 +105,11 @@ Full list with status in [`docs/PUBLICATIONS.md`](docs/PUBLICATIONS.md).
 - Dr. Ali Al-Jumaa
 - Dr. Osama Al-Jumaa
 
+### PhD Students
+
+- Abdullah Alowairdhi
+- Muhammad Ameer Hamza
+
 ### Students & Researchers
 
 - Abdulrahman Mahjoub
@@ -114,7 +119,6 @@ Full list with status in [`docs/PUBLICATIONS.md`](docs/PUBLICATIONS.md).
 - Kareem Mohammed
 - Jehad Majed Aldayeh
 - Omar Amir Fadl
-- Abdullah Alowairdhi
 
 Full team page: [`docs/TEAM.md`](docs/TEAM.md).
 
