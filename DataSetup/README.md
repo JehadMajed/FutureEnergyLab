@@ -247,6 +247,7 @@ From the 21-appliance, multi-month continuous deployment (full detail in
 | [`software/plotting/`](software/plotting/)   | Quick power-profile plotting helper                                             |
 | [`data/`](data/)                             | Output schema + the appliance inventory as machine-readable CSV                 |
 | [`examples/`](examples/)                     | A **synthetic** sample profile so scripts run out of the box                    |
+| [`survey-data/`](survey-data/)               | 139-response field survey on Saudi household appliance usage patterns           |
 
 ---
 
