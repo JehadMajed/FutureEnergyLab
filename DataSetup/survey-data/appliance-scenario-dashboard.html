@@ -1,0 +1,1215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Household Appliance Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f5f7f8;--surface:#ffffff;--line:#dde3e6;--grid:#e9eef0;--ink:#101a1f;--ink2:#4b5a61;--ink3:#6f7c82;--accent:#2a78d6;--accent-soft:#e3eefb;
+--s0:#eef4fc;--s1:#cfe0f6;--s2:#9dc1ec;--s3:#5f9be0;--s4:#2a78d6;--s5:#1a4f94;--onfill:#ffffff;--tip:#101a1f;--tipink:#ffffff;
+--c1:#2a78d6;--c2:#eb6834;--c3:#1baf7a;--c4:#eda100;--c5:#e87ba4;--c6:#008300;
+--sans:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1417;--surface:#171e22;--line:#2a343a;--grid:#222b30;--ink:#eef3f5;--ink2:#b3c0c6;--ink3:#8d9ba1;--accent:#3987e5;--accent-soft:#1c2c40;
+--s0:#1b2530;--s1:#1e3a5c;--s2:#24558c;--s3:#3172bd;--s4:#4f93e6;--s5:#9cc4f3;--onfill:#0f1417;--tip:#eef3f5;--tipink:#101a1f;
+--c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#c98500;--c5:#d55181;--c6:#008300}}
+:root[data-theme="dark"]{--bg:#0f1417;--surface:#171e22;--line:#2a343a;--grid:#222b30;--ink:#eef3f5;--ink2:#b3c0c6;--ink3:#8d9ba1;--accent:#3987e5;--accent-soft:#1c2c40;
+--s0:#1b2530;--s1:#1e3a5c;--s2:#24558c;--s3:#3172bd;--s4:#4f93e6;--s5:#9cc4f3;--onfill:#0f1417;--tip:#eef3f5;--tipink:#101a1f;
+--c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#c98500;--c5:#d55181;--c6:#008300}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 48px}
+header h1{font-size:26px;font-weight:600;margin:4px 0 0;text-wrap:balance;letter-spacing:-.01em}
+header p{color:var(--ink2);margin:6px 0 0;max-width:70ch}
+.ar{font-family:"IBM Plex Sans Arabic",var(--sans);direction:rtl;unicode-bidi:isolate}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-weight:500}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:22px 0}
+.stat{background:var(--surface);padding:14px 16px}
+.stat b{display:block;font:500 24px/1.2 var(--mono);font-variant-numeric:tabular-nums;margin-top:4px}
+.stat .sub{color:var(--ink3);font-size:12px}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px}
+.below{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:16px;margin-top:16px}
+@media (max-width:860px){.grid,.below{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px}
+.panel h2{font-size:15px;font-weight:600;margin:0 0 2px}
+.hint{color:var(--ink3);font-size:12px;margin:0 0 12px}
+.rows{display:flex;flex-direction:column;gap:2px}
+.row{display:grid;grid-template-columns:120px 1fr 40px;align-items:center;gap:10px;padding:4px 6px;border-radius:5px;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.row:hover{background:var(--bg)}
+.row[aria-pressed="true"]{background:var(--accent-soft)}
+.row:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{height:10px;background:var(--grid);border-radius:0 4px 4px 0;position:relative}
+.fill{position:absolute;top:0;bottom:0;left:0;background:var(--accent);border-radius:0 4px 4px 0}
+.pct{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink2);font-size:12px}
+.dhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px}
+.dhead h2{font-size:22px;margin:0}
+.dhead .ar{font-size:18px;color:var(--ink2)}
+.kv{display:flex;flex-wrap:wrap;gap:18px}
+.kv div{min-width:96px}
+.kv b{display:block;font:500 18px var(--mono);font-variant-numeric:tabular-nums}
+h3{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);margin:20px 0 6px}
+svg text{fill:var(--ink2);font-family:var(--sans);font-size:11px}
+svg text.val{fill:var(--ink);font-family:var(--mono)}
+svg text.sub{fill:var(--ink3);font-size:10px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink2);margin-top:4px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;box-shadow:inset 0 0 0 1px var(--line)}
+.scroll{overflow-x:auto}
+table.hm{border-collapse:separate;border-spacing:2px;width:100%;min-width:420px}
+.hm th{font-weight:500;font-size:11px;color:var(--ink3);text-align:center;padding:2px 4px;line-height:1.3}
+.hm th.rn{text-align:left;color:var(--ink2);font-size:12px;white-space:nowrap;padding-right:8px}
+.hm td{height:22px;border-radius:3px;text-align:center;font:11px var(--mono);cursor:pointer}
+.hm tr.sel th.rn{color:var(--accent);font-weight:600}
+#tip{position:fixed;pointer-events:none;background:var(--tip);color:var(--tipink);padding:8px 10px;border-radius:6px;font-size:12px;line-height:1.45;max-width:250px;z-index:10;box-shadow:0 4px 14px rgb(0 0 0/.2)}
+#tip .m{font-family:var(--mono)}
+.note{color:var(--ink3);font-size:12px;margin-top:18px;max-width:92ch}
+.hit{fill:transparent}
+
+/* ===== Scenario analysis (القسم العربي) ===== */
+#scn{margin-top:40px;border-top:2px solid var(--ink);padding-top:22px;font-family:var(--sans);line-height:1.65}
+#scn[dir="rtl"]{font-family:"IBM Plex Sans Arabic",var(--sans);line-height:1.75}
+.sc-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px}
+.langsw{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.langsw button{font:inherit;font-size:13px;border:0;background:none;color:var(--ink2);padding:6px 12px;cursor:pointer}
+.langsw button[lang="ar"]{font-family:"IBM Plex Sans Arabic",var(--sans)}
+.langsw button[aria-pressed="true"]{background:var(--accent);color:var(--onfill);font-weight:500}
+.langsw button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+#scn h2.sc-title{font-size:24px;font-weight:600;margin:4px 0 4px;text-wrap:balance}
+#scn .sc-lead{color:var(--ink2);max-width:80ch;margin:0 0 18px}
+#scn .num,#scn .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.sc-nav{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 18px;font-size:13px}
+.sc-nav a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+.sc-nav a:hover{border-bottom-color:var(--accent)}
+.sc-filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:12px 18px;align-items:end;box-shadow:0 2px 10px rgb(0 0 0/.05)}
+@media (max-height:760px){.sc-filters{position:static}}
+.sc-f{display:flex;flex-direction:column;gap:4px;min-width:130px}
+.sc-f label,.sc-f .lbl{font-size:11px;color:var(--ink3);font-weight:500}
+.sc-f select,.sc-search{font:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.sc-f select:focus-visible,.sc-search:focus-visible,.chip:focus-visible,.sc-tab:focus-visible,.sc-bar:focus-visible,th button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink3);border-radius:999px;padding:3px 10px 3px 8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip i{width:9px;height:9px;border-radius:2px;display:inline-block;opacity:.35}
+.chip[aria-pressed="true"]{color:var(--ink);border-color:var(--ink3);background:var(--surface)}
+.chip[aria-pressed="true"] i{opacity:1}
+.sc-block{margin-top:22px}
+.sc-block>h3.sec{font-size:17px;font-weight:600;color:var(--ink);letter-spacing:0;text-transform:none;margin:0 0 4px}
+.sc-block>.hint{margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.kpi .k{font-size:12px;color:var(--ink3)}
+.kpi .v{font:500 22px/1.25 var(--mono);font-variant-numeric:tabular-nums;direction:ltr;text-align:left;unicode-bidi:isolate}
+[dir="rtl"] .kpi .v{text-align:right}
+.kpi .v small{font-size:12px;color:var(--ink3);font-family:var(--sans)}
+[dir="rtl"] .kpi .v small{font-family:"IBM Plex Sans Arabic",var(--sans)}
+.kpi .d{font-size:12px;color:var(--ink2)}
+.kpi.lead{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.exec{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:14px}
+@media (max-width:860px){.exec{grid-template-columns:1fr}}
+.exec ul,.sc-sec ul{margin:0;padding-inline-start:20px}
+.exec li,.sc-sec li{margin-bottom:6px}
+.two{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px}
+@media (max-width:960px){.two{grid-template-columns:1fr}}
+.sc-bars{display:flex;flex-direction:column;gap:2px}
+.sc-bar{display:grid;grid-template-columns:140px 1fr 56px;gap:10px;align-items:center;padding:4px 6px;border:0;border-radius:5px;background:none;font:inherit;color:inherit;cursor:pointer;text-align:start}
+.sc-bar:hover{background:var(--bg)}
+.sc-bar[aria-current="true"]{background:var(--accent-soft)}
+.sc-bar .t{height:12px;background:var(--grid);border-start-end-radius:4px;border-end-end-radius:4px;position:relative}
+.sc-bar .f{position:absolute;top:0;bottom:0;inset-inline-start:0;border-start-end-radius:4px;border-end-end-radius:4px}
+.sc-bar .n{font-family:var(--mono);font-size:12px;color:var(--ink2);text-align:end}
+.sc-bar .nm{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink2);margin-top:8px}
+.sc-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-inline-end:5px;vertical-align:-1px}
+.svgbox{direction:ltr}
+.svgbox svg text{font-family:var(--mono);font-size:11px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.sc-tab{font:inherit;font-size:13px;border:1px solid transparent;background:none;color:var(--ink2);padding:5px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.sc-tab i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.sc-tab:hover{background:var(--bg);color:var(--ink)}
+.sc-tab[aria-selected="true"]{background:var(--accent-soft);color:var(--ink);border-color:var(--accent);font-weight:500}
+.sc-tab[hidden]{display:none}
+.sc-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin:16px 0 6px}
+.sc-head h3{font-size:22px;font-weight:600;margin:0;color:var(--ink);letter-spacing:0;text-transform:none}
+.sc-head .en{font-family:"IBM Plex Sans Arabic",var(--sans);color:var(--ink3);font-size:14px;direction:ltr;unicode-bidi:isolate}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.badge{font-size:12px;border-radius:4px;padding:1px 8px;background:var(--bg);border:1px solid var(--line);color:var(--ink2);display:inline-flex;align-items:center;gap:6px}
+.badge i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.badge.warn{border-color:#c98500;color:var(--ink)}
+.badge.ok{border-color:#1baf7a;color:var(--ink)}
+.sc-desc{font-size:15px;max-width:80ch;margin:0 0 14px}
+.secs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+@media (max-width:760px){.secs{grid-template-columns:1fr}}
+.sc-sec{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+.sc-sec h4{margin:0 0 4px;font-size:13px;font-weight:600;color:var(--ink2);display:flex;gap:8px;align-items:center}
+.sc-sec h4 span{font-family:var(--mono);font-size:11px;color:var(--ink3);font-weight:400}
+.sc-sec p{margin:0}
+.sc-sec.rec{grid-column:1/-1;border-color:var(--accent);background:var(--accent-soft)}
+table.hm2{border-collapse:separate;border-spacing:2px;width:100%;min-width:640px;direction:ltr}
+.hm2 th{font:10px var(--mono);color:var(--ink3);font-weight:400;padding:0 2px}
+.hm2 th.rn{font:12px var(--sans);color:var(--ink2);text-align:left;white-space:nowrap;padding-right:8px}
+[dir="rtl"] .hm2 th.rn{font-family:"IBM Plex Sans Arabic",var(--sans)}
+.hm2 td{height:20px;border-radius:2px;min-width:18px}
+.tbl-tools{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-bottom:10px}
+.tbl-tools .sc-search{min-width:240px;flex:1}
+.tbl-tools label{font-size:13px;color:var(--ink2);display:inline-flex;gap:6px;align-items:center}
+.tblwrap{overflow:auto;max-height:520px;border:1px solid var(--line);border-radius:8px}
+table.dt{border-collapse:collapse;width:100%;min-width:760px;font-size:13px}
+.dt th{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line);text-align:start;padding:0;z-index:1}
+.dt th button{font:inherit;font-weight:500;font-size:12px;color:var(--ink2);background:none;border:0;padding:8px 10px;width:100%;text-align:start;cursor:pointer;white-space:nowrap}
+.dt th[aria-sort] button{color:var(--ink)}
+.dt th[aria-sort="ascending"] button::after{content:" ▲";font-size:9px}
+.dt th[aria-sort="descending"] button::after{content:" ▼";font-size:9px}
+.dt td{padding:6px 10px;border-bottom:1px solid var(--grid);white-space:nowrap}
+.dt td.num{text-align:end}
+.dt tbody tr:hover{background:var(--bg)}
+.dt td i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-inline-end:6px}
+.tbl-count{font-size:12px;color:var(--ink3)}
+.method{columns:2 320px;column-gap:28px}
+.method p{margin:0 0 10px;break-inside:avoid}
+code.k{font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:0 4px;direction:ltr;unicode-bidi:isolate}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+<div class="eyebrow">FutureEnergyLab · Field survey · <span class="ar">مسح ميداني لمعرفة أنماط استهلاك الأجهزة الكهربائية</span></div>
+<h1>Household Appliance Survey</h1>
+<p>How homes use 20 common appliances: who owns them, when they run, and for how many hours a day. Hover over any bar, cell or segment for exact figures. Click an appliance to see its details.</p>
+</header>
+<section class="stats" id="stats"></section>
+<div class="grid">
+<section class="panel"><h2>Ownership by appliance</h2><p class="hint">Share of homes that reported having at least one. Click a row for details.</p><div class="rows" id="rows"></div></section>
+<section class="panel" id="detail"></section>
+</div>
+<div class="below">
+<section class="panel"><h2>When appliances run</h2><p class="hint">Percent of respondents for each appliance who said it runs in that period. "All day" answers count toward all four periods. Click a row for details.</p><div class="scroll"><table class="hm" id="hm"></table></div><div class="legend" id="hmleg"></div></section>
+<section class="panel"><h2>Monthly electricity bill</h2><p class="hint" id="billhint"></p><div id="bill"></div></section>
+</div>
+<p class="note">Notes: Hours per day and unit counts were answered on a 1–5 scale plus "more than 5", which has no upper limit. That's why the "&gt;5" band is so large for fridges, freezers and AC. Bills were typed as free text: Arabic digits were converted, ranges were averaged, and one impossible value (500,000,000 SAR) was removed. Responses were collected 10–22 Nov 2025.</p>
+<section id="scn" dir="ltr" lang="en">
+<div class="sc-top">
+<div><div class="eyebrow" data-i="eyebrow"></div><h2 class="sc-title" data-i="title"></h2></div>
+<div class="langsw" role="group" aria-label="Language / اللغة"><button type="button" id="lang-en" lang="en">English</button><button type="button" id="lang-ar" lang="ar">العربية</button></div>
+</div>
+<p class="sc-lead" data-i="lead"></p>
+<nav class="sc-nav" id="sc-nav"><a href="#sc-exec" data-i="navExec"></a><a href="#sc-compare" data-i="navCmp"></a><a href="#sc-detail" data-i="navDet"></a><a href="#sc-table" data-i="navTbl"></a><a href="#sc-method" data-i="navMeth"></a></nav>
+
+<div class="sc-filters" role="group" id="sc-filters">
+<div class="sc-f"><label for="f-season" data-i="fSeason"></label><select id="f-season"><option value="summer" data-i="oSummer"></option><option value="winter" data-i="oWinter"></option><option value="all" data-i="oAllSc"></option></select></div>
+<div class="sc-f"><label for="f-day" data-i="fDay"></label><select id="f-day"><option value="all" data-i="oWeek"></option><option value="work" data-i="oWork"></option><option value="weekend" data-i="oWeekend"></option></select></div>
+<div class="sc-f"><label for="f-period" data-i="fPeriod"></label><select id="f-period"><option value="all" data-i="oDay"></option><option value="0" data-i="oP0"></option><option value="1" data-i="oP1"></option><option value="2" data-i="oP2"></option><option value="3" data-i="oP3"></option></select></div>
+<div class="sc-f"><label for="f-metric" data-i="fMetric"></label><select id="f-metric"><option value="kwh" data-i="m_kwh"></option><option value="hours" data-i="m_hours"></option><option value="runs" data-i="m_runs"></option><option value="peak" data-i="m_peak"></option><option value="eve" data-i="m_eve"></option><option value="cost" data-i="m_cost"></option></select></div>
+<div class="sc-f"><span class="lbl" data-i="fType"></span><div class="chips" id="f-cats"></div></div>
+</div>
+
+<section class="sc-block" id="sc-exec">
+<h3 class="sec" data-i="navExec"></h3>
+<p class="hint" id="exec-hint"></p>
+<div class="kpis" id="exec-kpis"></div>
+<div class="exec">
+<div class="panel"><h2 data-i="findings"></h2><ul id="exec-find"></ul></div>
+<div class="panel"><h2 data-i="recs"></h2><ul id="exec-rec"></ul></div>
+</div>
+</section>
+
+<section class="sc-block" id="sc-compare">
+<h3 class="sec" data-i="navCmp"></h3>
+<p class="hint" data-i="cmpHint"></p>
+<div class="two">
+<div class="panel"><h2 id="cmp-title"></h2><p class="hint" id="cmp-hint"></p><div class="sc-bars" id="cmp-bars"></div><div class="sc-legend" id="cmp-leg"></div></div>
+<div class="panel"><h2 data-i="stackTitle"></h2><p class="hint" data-i="stackHint"></p><div class="svgbox" id="stack"></div><div class="sc-legend" id="stack-leg"></div></div>
+</div>
+</section>
+
+<section class="sc-block" id="sc-detail">
+<h3 class="sec" data-i="navDet"></h3>
+<p class="hint" data-i="detHint"></p>
+<div class="panel">
+<div class="tabs" role="tablist" id="tabs"></div>
+<div id="tabpanel" role="tabpanel"></div>
+</div>
+</section>
+
+<section class="sc-block" id="sc-table">
+<h3 class="sec" data-i="navTbl"></h3>
+<p class="hint" data-i="tblHint"></p>
+<div class="panel">
+<div class="tbl-tools">
+<input type="search" id="tbl-q" class="sc-search">
+<label><input type="checkbox" id="tbl-only"> <span data-i="tblOnly"></span></label>
+<span class="tbl-count" id="tbl-count"></span>
+</div>
+<div class="tblwrap"><table class="dt" id="dt"><thead><tr id="dt-head"></tr></thead><tbody id="dt-body"></tbody></table></div>
+</div>
+</section>
+
+<section class="sc-block" id="sc-method">
+<h3 class="sec" data-i="navMeth"></h3>
+<div class="panel method" id="method"></div>
+</section>
+</section>
+
+</div>
+<div id="tip" hidden></div>
+<script>
+const D={"N": 139, "first": "2025-11-10", "last": "2025-11-22", "hoods": 107, "apps": [{"en": "Fridge", "ar": "ثلاجة", "owners": 138, "timeN": 137, "allday": 114, "slots": [126, 135, 129, 128], "count": {"1": 92, "2": 34, "3": 8, "4": 2, "5": 2, ">5": 0}, "hours": {"1": 6, "2": 4, "3": 7, "4": 12, "5": 7, ">5": 99}, "hoursN": 135}, {"en": "Freezer", "ar": "فريزر", "owners": 120, "timeN": 124, "allday": 101, "slots": [112, 118, 115, 116], "count": {"1": 84, "2": 22, "3": 10, "4": 1, "5": 2, ">5": 1}, "hours": {"1": 5, "2": 4, "3": 8, "4": 12, "5": 3, ">5": 88}, "hoursN": 120}, {"en": "Air conditioner", "ar": "مكيف", "owners": 135, "timeN": 131, "allday": 30, "slots": [80, 65, 83, 72], "count": {"1": 10, "2": 14, "3": 17, "4": 28, "5": 27, ">5": 39}, "hours": {"1": 6, "2": 9, "3": 13, "4": 17, "5": 10, ">5": 76}, "hoursN": 131}, {"en": "TV", "ar": "تلفاز", "owners": 129, "timeN": 123, "allday": 15, "slots": [26, 37, 57, 98], "count": {"1": 47, "2": 47, "3": 15, "4": 12, "5": 3, ">5": 5}, "hours": {"1": 15, "2": 17, "3": 19, "4": 19, "5": 16, ">5": 39}, "hoursN": 125}, {"en": "Lighting", "ar": "انارة", "owners": 136, "timeN": 135, "allday": 46, "slots": [73, 67, 77, 123], "count": {"1": 6, "2": 4, "3": 7, "4": 23, "5": 14, ">5": 82}, "hours": {"1": 5, "2": 4, "3": 9, "4": 22, "5": 8, ">5": 85}, "hoursN": 133}, {"en": "Microwave", "ar": "مايكروايف", "owners": 120, "timeN": 113, "allday": 6, "slots": [13, 39, 54, 57], "count": {"1": 98, "2": 15, "3": 5, "4": 2, "5": 0, ">5": 0}, "hours": {"1": 66, "2": 21, "3": 14, "4": 5, "5": 0, ">5": 9}, "hoursN": 115}, {"en": "Oven", "ar": "فرن", "owners": 124, "timeN": 110, "allday": 4, "slots": [10, 27, 69, 54], "count": {"1": 98, "2": 21, "3": 4, "4": 1, "5": 0, ">5": 0}, "hours": {"1": 47, "2": 31, "3": 20, "4": 11, "5": 2, ">5": 7}, "hoursN": 118}, {"en": "Washing machine", "ar": "غسالة ملابس", "owners": 134, "timeN": 128, "allday": 5, "slots": [23, 39, 51, 68], "count": {"1": 103, "2": 25, "3": 3, "4": 2, "5": 1, ">5": 0}, "hours": {"1": 35, "2": 34, "3": 26, "4": 20, "5": 5, ">5": 9}, "hoursN": 129}, {"en": "Dishwasher", "ar": "غسالة صحون", "owners": 85, "timeN": 84, "allday": 5, "slots": [18, 31, 27, 40], "count": {"1": 78, "2": 5, "3": 2, "4": 0, "5": 0, ">5": 0}, "hours": {"1": 40, "2": 20, "3": 17, "4": 3, "5": 2, ">5": 5}, "hoursN": 87}, {"en": "Vacuum cleaner", "ar": "مكنسة", "owners": 119, "timeN": 106, "allday": 0, "slots": [8, 34, 48, 41], "count": {"1": 94, "2": 22, "3": 2, "4": 1, "5": 0, ">5": 0}, "hours": {"1": 62, "2": 24, "3": 14, "4": 4, "5": 3, ">5": 3}, "hoursN": 110}, {"en": "Water cooler", "ar": "برادة المياه", "owners": 111, "timeN": 105, "allday": 69, "slots": [81, 84, 91, 88], "count": {"1": 99, "2": 8, "3": 3, "4": 1, "5": 0, ">5": 0}, "hours": {"1": 13, "2": 9, "3": 12, "4": 8, "5": 5, ">5": 61}, "hoursN": 108}, {"en": "Space heater", "ar": "دفاية", "owners": 105, "timeN": 96, "allday": 6, "slots": [43, 29, 21, 64], "count": {"1": 52, "2": 26, "3": 14, "4": 7, "5": 2, ">5": 4}, "hours": {"1": 27, "2": 17, "3": 18, "4": 10, "5": 9, ">5": 13}, "hoursN": 94}, {"en": "Clothes iron", "ar": "كاوية ملابس", "owners": 127, "timeN": 115, "allday": 3, "slots": [19, 49, 32, 48], "count": {"1": 97, "2": 23, "3": 4, "4": 1, "5": 1, ">5": 1}, "hours": {"1": 59, "2": 32, "3": 15, "4": 6, "5": 2, ">5": 4}, "hoursN": 118}, {"en": "Water heater", "ar": "سخان مياه", "owners": 127, "timeN": 125, "allday": 65, "slots": [94, 92, 84, 94], "count": {"1": 30, "2": 34, "3": 22, "4": 21, "5": 5, ">5": 15}, "hours": {"1": 18, "2": 15, "3": 16, "4": 18, "5": 7, ">5": 49}, "hoursN": 123}, {"en": "Fan", "ar": "مروحة", "owners": 92, "timeN": 82, "allday": 19, "slots": [35, 32, 42, 49], "count": {"1": 33, "2": 11, "3": 22, "4": 11, "5": 7, ">5": 8}, "hours": {"1": 29, "2": 14, "3": 17, "4": 6, "5": 2, ">5": 24}, "hoursN": 92}, {"en": "Toaster", "ar": "توستر", "owners": 91, "timeN": 78, "allday": 2, "slots": [12, 43, 26, 24], "count": {"1": 76, "2": 12, "3": 1, "4": 2, "5": 0, ">5": 0}, "hours": {"1": 61, "2": 8, "3": 10, "4": 5, "5": 0, ">5": 3}, "hoursN": 87}, {"en": "Kettle", "ar": "الغلاية", "owners": 121, "timeN": 120, "allday": 14, "slots": [33, 65, 56, 63], "count": {"1": 94, "2": 17, "3": 6, "4": 4, "5": 0, ">5": 0}, "hours": {"1": 69, "2": 18, "3": 14, "4": 9, "5": 1, ">5": 7}, "hoursN": 118}, {"en": "Coffee maker", "ar": "صانع قهوة", "owners": 94, "timeN": 88, "allday": 5, "slots": [14, 54, 26, 37], "count": {"1": 75, "2": 12, "3": 3, "4": 4, "5": 0, ">5": 0}, "hours": {"1": 58, "2": 14, "3": 12, "4": 6, "5": 1, ">5": 4}, "hoursN": 95}, {"en": "Blender", "ar": "خلاط", "owners": 116, "timeN": 99, "allday": 4, "slots": [10, 26, 54, 44], "count": {"1": 81, "2": 24, "3": 8, "4": 2, "5": 0, ">5": 1}, "hours": {"1": 79, "2": 14, "3": 11, "4": 2, "5": 2, ">5": 3}, "hoursN": 111}, {"en": "Computer", "ar": "كمبيوتر", "owners": 121, "timeN": 112, "allday": 33, "slots": [59, 58, 70, 85], "count": {"1": 55, "2": 27, "3": 20, "4": 15, "5": 1, ">5": 3}, "hours": {"1": 20, "2": 13, "3": 17, "4": 18, "5": 14, ">5": 34}, "hoursN": 116}], "bills": [100, 100, 100, 120, 140, 150, 150, 170, 170, 200, 200, 200, 200, 200, 200, 200, 250, 250, 250, 250, 280, 300, 300, 300, 300, 300, 300, 300, 350, 350, 350, 350, 350, 390, 400, 400, 400, 400, 400, 400, 400, 425, 450, 450, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 520, 570, 575, 600, 600, 600, 600, 600, 600, 600, 650, 700, 700, 700, 700, 700, 700, 720, 750, 750, 780, 800, 800, 800, 800, 800, 800, 800, 850, 850, 850, 850, 900, 900, 950, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1050, 1100, 1200, 1200, 1200, 1300, 1300, 1500, 1500, 1500, 1500, 1500, 1500, 1600, 1700, 1700, 1800, 2000, 2000, 2000, 2000, 2500, 2500, 2700, 3000, 3000, 3000, 3000, 3800, 7000], "billRaw": 139};
+const SL=['Dawn','Morning','Afternoon','Evening'],SLH=['12–6 AM','6 AM–12 PM','12–6 PM','6 PM–12 AM'];
+const LV=['1','2','3','4','5','>5'];
+const LVC=['var(--s0)','var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)'];
+const $=s=>document.querySelector(s);
+const tip=$('#tip');
+function moveTip(e){const r=tip.getBoundingClientRect();let x=e.clientX+14,y=e.clientY+14;if(x+r.width>innerWidth-8)x=e.clientX-r.width-14;if(y+r.height>innerHeight-8)y=e.clientY-r.height-14;tip.style.left=x+'px';tip.style.top=y+'px'}
+function tipOn(el,fn){el.addEventListener('mouseenter',e=>{tip.innerHTML=fn();tip.hidden=false;moveTip(e)});el.addEventListener('mousemove',moveTip);el.addEventListener('mouseleave',()=>tip.hidden=true)}
+const pct=(a,b)=>b?Math.round(a/b*100):0;
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const med=arr=>{const s=[...arr].sort((a,b)=>a-b),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
+const apps=D.apps.map(a=>({...a,own:Math.max(a.owners,a.timeN)})).sort((a,b)=>b.own-a.own);
+const ac=D.apps.find(a=>a.en==='Air conditioner'),acN=sum(ac.count),fr=D.apps[0];
+$('#stats').innerHTML=[
+['Responses',D.N,`from ${D.hoods} neighborhoods`],
+['Median bill',Math.round(med(D.bills))+' SAR',`from ${D.bills.length} usable answers`],
+['Homes with 4+ ACs',pct(ac.count['4']+ac.count['5']+ac.count['>5'],acN)+'%',`of ${acN} homes that answered`],
+['Fridge runs all day',pct(fr.allday,fr.timeN)+'%',`of ${fr.timeN} homes that answered`]
+].map(([k,v,s])=>`<div class="stat"><span class="eyebrow">${k}</span><b>${v}</b><span class="sub">${s}</span></div>`).join('');
+let sel=apps.findIndex(a=>a.en==='Vacuum cleaner');
+function rows(){const box=$('#rows');box.innerHTML='';apps.forEach((a,k)=>{const p=pct(a.own,D.N);const b=document.createElement('button');b.className='row';b.id='row-'+k;b.setAttribute('aria-pressed',String(k===sel));
+b.innerHTML=`<span class="nm">${a.en}</span><span class="track"><span class="fill" style="width:${p}%"></span></span><span class="pct">${p}%</span>`;
+b.onclick=()=>{sel=k;render()};
+tipOn(b,()=>`<b>${a.en}</b> · <span class="ar">${a.ar}</span><br><span class="m">${a.own}</span> of ${D.N} homes (<span class="m">${p}%</span>)<br>Runs all day in <span class="m">${pct(a.allday,a.timeN)}%</span> of those homes`);box.appendChild(b)})}
+function hbar(counts,total,label){const W=520,H=30;let x=0,s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${label}">`;
+LV.forEach((l,j)=>{const n=counts[l]||0;if(!n)return;const w=n/total*W,g=x>0?2:0;
+s+=`<rect data-l="${l}" data-n="${n}" x="${x+g}" y="4" width="${Math.max(w-g,1)}" height="22" rx="3" fill="${LVC[j]}"/>`;
+if(w>34)s+=`<text x="${x+g+(w-g)/2}" y="19" text-anchor="middle" style="fill:${j>=3?'var(--onfill)':'var(--ink)'};font-family:var(--mono);pointer-events:none">${pct(n,total)}%</text>`;x+=w});return s+'</svg>'}
+const legend=u=>'<div class="legend">'+LV.map((l,j)=>`<span><i style="background:${LVC[j]}"></i>${l} ${u}</span>`).join('')+'</div>';
+function detail(){const a=apps[sel],cN=sum(a.count);
+const W=520,H=140,L=36,cw=(W-L)/4;let sv=`<svg viewBox="0 0 ${W} ${H+44}" width="100%" role="img" aria-label="Time-of-day use for ${a.en}">`;
+[0,25,50,75,100].forEach(g=>{const y=H-g/100*(H-8)+8;sv+=`<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--grid)"/><text x="${L-6}" y="${y+4}" text-anchor="end">${g}%</text>`});
+a.slots.forEach((n,j)=>{const p=pct(n,a.timeN),h=p/100*(H-8),x=L+j*cw+cw*.2,w=cw*.6,r=Math.min(4,h);
+if(h>0)sv+=`<path d="M${x},${H+8}V${H+8-h+r}q0,-${r} ${r},-${r}h${w-2*r}q${r},0 ${r},${r}V${H+8}Z" fill="var(--accent)"/>`;
+sv+=`<text class="val" x="${x+w/2}" y="${H+3-h}" text-anchor="middle">${p}%</text>`;
+sv+=`<text x="${x+w/2}" y="${H+24}" text-anchor="middle">${SL[j]}</text><text class="sub" x="${x+w/2}" y="${H+38}" text-anchor="middle">${SLH[j]}</text>`;
+sv+=`<rect class="hit" data-j="${j}" x="${L+j*cw}" y="0" width="${cw}" height="${H+40}"/>`});sv+='</svg>';
+const top=LV.reduce((m,l)=>(a.hours[l]||0)>(a.hours[m]||0)?l:m,'1');
+$('#detail').innerHTML=`<div class="dhead"><h2>${a.en}</h2><span class="ar">${a.ar}</span></div>
+<div class="kv"><div><span class="eyebrow">Owned by</span><b>${pct(a.own,D.N)}%</b></div><div><span class="eyebrow">Runs all day</span><b>${pct(a.allday,a.timeN)}%</b></div><div><span class="eyebrow">Most common use</span><b>${top} h/day</b></div><div><span class="eyebrow">Homes with 2+</span><b>${pct(cN-(a.count['1']||0),cN)}%</b></div></div>
+<h3>When it runs · ${a.timeN} answers</h3><div id="slots">${sv}</div>
+<h3>Hours per day · ${a.hoursN} answers</h3><div id="hrs">${hbar(a.hours,a.hoursN,'Hours per day')}</div>${legend('h')}
+<h3>Units per home · ${cN} answers</h3><div id="cnt">${hbar(a.count,cN,'Units per home')}</div>${legend('units')}`;
+$('#slots').querySelectorAll('.hit').forEach(r=>{const j=+r.dataset.j;tipOn(r,()=>`<b>${a.en} · ${SL[j]}</b><br>${SLH[j]}<br><span class="m">${a.slots[j]}</span> of ${a.timeN} homes (<span class="m">${pct(a.slots[j],a.timeN)}%</span>)`)});
+[['#hrs',a.hoursN,'h/day'],['#cnt',cN,'units']].forEach(([id,t,u])=>$(id).querySelectorAll('rect').forEach(r=>tipOn(r,()=>`<b>${a.en}</b><br>${r.dataset.l} ${u}: <span class="m">${r.dataset.n}</span> homes (<span class="m">${pct(+r.dataset.n,t)}%</span>)`)))}
+const HB=[['--s0',0],['--s1',20],['--s2',40],['--s3',60],['--s4',80]];
+function heat(){const t=$('#hm');const col=p=>`var(${HB.filter(b=>p>=b[1]).pop()[0]})`;
+t.innerHTML='<tr><th></th>'+SL.map((s,j)=>`<th>${s}<br><span style="font-weight:400">${SLH[j]}</span></th>`).join('')+'</tr>'+
+apps.map((a,k)=>`<tr class="${k===sel?'sel':''}"><th class="rn">${a.en}</th>`+a.slots.map((n,j)=>{const p=pct(n,a.timeN);return `<td data-k="${k}" data-j="${j}" style="background:${col(p)};color:${p>=60?'var(--onfill)':'var(--ink2)'}">${p}</td>`}).join('')+'</tr>').join('');
+t.querySelectorAll('td').forEach(td=>{const k=+td.dataset.k,a=apps[k],j=+td.dataset.j;tipOn(td,()=>`<b>${a.en} · ${SL[j]}</b><br>${SLH[j]}<br><span class="m">${a.slots[j]}</span> of ${a.timeN} homes (<span class="m">${pct(a.slots[j],a.timeN)}%</span>)`);td.onclick=()=>{sel=k;render()}});
+$('#hmleg').innerHTML=HB.map((b,j)=>`<span><i style="background:var(${b[0]})"></i>${b[1]}–${j<4?HB[j+1][1]-1:100}%</span>`).join('')}
+function bill(){const edges=[0,200,400,600,800,1000,1500,2000,3000,Infinity],lab=['<200','200–399','400–599','600–799','800–999','1000–1499','1500–1999','2000–2999','3000+'];
+const c=lab.map((_,i)=>D.bills.filter(b=>b>=edges[i]&&b<edges[i+1]).length),mx=Math.max(...c),ym=Math.ceil(mx/5)*5;
+$('#billhint').textContent=`Approximate SAR per month, as reported by ${D.bills.length} homes. Median: ${Math.round(med(D.bills))} SAR.`;
+const W=420,H=200,L=30,bw=(W-L)/lab.length;let s=`<svg viewBox="0 0 ${W} ${H+62}" width="100%" role="img" aria-label="Distribution of monthly bills">`;
+for(let g=0;g<=ym;g+=ym/5){const y=H-g/ym*(H-12)+4;s+=`<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--grid)"/><text x="${L-6}" y="${y+4}" text-anchor="end">${g}</text>`}
+c.forEach((n,i)=>{const h=n/ym*(H-12),x=L+i*bw+3,w=bw-6,r=Math.min(4,h);
+if(n)s+=`<path d="M${x},${H+4}V${H+4-h+r}q0,-${r} ${r},-${r}h${w-2*r}q${r},0 ${r},${r}V${H+4}Z" fill="var(--accent)"/>`;
+s+=`<text x="${x+w/2+4}" y="${H+18}" text-anchor="end" transform="rotate(-40 ${x+w/2+4} ${H+18})">${lab[i]}</text><rect class="hit" data-i="${i}" x="${L+i*bw}" y="0" width="${bw}" height="${H+4}"/>`});
+$('#bill').innerHTML=s+'</svg>';
+$('#bill').querySelectorAll('.hit').forEach(r=>{const i=+r.dataset.i;tipOn(r,()=>`<b>${lab[i]} SAR / month</b><br><span class="m">${c[i]}</span> homes (<span class="m">${pct(c[i],D.bills.length)}%</span>)`)})}
+function render(){rows();detail();heat()}
+render();bill();
+</script>
+
+<script>
+/* ============================================================
+   Scenario analysis (bilingual EN / AR).
+   To add a scenario: append an object to SCENARIOS (Arabic text in t)
+   and its English text to EN_TEXT under the same id.
+   type: 'window' (Day,Start,End,…)  'wm' (Day,Time,Program,…)
+         'dw' (Day,Start,Stop,Program,…) 'oven' (Day,Start,End,Program,…)
+   ============================================================ */
+const TARIFF=0.18, WEEKS_PER_MONTH=4.33;
+const DAYS=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+const DAYN={en:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],ar:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']};
+const PERN={en:['Dawn','Morning','Afternoon','Evening'],ar:['فجراً','صباحاً','بعد الظهر','مساءً']};
+const CATS={cooling:{en:'Cooling',ar:'تبريد',c:'--c1'},heating:{en:'Space & water heating',ar:'تدفئة وتسخين مياه',c:'--c2'},cooking:{en:'Cooking & kitchen',ar:'طبخ ومطبخ',c:'--c3'},cleaning:{en:'Laundry & ironing',ar:'غسيل وكي',c:'--c4'},media:{en:'Entertainment',ar:'ترفيه',c:'--c5'},care:{en:'Personal care',ar:'عناية شخصية',c:'--c6'}};
+const SEAS={all:{en:'All year',ar:'طوال العام'},summer:{en:'Summer',ar:'صيفي'},winter:{en:'Winter',ar:'شتوي'}};
+const PROG={
+ wm:{'15min':{min:15,kwh:.15,rated:2.0},'45min':{min:45,kwh:.5,rated:2.0},'cotton':{min:165,kwh:1.65,rated:2.0}},
+ dw:{1:1.8,2:1.5,3:1.3,4:1.15,5:1.0,6:.9,7:.7,8:.4},
+ oven:{P_SMALL:[.8,1.2],P_BIG:[1.4,2.0],P_OVEN:[1.5,2.5],P_SMALL_OVEN:[2.3,3.7],P_BIG_SMALL:[2.2,3.2],P_BIG_OVEN:[2.9,4.5],P_ALL:[3.7,5.7],P_IDLE:[0,0]}
+};
+const T=(o)=>o; // keeps the scenario text blocks readable
+const SCENARIOS=[
+{id:'ac',name:'مكيف سبليت (غرفة النوم)',en:'Split AC – bedroom',cat:'cooling',season:'summer',rated:1.9,duty:.7,type:'window',source:'survey',
+rows:`monday,00:00,06:15
+monday,15:00,17:15
+monday,22:30,23:59
+tuesday,00:00,06:15
+tuesday,15:00,17:15
+tuesday,22:30,23:59
+wednesday,00:00,06:15
+wednesday,15:00,17:15
+wednesday,23:00,23:59
+thursday,00:00,06:15
+thursday,15:00,17:15
+thursday,23:30,23:59
+friday,00:00,10:00
+friday,14:30,17:00
+friday,23:30,23:59
+saturday,00:00,10:00
+saturday,14:30,17:00
+saturday,22:30,23:59
+sunday,00:00,06:15
+sunday,15:00,17:15
+sunday,22:30,23:59`,
+t:T({desc:'وحدة سبليت 18,000 وحدة حرارية في غرفة النوم الرئيسية تعمل ليلاً ووقت القيلولة خلال الصيف.',
+problem:'التكييف هو الحمل الأكبر في المنزل السعودي صيفاً، ويعمل في كل الفترات بما فيها الفجر، فيحدد حجم البطاريات والعاكس أكثر من أي جهاز آخر.',
+why:'97% من المنازل تملك مكيفاً، و59% تملك 4 وحدات أو أكثر، و61% تشغّله فجراً. تمثيل وحدة واحدة بدقة هو الأساس لتقدير حمل التكييف الكلي بضرب عدد الوحدات.',
+assume:['قدرة اسمية 1.9 ك.و (1.5 طن تبريد)','معامل تشغيل الضاغط 70% في الصيف (وحدة غير انفرتر)','التشغيل من مايو إلى سبتمبر فقط','يبدأ التبريد المسبق 22:30 ليالي العمل و23:30 ليالي نهاية الأسبوع','المجلس له وحدة مستقلة غير مشمولة هنا'],
+method:'تُجمع دقائق التشغيل الأسبوعية وتُضرب في 1.9 × 0.7 ك.و. التشغيل الليلي مقسوم إلى جزأين (حتى 23:59 ومن 00:00) ليبقى الجدول صالحاً للمتحكم.',
+kpis:['الطاقة الأسبوعية','حصة الليل والفجر','الحمل المستمر بعد غروب الشمس (يُغطّى من البطاريات)'],
+interp:'هذه الوحدة وحدها تستهلك نحو نصف طاقة المنزل الصيفية في هذا النموذج (نحو 100 ك.و.س أسبوعياً)، ومعظمها بين منتصف الليل والفجر حين لا يوجد إنتاج شمسي. لذلك يحدد التكييف سعة البطارية (ك.و.س) أكثر مما يحدد قدرة العاكس.',
+limits:'لا يمثّل وحدات المجلس والغرف الأخرى ولا المكيفات الشباك الأقدم ذات الاستهلاك الأعلى. معامل التشغيل يرتفع في يوليو وأغسطس وينخفض في الربيع والخريف.',
+rec:'اضرب هذا السيناريو في عدد وحدات المنزل (4 أو أكثر في معظم العينة) مع معامل تزامن نحو 0.7، واستبدل الوحدات القديمة بوحدات انفرتر قبل التحجيم، فهذا يخفّض سعة البطارية المطلوبة بنحو الثلث. واضبط الثرموستات على 24 درجة ليلاً.'})},
+{id:'fan',name:'المروحة',en:'Fan',cat:'cooling',season:'summer',rated:.065,duty:1,type:'window',source:'survey',
+rows:`sunday,00:00,05:30
+sunday,15:30,17:00
+sunday,20:00,23:59
+monday,00:00,05:30
+monday,15:30,17:00
+monday,20:00,23:59
+tuesday,00:00,05:30
+tuesday,15:30,17:00
+tuesday,20:00,23:59
+wednesday,00:00,05:30
+wednesday,15:30,17:00
+wednesday,20:00,23:59
+thursday,00:00,05:30
+thursday,15:30,17:00
+thursday,20:30,23:59
+friday,00:00,07:00
+friday,14:30,16:30
+friday,20:30,23:59
+saturday,00:00,07:00
+saturday,11:00,12:30
+saturday,14:30,16:30
+saturday,20:00,23:59`,
+t:T({desc:'مروحة سقف أو أرضية تعمل مع النوم والقيلولة وجلسات المساء.',
+problem:'حمل صغير لكنه طويل المدة ويعمل بالتوازي مع المكيف، فيضيف حملاً ليلياً ثابتاً تتحمله البطارية.',
+why:'66% من المنازل تملك مروحة، واستخدامها مرتفع مساءً (60%) وبعد الظهر (51%). يوضح السيناريو أن الحمل الطويل الصغير أقل أثراً من الحمل القصير الكبير.',
+assume:['قدرة 65 واط ثابتة بلا ثرموستات','تعمل مع النوم من منتصف الليل حتى 05:30 (07:00 في نهاية الأسبوع)','القيلولة 15:30–17:00 أيام العمل','التشغيل من أبريل إلى أكتوبر'],
+method:'الطاقة = 0.065 ك.و × ساعات التشغيل الأسبوعية.',
+kpis:['ساعات التشغيل الأسبوعية','الطاقة الأسبوعية','حصة الليل'],
+interp:'نحو 80 ساعة أسبوعياً لكنها لا تتجاوز 5–6 ك.و.س، أي أقل من يوم واحد لمكيف واحد. أثرها على التحجيم ضئيل.',
+limits:'لا يناسب المنازل التي تعتمد على المراوح بديلاً للتكييف، ففيها يرتفع عدد المراوح وساعات تشغيلها.',
+rec:'يمكن ضمّه إلى الحمل الأساسي الثابت. تشجيع استخدام المروحة مع رفع درجة المكيف درجتين يوفّر طاقة أكبر بكثير مما تستهلكه المروحة.'})},
+{id:'waterheater',name:'سخان المياه',en:'Water heater',cat:'heating',season:'all',rated:2.0,duty:.35,type:'window',source:'survey',
+rows:`sunday,04:30,05:15
+sunday,06:00,07:00
+sunday,15:30,16:15
+sunday,20:30,22:00
+monday,04:30,05:15
+monday,06:00,07:00
+monday,15:30,16:15
+monday,20:30,22:00
+tuesday,04:30,05:15
+tuesday,06:00,07:00
+tuesday,15:30,16:15
+tuesday,20:30,22:00
+wednesday,04:30,05:15
+wednesday,06:00,07:00
+wednesday,15:30,16:15
+wednesday,20:30,22:00
+thursday,04:30,05:15
+thursday,06:00,07:00
+thursday,15:30,16:15
+thursday,19:00,20:30
+friday,04:30,05:15
+friday,09:30,11:30
+friday,16:30,17:15
+friday,20:30,22:00
+saturday,04:30,05:15
+saturday,09:00,10:30
+saturday,16:30,17:15
+saturday,20:30,22:00`,
+t:T({desc:'سخان كهربائي بخزان يعمل حول وضوء الفجر والاستحمام الصباحي والمسائي وغسل الجمعة.',
+problem:'حمل حراري كبير يتكرر أربع مرات يومياً، أحدها قبل الفجر حين تكون البطارية في أدنى مستوياتها.',
+why:'91% من المنازل تملكه، و49 من 123 منزلاً أجابوا يشغّلونه أكثر من 5 ساعات. وهو من أكثر الأحمال قابلية للإزاحة زمنياً لأن الخزان يحفظ الحرارة.',
+assume:['عنصر تسخين 2 ك.و','معامل تشغيل 35% بفعل الثرموستات','خزان 50–80 لتر','الاستهلاك أعلى شتاءً وأقل كثيراً صيفاً','ثابت عبر المواسم في هذا النموذج'],
+method:'الطاقة = 2 × 0.35 × ساعات النوافذ الزمنية. النوافذ تمثّل الفترات التي يعيد فيها الثرموستات تسخين الماء بعد السحب.',
+kpis:['الطاقة الأسبوعية','حصة الفجر','القدرة الاسمية المتزامنة مع الأحمال الأخرى'],
+interp:'نحو 20 ك.و.س أسبوعياً، وثلث الحمل تقريباً قبل شروق الشمس. عنصره 2 ك.و يتزامن مع الغلاية عند الفجر ومع الفرن عصر الجمعة.',
+limits:'لا يمثّل السخانات الفورية ولا السخانات الشمسية أو الغازية. الاستهلاك الصيفي الفعلي قد يكون نصف القيمة المحسوبة.',
+rec:'أفضل حمل للإزاحة: سخّن الخزان بالكامل بين 11:00 و14:00 من الفائض الشمسي وأوقفه ليلاً مع خزان معزول جيداً، أو اعتمد سخاناً شمسياً حرارياً فيخرج هذا الحمل من حسابات البطارية تقريباً.'})},
+{id:'spaceheater',name:'الدفاية (غرفة المعيشة)',en:'Space heater',cat:'heating',season:'winter',rated:2.0,duty:.5,type:'window',source:'survey',
+rows:`sunday,04:15,06:15
+sunday,19:30,23:00
+monday,04:15,06:15
+monday,19:30,23:00
+tuesday,04:15,06:15
+tuesday,19:30,23:00
+wednesday,04:15,06:15
+wednesday,19:30,23:30
+thursday,04:15,06:15
+thursday,20:00,23:59
+friday,05:00,06:00
+friday,08:30,10:30
+friday,20:00,23:59
+saturday,05:00,06:00
+saturday,08:30,10:30
+saturday,19:30,23:00`,
+t:T({desc:'دفاية كهربائية (مروحية أو سيراميك) تعمل مساءً وحول الفجر في الشتاء.',
+problem:'في الشتاء يختفي حمل التكييف ويظهر حمل التدفئة، مع ذروة مسائية وأخرى عند الفجر خارج ساعات الإنتاج الشمسي.',
+why:'76% من المنازل تملك دفاية، واستخدامها يتركز مساءً (67%) وفجراً (45%). يحدد السيناريو ما إذا كان الشتاء أو الصيف هو الحالة الحاكمة للبطارية.',
+assume:['قدرة 2 ك.و','معامل تشغيل 50%','من ديسمبر إلى فبراير فقط','غرفة المعيشة، وغرفة النوم مغطاة بدفاية الزيت'],
+method:'الطاقة = 2 × 0.5 × ساعات التشغيل الأسبوعية، في الأسابيع الشتوية فقط.',
+kpis:['الطاقة الأسبوعية الشتوية','حصة المساء','الذروة الاسمية الشتوية'],
+interp:'نحو 40 ك.و.س أسبوعياً، أي أقل من حمل التكييف الصيفي، لكن معظمها مساءً وفجراً، فتعتمد بالكامل على البطارية.',
+limits:'مناطق شمال المملكة أبرد وقد تتضاعف فيها الساعات، ومناطق الساحل الغربي نادراً ما تحتاج تدفئة.',
+rec:'الصيف يبقى الحالة الحاكمة للتحجيم. شتاءً، استخدم وضع التدفئة في المكيفات الانفرتر (معامل أداء نحو 3) بدل الدفايات المقاومة لخفض هذا الحمل إلى الثلث.'})},
+{id:'oilheater',name:'دفاية الزيت (غرفة النوم)',en:'Oil heater',cat:'heating',season:'winter',rated:1.5,duty:.6,type:'window',source:'estimate',
+rows:`monday,00:00,01:30
+monday,04:15,06:15
+monday,21:30,23:59
+tuesday,00:00,01:30
+tuesday,04:15,06:15
+tuesday,21:30,23:59
+wednesday,00:00,01:30
+wednesday,04:15,06:15
+wednesday,21:30,23:59
+thursday,00:00,01:30
+thursday,04:15,06:15
+thursday,22:00,23:59
+friday,00:00,02:30
+friday,05:00,07:00
+friday,22:00,23:59
+saturday,00:00,02:30
+saturday,05:00,07:00
+saturday,21:30,23:59
+sunday,00:00,01:30
+sunday,04:15,06:15
+sunday,21:30,23:59`,
+t:T({desc:'دفاية زيت في غرفة النوم تسخّن الغرفة قبل النوم وتعمل مجدداً عند الفجر.',
+problem:'حمل ليلي بطيء الاستجابة يستمر ساعات، ويستفيد من الكتلة الحرارية للزيت بعد إطفائه.',
+why:'يكمّل سيناريو الدفاية بتمثيل غرفة النوم، ويُظهر أثر الكتلة الحرارية في تقليل ساعات التشغيل الفعلية.',
+assume:['قدرة 1.5 ك.و','معامل تشغيل 60%','تسخين مسبق 20–30 دقيقة','تُطفأ بعد 1.5 ساعة من منتصف الليل وتبقى الغرفة دافئة','من ديسمبر إلى فبراير'],
+method:'الطاقة = 1.5 × 0.6 × ساعات التشغيل.',
+kpis:['الطاقة الأسبوعية الشتوية','حصة الليل والفجر'],
+interp:'نحو 35–40 ك.و.س أسبوعياً، كلها تقريباً في الليل. إذا نُمذجت مع الدفاية في غرفة واحدة فستُحسب التدفئة مرتين.',
+limits:'تقدير هندسي، فالاستبيان لا يفرّق بين أنواع الدفايات. غير مناسب للمنازل الصغيرة ذات الغرفة الواحدة.',
+rec:'استخدم مؤقتاً يطفئها في منتصف الليل مع ثرموستات على 20 درجة. في التحجيم الشتوي اجمعها مع الدفاية فقط إذا كانتا في غرفتين مختلفتين.'})},
+{id:'oven',name:'الفرن والموقد',en:'Oven & cooker',cat:'cooking',season:'all',rated:5.7,duty:1,type:'oven',source:'survey',
+rows:`monday,13:00,13:20,P_SMALL
+monday,13:20,14:00,P_BIG_SMALL
+monday,14:00,14:40,P_BIG
+monday,14:40,15:00,P_IDLE
+tuesday,12:45,13:15,P_BIG_SMALL
+tuesday,13:15,14:30,P_BIG_OVEN
+tuesday,14:30,14:45,P_IDLE
+tuesday,20:30,20:45,P_SMALL
+tuesday,20:45,20:55,P_IDLE
+wednesday,13:00,13:30,P_SMALL
+wednesday,13:30,14:30,P_SMALL_OVEN
+wednesday,14:30,14:50,P_IDLE
+thursday,12:45,13:30,P_BIG_SMALL
+thursday,13:30,14:15,P_BIG
+thursday,14:15,14:30,P_IDLE
+thursday,18:00,19:15,P_OVEN
+thursday,19:15,20:15,P_ALL
+thursday,20:15,20:45,P_IDLE
+friday,09:30,09:50,P_SMALL
+friday,09:50,10:00,P_IDLE
+friday,10:45,11:30,P_BIG
+friday,11:30,12:30,P_ALL
+friday,12:30,13:15,P_BIG_OVEN
+friday,13:15,13:30,P_OVEN
+friday,13:30,13:45,P_IDLE
+saturday,10:00,10:20,P_SMALL
+saturday,10:20,10:30,P_IDLE
+saturday,12:30,13:00,P_BIG
+saturday,13:00,13:45,P_BIG_OVEN
+saturday,13:45,14:00,P_OVEN
+saturday,14:00,14:15,P_IDLE
+saturday,20:30,20:45,P_SMALL
+saturday,20:45,20:55,P_IDLE
+sunday,12:45,13:15,P_BIG
+sunday,13:15,14:15,P_BIG_OVEN
+sunday,14:15,14:40,P_OVEN
+sunday,14:40,15:00,P_IDLE
+sunday,20:15,20:35,P_SMALL
+sunday,20:35,20:45,P_IDLE`,
+t:T({desc:'موقد كهربائي بشعلتين (صغيرة وكبيرة) مع فرن، ببرامج تجمع بينها لطبخ الغداء والعشاء.',
+problem:'أعلى قدرة لحظية في المنزل (حتى 5.7 ك.و عند تشغيل كل العناصر)، وتتركز حول الغداء.',
+why:'89% من المنازل تملك فرناً، و63% تستخدمه بعد الظهر. هو المحدد الأول لقدرة العاكس (ك.و) بعد التكييف.',
+assume:['الشعلة الصغيرة 1.2 ك.و، الكبيرة 2.0، الفرن 2.5','معاملات تشغيل 65–70% بفعل الثرموستات','الغداء الوجبة الرئيسية، ويُقدَّم 14:45 أيام العمل و13:30 الجمعة','P_IDLE يمثل التبريد بلا استهلاك'],
+method:'لكل برنامج متوسط قدرة (مثلاً P_BIG_OVEN = 2.9 ك.و) وقدرة اسمية (4.5 ك.و). الطاقة = متوسط القدرة × مدة المقطع.',
+kpis:['أعلى قدرة اسمية','الطاقة الأسبوعية','التزامن مع القلاية الهوائية والمايكروويف والغلاية'],
+interp:'نحو 30–35 ك.و.س أسبوعياً، وثلثها من برنامج الأرز مع الفرن. الأهم أن ذروة الجمعة (P_ALL من 11:30 إلى 12:30) تقع في ساعة الإنتاج الشمسي الأعلى، فتُغطّى مباشرة من الألواح.',
+limits:'لا يمثّل المنازل التي تطبخ بالغاز، وهي نسبة كبيرة في المملكة. وجبات العزائم الكبيرة قد تتجاوز هذه المدد.',
+rec:'حجّم العاكس ليتحمّل 5.7 ك.و من الفرن إضافة إلى التكييف والحمل الأساسي في الوقت نفسه. الطبخ في منتصف النهار ميزة، فحافظ عليه وتجنّب نقل الطبخ الثقيل إلى المساء.'})},
+{id:'airfryer',name:'القلاية الهوائية',en:'Air fryer',cat:'cooking',season:'all',rated:1.5,duty:.8,type:'window',source:'estimate',
+rows:`sunday,14:45,15:05
+sunday,21:00,21:15
+monday,14:45,15:00
+monday,21:15,21:30
+tuesday,14:45,15:05
+wednesday,14:45,15:00
+wednesday,21:00,21:15
+thursday,14:30,14:50
+thursday,21:30,21:55
+friday,10:00,10:10
+friday,13:30,13:55
+friday,21:30,21:50
+saturday,10:30,10:40
+saturday,14:00,14:20
+saturday,21:00,21:15`,
+t:T({desc:'قلاية هوائية للأطباق الجانبية مع الغداء والعشاء وفطور نهاية الأسبوع.',
+problem:'جهاز شائع غير موجود في الاستبيان، فيبقى حمل مطبخي عالي القدرة غير ممثَّل.',
+why:'يسد فجوة في البيانات، ويقع مباشرة بعد الفرن وقت الغداء فيرفع الذروة اللحظية للمطبخ.',
+assume:['قدرة 1.5 ك.و','معامل تشغيل 80%','تشغيل 10–25 دقيقة','التوقيت مشتق من نمط الفرن في الاستبيان'],
+method:'الطاقة = 1.5 × 0.8 × المدة.',
+kpis:['عدد مرات التشغيل','أعلى قدرة اسمية','التزامن مع الفرن'],
+interp:'طاقته صغيرة (نحو 5 ك.و.س أسبوعياً)، لكنه يضيف 1.5 ك.و في نهاية جلسة الطبخ. قد يحل جزئياً محل الفرن فيخفّض الاستهلاك الإجمالي.',
+limits:'سيناريو تقديري بالكامل، ولا يعكس الأسر التي تستخدمه بديلاً كاملاً للفرن.',
+rec:'أضف القلاية الهوائية وخانة «أجهزة أخرى» إلى أي استبيان لاحق. اعتمد هذا الجدول مؤقتاً واحسبه ضمن حمل المطبخ المتزامن.'})},
+{id:'microwave',name:'المايكروويف',en:'Microwave',cat:'cooking',season:'all',rated:1.1,duty:1,type:'window',source:'survey',
+rows:`monday,06:30,06:32
+monday,14:40,14:43
+monday,15:35,15:37
+monday,21:10,21:14
+tuesday,06:35,06:37
+tuesday,14:45,14:48
+tuesday,17:00,17:02
+tuesday,21:00,21:03
+wednesday,04:40,04:42
+wednesday,06:30,06:32
+wednesday,14:40,14:43
+wednesday,15:30,15:32
+wednesday,21:15,21:19
+thursday,06:30,06:32
+thursday,14:35,14:38
+thursday,23:30,23:33
+friday,09:45,09:47
+friday,16:45,16:48
+friday,21:30,21:34
+friday,23:50,23:53
+saturday,10:15,10:17
+saturday,14:30,14:33
+saturday,17:00,17:02
+saturday,21:00,21:04
+sunday,04:40,04:42
+sunday,06:30,06:32
+sunday,14:45,14:48
+sunday,15:30,15:32
+sunday,20:30,20:34`,
+t:T({desc:'تسخين قصير للطعام والحليب حول الوجبات.',
+problem:'نبضات قدرة قصيرة (1.1 ك.و) متكررة قد تتزامن مع أحمال المطبخ الأخرى.',
+why:'86% من المنازل تملكه، واستخدامه مساءً (50%) وبعد الظهر (48%)، ويمثّل نمط «النبضات القصيرة» في النموذج.',
+assume:['قدرة 1.1 ك.و ثابتة','مدة 2–4 دقائق','الفجر يومان فقط أسبوعياً (12% في الاستبيان)'],
+method:'الطاقة = 1.1 × المدة لكل تشغيل.',
+kpis:['عدد مرات التشغيل','أعلى قدرة اسمية','الطاقة الأسبوعية'],
+interp:'نحو 1.5 ك.و.س أسبوعياً فقط. أثره الوحيد على التحجيم هو النبضة اللحظية وقت الغداء.',
+limits:'لا يمثّل الأسر التي تعتمد على الوجبات الجاهزة وتستخدمه كثيراً.',
+rec:'لا يحتاج إدارة. يكفي احتسابه ضمن هامش الذروة اللحظية للعاكس (نحو 1 ك.و).'})},
+{id:'kettle',name:'الغلاية',en:'Kettle',cat:'cooking',season:'all',rated:2.1,duty:1,type:'window',source:'survey',
+rows:`monday,06:15,06:19
+monday,15:15,15:18
+monday,17:00,17:04
+monday,21:00,21:03
+tuesday,04:35,04:38
+tuesday,06:15,06:19
+tuesday,15:20,15:23
+tuesday,17:00,17:04
+tuesday,20:30,20:33
+wednesday,06:15,06:19
+wednesday,15:15,15:18
+wednesday,17:05,17:09
+wednesday,21:15,21:18
+thursday,06:15,06:19
+thursday,15:10,15:13
+thursday,17:00,17:04
+thursday,20:00,20:04
+thursday,21:00,21:04
+thursday,22:00,22:04
+friday,04:40,04:43
+friday,09:30,09:34
+friday,14:15,14:18
+friday,16:45,16:49
+friday,17:30,17:34
+friday,21:00,21:04
+saturday,04:40,04:43
+saturday,10:00,10:04
+saturday,15:00,15:03
+saturday,17:00,17:04
+saturday,20:30,20:34
+saturday,21:30,21:33
+sunday,04:35,04:38
+sunday,06:15,06:19
+sunday,15:15,15:18
+sunday,17:00,17:04
+sunday,21:00,21:03`,
+t:T({desc:'غلي الماء للشاي والقهوة صباحاً وبعد الغداء وبعد العصر ومع الضيوف.',
+problem:'من أعلى الأجهزة قدرة (2.1 ك.و) رغم قِصر تشغيله، ويقع عند الفجر حين تكون البطارية منخفضة.',
+why:'87% من المنازل تملكه، ويُستخدم في كل الفترات. يمثّل حالة القدرة العالية والطاقة المنخفضة.',
+assume:['قدرة 2.1 ك.و','غلي 3–4 دقائق للتر ونصف','شاي العصر يومياً، والضيوف ليلة الجمعة'],
+method:'الطاقة = 2.1 × المدة.',
+kpis:['أعلى قدرة اسمية','عدد مرات التشغيل','التزامن عند الفجر والعصر'],
+interp:'نحو 4.5 ك.و.س أسبوعياً، لكن غلية الفجر تتزامن مع سخان المياه (2 ك.و) فترفع الطلب اللحظي من البطارية إلى أكثر من 4 ك.و.',
+limits:'لا يمثّل الأسر التي تعد القهوة العربية على الغاز أو تستخدم ترمس الماء الساخن.',
+rec:'راعِ نبضة الفجر (غلاية + سخان) في تحديد تيار التفريغ الأقصى للبطارية، أو أخّر إعادة تسخين الخزان 15 دقيقة عن وقت الفجر.'})},
+{id:'toaster',name:'التوستر',en:'Toaster',cat:'cooking',season:'all',rated:1.0,duty:1,type:'window',source:'survey',
+rows:`monday,06:20,06:23
+monday,20:45,20:48
+tuesday,06:20,06:23
+wednesday,06:20,06:23
+wednesday,17:00,17:02
+thursday,06:20,06:23
+thursday,20:30,20:33
+friday,09:40,09:43
+friday,09:45,09:48
+friday,17:15,17:17
+saturday,10:05,10:08
+saturday,10:10,10:13
+saturday,20:45,20:48
+sunday,06:20,06:23
+sunday,21:00,21:03`,
+t:T({desc:'تحميص الخبز في فطور أيام العمل وفطور نهاية الأسبوع وبعض وجبات العشاء الخفيفة.',
+problem:'نبضة قصيرة 1 ك.و، أغلبها صباحاً قبل ذروة الإنتاج الشمسي.',
+why:'65% من المنازل تملكه، و55% تستخدمه صباحاً. يكمل صورة أحمال الإفطار.',
+assume:['قدرة 1.0 ك.و','دورة 2–3 دقائق','دفعتان متتاليتان في فطور نهاية الأسبوع'],
+method:'الطاقة = 1.0 × المدة.',
+kpis:['عدد مرات التشغيل','الطاقة الأسبوعية'],
+interp:'أقل من 1 ك.و.س أسبوعياً، وأثره على التحجيم مهمل.',
+limits:'الاستبيان لا يوضح عدد الدفعات في كل استخدام.',
+rec:'يُدمج في الحمل الأساسي دون إدارة خاصة.'})},
+{id:'washer',name:'غسالة الملابس الأوتوماتيكية',en:'Washing machine',cat:'cleaning',season:'all',rated:2.0,duty:1,type:'wm',source:'survey',
+rows:`monday,18:00,45min
+tuesday,21:00,cotton
+wednesday,17:30,15min
+wednesday,20:30,45min
+thursday,18:00,45min
+friday,08:30,cotton
+friday,19:30,45min
+saturday,10:30,cotton
+saturday,15:00,45min
+saturday,20:30,15min
+sunday,20:30,cotton`,
+t:T({desc:'11 غسلة أسبوعياً ببرامج 15 دقيقة و45 دقيقة والقطن، لأسرة من 6 أفراد تقريباً.',
+problem:'حمل مرن (يمكن تأجيله) يعمل حالياً في المساء غالباً، بعد انتهاء الإنتاج الشمسي.',
+why:'96% من المنازل تملك غسالة، و53% تشغّلها مساءً. هو المثال الأوضح على الحمل القابل للإزاحة.',
+assume:['برنامج 15 دقيقة: 0.15 ك.و.س','45 دقيقة: 0.5 ك.و.س','القطن: 165 دقيقة و1.65 ك.و.س','سخان الماء الداخلي 2 ك.و','لا تتداخل دورتان'],
+method:'متوسط القدرة لكل برنامج = طاقة البرنامج ÷ مدته، ويُوزَّع على دقائق الدورة.',
+kpis:['عدد الدورات','الطاقة الأسبوعية','حصة المساء (المرشحة للإزاحة)'],
+interp:'نحو 9–10 ك.و.س أسبوعياً، معظمها بعد المغرب. نقلها إلى منتصف النهار يحوّلها من حمل على البطارية إلى استهلاك مباشر للطاقة الشمسية.',
+limits:'الأسر الكبيرة جداً أو التي لديها عاملة منزلية قد تشغّل ضعف هذا العدد. الغسل بالماء البارد يخفّض الطاقة كثيراً.',
+rec:'استخدم خاصية التشغيل المؤجل: اضبط الغسلات لتبدأ بين 10:00 و14:00، مع برنامج القطن يوم السبت 10:30 كما هو.'})},
+{id:'dishwasher',name:'غسالة الصحون',en:'Dishwasher',cat:'cleaning',season:'all',rated:2.0,duty:1,type:'dw',source:'survey',
+rows:`sunday,22:30,01:30,3
+monday,23:00,00:00,7
+tuesday,23:00,01:00,5
+wednesday,23:00,00:00,7
+thursday,23:30,03:30,1
+friday,15:00,16:30,6
+friday,23:30,03:00,2
+saturday,23:00,02:00,3`,
+t:T({desc:'تشغيل ليلي بعد العشاء بثمانية برامج (1 الأطول و8 الأقصر)، مع تشغيل إضافي بعد غداء الجمعة.',
+problem:'حمل مرن يعمل حالياً بعد منتصف الليل بالكامل تقريباً، أي من البطارية.',
+why:'61% من المنازل تملكها، و48% تشغّلها مساءً. تمثّل حالة الحمل الليلي المرن.',
+assume:['طاقة البرامج من 1.8 ك.و.س (برنامج 1) إلى 0.4 (برنامج 8)','المدة من StartTime إلى StopTime','تنتهي كل الدورات قبل 03:30 لتجنّب تزامنها مع سخان الفجر'],
+method:'متوسط القدرة = طاقة البرنامج ÷ مدة النافذة. الدورات التي تتجاوز منتصف الليل تُحسب في اليوم التالي.',
+kpis:['عدد الدورات','الطاقة الأسبوعية','حصة الليل'],
+interp:'نحو 8–10 ك.و.س أسبوعياً، معظمها بين 23:00 و03:30، فتضاف كلها إلى سعة البطارية المطلوبة.',
+limits:'مدد البرامج افتراضية ويجب مطابقتها مع دليل الجهاز. بعض الأسر تغسل يدوياً رغم وجود الجهاز.',
+rec:'حمّل الغسالة ليلاً وأجّل تشغيلها إلى 11:00 من اليوم التالي. هذا يوفّر نحو 8 ك.و.س أسبوعياً من البطارية دون أي تغيير في العادات.'})},
+{id:'iron',name:'كاوية الملابس',en:'Clothes iron',cat:'cleaning',season:'all',rated:2.0,duty:.6,type:'window',source:'survey',
+rows:`sunday,06:20,06:30
+sunday,21:45,21:55
+monday,06:20,06:30
+tuesday,06:20,06:30
+tuesday,21:30,21:40
+wednesday,06:20,06:30
+thursday,06:20,06:30
+thursday,17:00,17:20
+friday,10:30,10:50
+friday,18:00,18:15
+saturday,11:00,11:40
+saturday,21:30,21:45`,
+t:T({desc:'كي الثوب والزي المدرسي صباحاً، وكي الجمعة، وجلسة الكي الأسبوعية يوم السبت.',
+problem:'حمل قصير بقدرة 2 ك.و، وأغلبه في الصباح الباكر قبل الإنتاج الشمسي الكامل.',
+why:'91% من المنازل تملك كاوية، و43% تستخدمها صباحاً و42% مساءً.',
+assume:['قدرة 2.0 ك.و','معامل تشغيل 60%','جلسات 10–40 دقيقة'],
+method:'الطاقة = 2 × 0.6 × المدة.',
+kpis:['عدد الجلسات','الطاقة الأسبوعية','أعلى قدرة اسمية'],
+interp:'نحو 3.5 ك.و.س أسبوعياً. جلسة السبت الطويلة تقع في منتصف النهار وتُغطّى شمسياً.',
+limits:'كاويات البخار ذات الخزان المنفصل قد تصل إلى 2.4 ك.و وتعمل مدة أطول.',
+rec:'اجمع الكي في جلسة أسبوعية منتصف النهار بدل الجلسات اليومية الصباحية القصيرة.'})},
+{id:'tv',name:'التلفاز',en:'TV',cat:'media',season:'all',rated:.14,duty:1,type:'window',source:'survey',
+rows:`monday,06:15,06:45
+monday,17:30,18:30
+monday,20:00,23:30
+tuesday,17:30,18:30
+tuesday,20:00,23:30
+wednesday,06:15,06:45
+wednesday,17:30,18:30
+wednesday,20:00,23:59
+thursday,00:00,00:30
+thursday,17:00,19:00
+thursday,20:00,23:59
+friday,00:00,02:00
+friday,10:00,11:30
+friday,15:00,16:30
+friday,18:00,23:59
+saturday,00:00,02:00
+saturday,10:00,12:30
+saturday,16:00,19:00
+saturday,20:00,23:59
+sunday,06:15,06:45
+sunday,17:30,18:30
+sunday,20:00,23:30`,
+t:T({desc:'تلفاز LED بمقاس 55–65 بوصة مع جهاز استقبال، يعمل مساءً ولساعات طويلة في نهاية الأسبوع.',
+problem:'حمل صغير لكنه طويل ويقع كله تقريباً في المساء.',
+why:'93% من المنازل تملك تلفازاً، و80% تشاهده مساءً، و39 من 125 منزلاً أجابوا يشغّلونه أكثر من 5 ساعات.',
+assume:['قدرة 140 واط شاملة جهاز الاستقبال','سهر ليالي الخميس والجمعة حتى 02:00'],
+method:'الطاقة = 0.14 × ساعات التشغيل.',
+kpis:['ساعات التشغيل','حصة المساء','الطاقة الأسبوعية'],
+interp:'نحو 7 ك.و.س أسبوعياً، وأكثر من 70% منها مساءً مع الإنارة والكمبيوتر، فيشكّل جزءاً من الحمل المسائي الثابت.',
+limits:'المنازل بعدة شاشات أو بأجهزة ألعاب تستهلك ضعفين أو ثلاثة.',
+rec:'يُحسب ضمن الحمل المسائي الأساسي. تفعيل الإطفاء التلقائي وإيقاف وضع الاستعداد يوفر نحو 10%.'})},
+{id:'hairiron',name:'مكواة الشعر',en:'Hair iron',cat:'care',season:'all',rated:.06,duty:1,type:'window',source:'estimate',
+rows:`sunday,06:15,06:30
+monday,06:15,06:30
+tuesday,06:15,06:30
+tuesday,17:30,17:45
+wednesday,06:15,06:30
+thursday,06:15,06:30
+thursday,19:00,19:30
+friday,17:00,17:25
+saturday,11:30,11:45
+saturday,19:30,19:50`,
+t:T({desc:'استخدام قصير صباح أيام العمل وقبل المناسبات والزيارات.',
+problem:'جهاز غير موجود في الاستبيان، وقدرته صغيرة جداً.',
+why:'يُكمل قائمة الأجهزة الشخصية، ويوضح الفرق بين مكواة الشعر (60 واط) ومجفف الشعر (حتى 2.2 ك.و).',
+assume:['قدرة 60 واط','جلسات 15–30 دقيقة','أعلى استخدام ليلة الخميس (المناسبات والأعراس)'],
+method:'الطاقة = 0.06 × المدة.',
+kpis:['عدد مرات التشغيل','الطاقة الأسبوعية'],
+interp:'نحو 0.2 ك.و.س أسبوعياً، أي مهمل في التحجيم.',
+limits:'سيناريو تقديري. إذا كان المقصود مجفف الشعر فيجب رفع القدرة إلى 1.2–2.2 ك.و مع تقصير المدة.',
+rec:'يمكن حذفه من حسابات التحجيم. إن أُضيف مجفف الشعر فعامله كنبضة قدرة صباحية مثل الكاوية.'})}
+];
+
+
+/* ---------- English scenario text (same keys as t) ---------- */
+const EN_TEXT={
+ac:{desc:'An 18,000 BTU split unit in the master bedroom, running overnight and during the afternoon nap in summer.',
+problem:'AC is the largest load in a Saudi home in summer and runs in every period, including dawn, so it drives battery and inverter sizing more than any other appliance.',
+why:'97% of homes have AC, 59% have 4 or more units, and 61% run it at dawn. Modelling one unit accurately is the basis for estimating total AC load by multiplying by the number of units.',
+assume:['Rated 1.9 kW (1.5 ton of cooling)','Compressor duty cycle 70% in summer (non-inverter unit)','Runs May to September only','Pre-cooling starts 22:30 before workdays and 23:30 on weekend nights','The living room (majlis) has its own unit, not included here'],
+method:'Weekly run minutes × 1.9 kW × 0.7. Overnight runs are split into two rows (until 23:59 and from 00:00) so the schedule stays valid for the controller.',
+kpis:['Weekly energy','Night and dawn share','Continuous load after sunset (served by batteries)'],
+interp:'This single unit uses about half of the home\'s summer energy in this model (about 100 kWh a week), mostly between midnight and dawn when there is no solar output. AC therefore sets battery capacity (kWh) more than inverter power.',
+limits:'Does not cover the majlis and other rooms, or older window units that use more. The duty cycle is higher in July–August and lower in spring and autumn.',
+rec:'Multiply this scenario by the home\'s real number of units (4+ in most of the sample) with a diversity factor of about 0.7, and replace old units with inverter units before sizing, which cuts the required battery capacity by about a third. Set the thermostat to 24 °C at night.'},
+fan:{desc:'A ceiling or pedestal fan used while sleeping, during the afternoon nap and in evening sittings.',
+problem:'A small but long-running load that runs alongside the AC, adding a steady night-time load on the battery.',
+why:'66% of homes have a fan, with high use in the evening (60%) and afternoon (51%). It shows that a small long load matters less than a short large one.',
+assume:['Constant 65 W, no thermostat','Runs while sleeping from midnight to 05:30 (07:00 on weekends)','Afternoon nap 15:30–17:00 on workdays','Used April to October'],
+method:'Energy = 0.065 kW × weekly run hours.',
+kpis:['Weekly run hours','Weekly energy','Night share'],
+interp:'About 80 hours a week but only 5–6 kWh, less than one day of one AC unit. Its effect on sizing is negligible.',
+limits:'Not suitable for homes that rely on fans instead of AC, where fan count and hours are much higher.',
+rec:'Treat it as part of the steady base load. Encouraging fan use while raising the AC setpoint by 2 °C saves far more energy than the fan uses.'},
+waterheater:{desc:'An electric storage water heater that reheats around Fajr ablution, morning and evening showers, and the Friday bath.',
+problem:'A large thermal load that repeats four times a day, one of them before dawn when the battery is at its lowest.',
+why:'91% of homes have one, and 49 of 123 homes that answered run it more than 5 hours a day. It is also one of the easiest loads to shift, because the tank stores heat.',
+assume:['2 kW heating element','Duty cycle 35% (thermostat)','50–80 L tank','Use is higher in winter and much lower in summer','Held constant across seasons in this model'],
+method:'Energy = 2 × 0.35 × window hours. The windows represent when the thermostat reheats water after it is drawn.',
+kpis:['Weekly energy','Dawn share','Rated power coinciding with other loads'],
+interp:'About 20 kWh a week, roughly a third of it before sunrise. Its 2 kW element coincides with the kettle at dawn and with the oven on Friday afternoon.',
+limits:'Does not cover instant heaters or solar/gas water heaters. Actual summer use may be half the computed value.',
+rec:'The best load to shift: heat the tank fully between 11:00 and 14:00 from surplus solar and turn it off at night with a well-insulated tank, or install a solar thermal heater, which removes this load from battery sizing almost entirely.'},
+spaceheater:{desc:'An electric fan or ceramic heater running in the evening and around Fajr in winter.',
+problem:'In winter the AC load disappears and heating appears, with an evening peak and a dawn peak, both outside solar hours.',
+why:'76% of homes have a heater, used mostly in the evening (67%) and at dawn (45%). The scenario shows whether winter or summer is the sizing case for the battery.',
+assume:['2 kW rated','Duty cycle 50%','December to February only','Living room; the bedroom is covered by the oil heater'],
+method:'Energy = 2 × 0.5 × weekly run hours, in winter weeks only.',
+kpis:['Weekly winter energy','Evening share','Winter rated peak'],
+interp:'About 40 kWh a week, less than the summer AC load, but mostly in the evening and at dawn, so it relies entirely on the battery.',
+limits:'Northern regions are colder and may double the hours; the western coast rarely needs heating.',
+rec:'Summer remains the sizing case. In winter, use the heat mode of inverter ACs (COP about 3) instead of resistive heaters to cut this load to a third.'},
+oilheater:{desc:'An oil-filled radiator in the bedroom that warms the room before sleep and runs again at dawn.',
+problem:'A slow-responding night load lasting hours, which benefits from the oil\'s thermal mass after it switches off.',
+why:'It complements the space heater by covering the bedroom, and shows how thermal mass reduces actual run time.',
+assume:['1.5 kW rated','Duty cycle 60%','20–30 min pre-heat','Switches off 1.5 h after midnight and the room stays warm','December to February'],
+method:'Energy = 1.5 × 0.6 × run hours.',
+kpis:['Weekly winter energy','Night and dawn share'],
+interp:'About 35–40 kWh a week, almost all at night. Modelled together with the space heater in the same room, heating would be counted twice.',
+limits:'An engineering estimate, because the survey does not distinguish heater types. Not suitable for small one-room homes.',
+rec:'Use a timer that turns it off at midnight with a 20 °C thermostat. In winter sizing, add it to the space heater only if they are in different rooms.'},
+oven:{desc:'An electric cooker with two burners (small and large) and an oven, with programs combining them for lunch and dinner.',
+problem:'The highest instantaneous power in the home (up to 5.7 kW with everything on), concentrated around lunch.',
+why:'89% of homes have an oven and 63% use it in the afternoon. After AC, it is the main factor in inverter power (kW).',
+assume:['Small burner 1.2 kW, large 2.0 kW, oven 2.5 kW','Duty cycles 65–70% (thermostats)','Lunch is the main meal, served 14:45 on workdays and 13:30 on Friday','P_IDLE is cooling down with no consumption'],
+method:'Each program has an average power (e.g. P_BIG_OVEN = 2.9 kW) and a rated power (4.5 kW). Energy = average power × segment length.',
+kpis:['Highest rated power','Weekly energy','Coincidence with air fryer, microwave and kettle'],
+interp:'About 30–35 kWh a week, a third of it from the rice-plus-oven program. Importantly, the Friday peak (P_ALL 11:30–12:30) falls in the hour of highest solar output, so the panels cover it directly.',
+limits:'Does not represent homes that cook with gas, a large share in Saudi Arabia. Large guest meals may run longer.',
+rec:'Size the inverter to carry the oven\'s 5.7 kW together with AC and the base load at the same time. Midday cooking is an advantage: keep it, and avoid moving heavy cooking to the evening.'},
+airfryer:{desc:'An air fryer for side dishes at lunch and dinner and for weekend breakfast.',
+problem:'A common appliance missing from the survey, leaving a high-power kitchen load unrepresented.',
+why:'It fills a data gap, and it runs right after the oven at lunch, raising the kitchen\'s instantaneous peak.',
+assume:['1.5 kW rated','Duty cycle 80%','10–25 min runs','Timing derived from the oven pattern in the survey'],
+method:'Energy = 1.5 × 0.8 × duration.',
+kpis:['Number of runs','Highest rated power','Coincidence with the oven'],
+interp:'Small energy (about 5 kWh a week), but it adds 1.5 kW at the end of the cooking session. It may partly replace the oven and lower total use.',
+limits:'Entirely estimated, and does not reflect households that use it as a full oven replacement.',
+rec:'Add the air fryer and an "other appliances" field to any future survey. Use this schedule for now and count it within the coincident kitchen load.'},
+microwave:{desc:'Short reheating of food and milk around meals.',
+problem:'Short, repeated power pulses (1.1 kW) that can coincide with other kitchen loads.',
+why:'86% of homes have one, used in the evening (50%) and afternoon (48%). It represents the "short pulse" pattern in the model.',
+assume:['Constant 1.1 kW','2–4 min per use','Dawn use on only two days a week (12% in the survey)'],
+method:'Energy = 1.1 × duration per use.',
+kpis:['Number of runs','Highest rated power','Weekly energy'],
+interp:'Only about 1.5 kWh a week. Its only effect on sizing is the instantaneous pulse at lunch.',
+limits:'Does not represent households that rely on ready meals and use it much more.',
+rec:'No management needed. Include it in the inverter\'s instantaneous peak margin (about 1 kW).'},
+kettle:{desc:'Boiling water for tea and coffee in the morning, after lunch, after Asr and with guests.',
+problem:'One of the most powerful appliances (2.1 kW) despite short runs, and it runs at dawn when the battery is low.',
+why:'87% of homes have one, used in every period. It represents the high-power, low-energy case.',
+assume:['2.1 kW rated','3–4 min boil for 1.5 L','Asr tea every day; guests on Thursday night'],
+method:'Energy = 2.1 × duration.',
+kpis:['Highest rated power','Number of runs','Coincidence at dawn and Asr'],
+interp:'About 4.5 kWh a week, but the dawn boil coincides with the water heater (2 kW), pushing instantaneous battery demand above 4 kW.',
+limits:'Does not represent households that brew Arabic coffee on gas or use hot-water flasks.',
+rec:'Account for the dawn pulse (kettle + water heater) when setting the battery\'s maximum discharge current, or delay tank reheating by 15 minutes after Fajr.'},
+toaster:{desc:'Toasting bread at workday and weekend breakfasts and some light dinners.',
+problem:'A short 1 kW pulse, mostly in the morning before full solar output.',
+why:'65% of homes have one and 55% use it in the morning. It completes the breakfast load picture.',
+assume:['1.0 kW rated','2–3 min cycle','Two back-to-back batches at weekend brunch'],
+method:'Energy = 1.0 × duration.',
+kpis:['Number of runs','Weekly energy'],
+interp:'Under 1 kWh a week; negligible for sizing.',
+limits:'The survey does not say how many batches are made per use.',
+rec:'Fold it into the base load with no special management.'},
+washer:{desc:'11 washes a week using the 15-minute, 45-minute and cotton programs, for a household of about 6.',
+problem:'A flexible (deferrable) load that currently runs mostly in the evening, after solar output ends.',
+why:'96% of homes have a washing machine and 53% run it in the evening. It is the clearest example of a shiftable load.',
+assume:['15-minute program: 0.15 kWh','45-minute: 0.5 kWh','Cotton: 165 min and 1.65 kWh','Internal water heater 2 kW','No two cycles overlap'],
+method:'Average power per program = program energy ÷ program length, spread over the cycle minutes.',
+kpis:['Number of cycles','Weekly energy','Evening share (candidate for shifting)'],
+interp:'About 9–10 kWh a week, mostly after Maghrib. Moving it to midday turns it from a battery load into direct solar consumption.',
+limits:'Very large households, or those with a housekeeper, may run twice as many cycles. Cold washes use much less energy.',
+rec:'Use delayed start: set washes to begin between 10:00 and 14:00, keeping the Saturday 10:30 cotton cycle as is.'},
+dishwasher:{desc:'A night run after dinner with eight programs (1 longest, 8 shortest), plus an extra run after Friday lunch.',
+problem:'A flexible load that currently runs almost entirely after midnight, i.e. from the battery.',
+why:'61% of homes have one, and 48% run it in the evening. It represents the flexible night-load case.',
+assume:['Program energy from 1.8 kWh (program 1) to 0.4 (program 8)','Duration from StartTime to StopTime','All cycles end before 03:30 to avoid the dawn water-heater run'],
+method:'Average power = program energy ÷ window length. Cycles past midnight count toward the next day.',
+kpis:['Number of cycles','Weekly energy','Night share'],
+interp:'About 8–10 kWh a week, mostly between 23:00 and 03:30, all of which adds to the required battery capacity.',
+limits:'Program lengths are assumed and should be checked against the appliance manual. Some households wash by hand despite owning one.',
+rec:'Load it at night and delay the start to 11:00 the next day. This moves about 8 kWh a week off the battery with no change in habits.'},
+iron:{desc:'Pressing the thobe and school uniform in the morning, Friday ironing, and a weekly Saturday session.',
+problem:'A short 2 kW load, mostly early in the morning before full solar output.',
+why:'91% of homes have an iron; 43% use it in the morning and 42% in the evening.',
+assume:['2.0 kW rated','Duty cycle 60%','10–40 min sessions'],
+method:'Energy = 2 × 0.6 × duration.',
+kpis:['Number of sessions','Weekly energy','Highest rated power'],
+interp:'About 3.5 kWh a week. The long Saturday session falls at midday and is covered by solar.',
+limits:'Steam-generator irons can reach 2.4 kW and run longer.',
+rec:'Batch ironing into one weekly midday session instead of short daily morning sessions.'},
+tv:{desc:'A 55–65" LED TV with a receiver, on in the evening and for long hours at weekends.',
+problem:'A small but long load that falls almost entirely in the evening.',
+why:'93% of homes have a TV, 80% watch in the evening, and 39 of 125 homes that answered run it more than 5 hours.',
+assume:['140 W including the receiver','Late nights on Thursday and Friday until 02:00'],
+method:'Energy = 0.14 × run hours.',
+kpis:['Run hours','Evening share','Weekly energy'],
+interp:'About 7 kWh a week, over 70% of it in the evening together with lighting and computers, forming part of the steady evening load.',
+limits:'Homes with several screens or game consoles use two to three times as much.',
+rec:'Count it in the base evening load. Auto power-off and disabling standby save about 10%.'},
+hairiron:{desc:'Short use on workday mornings and before events and visits.',
+problem:'An appliance missing from the survey, with very low power.',
+why:'It completes the personal-appliance list and shows the difference between a hair iron (60 W) and a hair dryer (up to 2.2 kW).',
+assume:['60 W rated','15–30 min sessions','Highest use on Thursday night (events and weddings)'],
+method:'Energy = 0.06 × duration.',
+kpis:['Number of runs','Weekly energy'],
+interp:'About 0.2 kWh a week; negligible for sizing.',
+limits:'Estimated scenario. If a hair dryer is meant, raise the power to 1.2–2.2 kW and shorten the duration.',
+rec:'Can be left out of sizing. If a hair dryer is added, treat it as a morning power pulse like the iron.'}
+};
+
+/* ---------- UI strings ---------- */
+const I18N={
+en:{eyebrow:'Phase 2 · Load modelling',title:'Appliance Scenario Analysis',
+lead:'Each appliance has a weekly schedule for a typical Saudi home, based on the survey results above and on daily routines. This section turns each schedule into electrical load (kW and kWh), compares the scenarios, and summarizes what it means for sizing the microgrid. Use the filters to change season, day type and time of day, and hover over anything to see its values.',
+navExec:'Executive summary',navCmp:'Scenario comparison',navDet:'Scenario details',navTbl:'Run-by-run table',navMeth:'Method & extending',
+fSeason:'Season',oSummer:'Summer (May–Sep)',oWinter:'Winter (Dec–Feb)',oAllSc:'All scenarios together',fDay:'Day type',oWeek:'Whole week',oWork:'Workdays (Sun–Thu)',oWeekend:'Weekend (Fri–Sat)',
+fPeriod:'Time of day',oDay:'Whole day',oP0:'Dawn (12–6 AM)',oP1:'Morning (6 AM–12 PM)',oP2:'Afternoon (12–6 PM)',oP3:'Evening (6 PM–12 AM)',fMetric:'Compare by',fType:'Scenario type',
+m_kwh:'Weekly energy (kWh)',m_hours:'Weekly run hours',m_runs:'Runs per week',m_peak:'Highest rated power (kW)',m_eve:'Evening share 6 PM–12 AM (%)',m_cost:'Monthly cost (SAR)',
+findings:'Findings',recs:'Recommendations for the microgrid',cmpHint:'Pick the measure from "Compare by". Click an appliance to open its details.',
+stackTitle:'Home daily load profile',stackHint:'Average power (kW) in each hour, stacked by scenario type. The shaded band is the selected time of day.',
+detHint:'Pick an appliance from the tabs. KPIs and the heatmap follow the filters above.',tblHint:'Each row is one run from the scenario schedules. Click a column header to sort.',
+tblOnly:'Selected scenario only',search:'Search by appliance, day or program…',
+u_kwh:'kWh',u_kw:'kW',u_h:'h',u_times:'runs',u_pct:'%',u_sar:'SAR',unit:'Unit',barsBy:'Bars are colored by scenario type.'},
+ar:{eyebrow:'المرحلة الثانية · نمذجة الأحمال',title:'تحليل سيناريوهات تشغيل الأجهزة',
+lead:'لكل جهاز جدول تشغيل أسبوعي يمثّل منزلاً سعودياً نموذجياً، مبني على نتائج الاستبيان أعلاه وعلى العادات اليومية. يحوّل هذا القسم كل جدول إلى أحمال كهربائية (ك.و وك.و.س) ويقارن بين السيناريوهات، ثم يلخّص ما يعنيه ذلك لتحجيم الشبكة المصغّرة. استخدم المرشحات لتغيير الموسم ونوع اليوم والفترة الزمنية، ومرّر المؤشر فوق أي عنصر لعرض القيم.',
+navExec:'الملخص التنفيذي',navCmp:'المقارنة بين السيناريوهات',navDet:'تفاصيل كل سيناريو',navTbl:'الجدول التفصيلي لكل تشغيل',navMeth:'المنهجية وطريقة التوسعة',
+fSeason:'الموسم',oSummer:'صيف (مايو–سبتمبر)',oWinter:'شتاء (ديسمبر–فبراير)',oAllSc:'كل السيناريوهات معاً',fDay:'نوع اليوم',oWeek:'كل الأسبوع',oWork:'أيام العمل (الأحد–الخميس)',oWeekend:'نهاية الأسبوع (الجمعة–السبت)',
+fPeriod:'الفترة الزمنية',oDay:'اليوم كاملاً',oP0:'فجراً (12–6 ص)',oP1:'صباحاً (6 ص–12 ظ)',oP2:'بعد الظهر (12–6 م)',oP3:'مساءً (6–12 م)',fMetric:'مؤشر المقارنة',fType:'نوع السيناريو',
+m_kwh:'الطاقة الأسبوعية (ك.و.س)',m_hours:'ساعات التشغيل الأسبوعية',m_runs:'عدد مرات التشغيل أسبوعياً',m_peak:'أعلى قدرة اسمية (ك.و)',m_eve:'حصة المساء 6–12 م (%)',m_cost:'التكلفة الشهرية (ريال)',
+findings:'الاستنتاجات',recs:'التوصيات للشبكة المصغّرة',cmpHint:'اختر المؤشر من قائمة «مؤشر المقارنة». اضغط على أي جهاز لفتح تفاصيله.',
+stackTitle:'منحنى الحمل اليومي للمنزل',stackHint:'متوسط القدرة (ك.و) في كل ساعة، مكدّساً حسب نوع السيناريو. المنطقة المظللة هي الفترة المختارة.',
+detHint:'اختر جهازاً من التبويبات. المؤشرات والخريطة الحرارية تتبع المرشحات أعلاه.',tblHint:'كل صف هو تشغيل واحد من جداول السيناريوهات. اضغط على عنوان العمود للفرز.',
+tblOnly:'السيناريو المحدد فقط',search:'ابحث باسم الجهاز أو اليوم أو البرنامج…',
+u_kwh:'ك.و.س',u_kw:'ك.و',u_h:'ساعة',u_times:'مرة',u_pct:'%',u_sar:'ريال',unit:'الوحدة',barsBy:'الأشرطة ملوّنة حسب نوع السيناريو.'}
+};
+const METHOD={
+en:`<p><b>From schedule to load.</b> Each schedule becomes a weekly array at one-minute resolution (10,080 minutes). In every running minute the appliance's average power is added: rated power × duty cycle (the share of time a heating element or compressor is actually on). For program-based appliances (both washers and the cooker), power comes from each program's energy and length.</p>
+<p><b>KPIs.</b> Energy = Σ(average power × time). Rated coincident peak = the highest sum of rated powers running in the same minute, the right figure for inverter sizing. Evening share = 6 PM–12 AM energy ÷ daily energy. Monthly cost = weekly energy × 4.33 × 0.18 SAR (residential tariff up to 6,000 kWh).</p>
+<p><b>Filters.</b> "Season" removes the other season's appliances: AC and fan in summer, the two heaters in winter. "Day type" limits the calculation to workdays or the weekend, and "Time of day" to certain hours. With a day type selected, the figures cover only those days of the week.</p>
+<p><b>General limits.</b> The schedules describe one representative home, not measurements. The survey covers 139 homes and records no power ratings. Ratings and duty cycles are typical engineering estimates and should be calibrated with smart-meter data before final design.</p>
+<p><b>Adding a scenario.</b> Append an object to <code class="k">SCENARIOS</code> with <code class="k">id</code>, names, category <code class="k">cat</code>, <code class="k">season</code>, <code class="k">rated</code> power, <code class="k">duty</code> and schedule <code class="k">type</code>; paste the CSV rows into <code class="k">rows</code>; and add the nine text blocks (Arabic in <code class="k">t</code>, English in <code class="k">EN_TEXT</code>). Tabs, KPIs, charts and the table pick it up automatically.</p>
+<p><b>Adding a category or program.</b> Categories live in <code class="k">CATS</code> (up to six colors; beyond that, merge categories) and program energy in <code class="k">PROG</code>. Change the tariff in <code class="k">TARIFF</code>.</p>`,
+ar:`<p><b>من الجدول إلى الحمل.</b> يُحوَّل كل جدول إلى مصفوفة أسبوعية بدقة دقيقة واحدة (10,080 دقيقة). في كل دقيقة تشغيل يُضاف متوسط قدرة الجهاز = القدرة الاسمية × معامل التشغيل (نسبة الوقت الذي يعمل فيه العنصر الحراري أو الضاغط). للأجهزة ذات البرامج (الغسالتان والفرن) تُحسب القدرة من طاقة البرنامج ومدته.</p>
+<p><b>المؤشرات.</b> الطاقة = مجموع (القدرة المتوسطة × الزمن). الذروة الاسمية = أعلى مجموع لقدرات الأجهزة الاسمية التي تعمل في الدقيقة نفسها، وهي المؤشر المناسب لتحجيم العاكس. حصة المساء = طاقة الفترة 6–12 م ÷ طاقة اليوم. التكلفة الشهرية = الطاقة الأسبوعية × 4.33 × 0.18 ريال (شريحة الاستهلاك السكني حتى 6,000 ك.و.س).</p>
+<p><b>المرشحات.</b> «الموسم» يستبعد أجهزة الموسم الآخر: التكييف والمروحة صيفاً، والدفايتان شتاءً. «نوع اليوم» يقصر الحساب على أيام العمل أو نهاية الأسبوع، و«الفترة» تقصره على ساعات محددة. عند اختيار نوع يوم تُحسب القيم لتلك الأيام فقط.</p>
+<p><b>حدود عامة.</b> الجداول تمثّل منزلاً نموذجياً واحداً وليست قياسات فعلية. أرقام الاستبيان تغطي 139 منزلاً ولا تذكر القدرات. القدرات ومعاملات التشغيل تقديرات هندسية نموذجية، ويجب معايرتها بقياسات عدّاد ذكي قبل التصميم النهائي.</p>
+<p><b>إضافة سيناريو جديد.</b> أضف عنصراً إلى المصفوفة <code class="k">SCENARIOS</code> يحتوي على: <code class="k">id</code>، الاسمين، الفئة <code class="k">cat</code>، الموسم <code class="k">season</code>، القدرة <code class="k">rated</code> ومعامل التشغيل <code class="k">duty</code>، ونوع الجدول <code class="k">type</code>، ثم الصق أسطر الجدول بصيغة CSV في <code class="k">rows</code> وأضف النصوص التسعة (العربية في <code class="k">t</code> والإنجليزية في <code class="k">EN_TEXT</code>). تظهر التبويبات والمؤشرات والرسوم والجدول تلقائياً.</p>
+<p><b>إضافة فئة أو برنامج.</b> الفئات معرّفة في <code class="k">CATS</code> (حتى ستة ألوان، وبعدها تُدمج الفئات)، وطاقة البرامج في <code class="k">PROG</code>. لتغيير التعرفة عدّل <code class="k">TARIFF</code>.</p>`};
+const SECT={en:['Problem or operating condition','Why this scenario matters','Assumptions & inputs','Calculation method','Key performance indicators','Interpreting the results','Limits & when it doesn\'t fit','Engineering note','Practical recommendation'],
+ar:['المشكلة أو الحالة التشغيلية','سبب اختيار السيناريو وأهميته','الافتراضات والمدخلات','منهجية الاحتساب','مؤشرات الأداء الرئيسية','تفسير النتائج وأثرها على القرار','القيود وحالات عدم الملاءمة','ملاحظة هندسية','التوصية العملية']};
+
+let LANG='en';
+try{const s=localStorage.getItem('scn-lang');if(s==='ar'||s==='en')LANG=s}catch(e){}
+const L=k=>I18N[LANG][k];
+const X=(o)=>o[LANG];
+const DAYL=d=>DAYN[LANG][d];
+const catName=c=>CATS[c][LANG];
+const scName=sc=>LANG==='ar'?sc.name:sc.en;
+const scAlt=sc=>LANG==='ar'?sc.en:sc.name;
+const TXT=sc=>LANG==='ar'?sc.t:EN_TEXT[sc.id];
+
+/* ---------- build runs & minute arrays ---------- */
+const tm=s=>{const [h,m]=s.split(':');return +h*60+(+m)};
+const hhmm=m=>{m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
+const WEEK=10080;
+SCENARIOS.forEach(sc=>{
+ sc.runs=sc.rows.trim().split('\n').map(l=>{const f=l.trim().split(',');const d=DAYS.indexOf(f[0]);let s=tm(f[1]),e,prog='',kw,rated;
+  if(sc.type==='wm'){const p=PROG.wm[f[2]];prog=f[2];e=s+p.min;kw=p.kwh/(p.min/60);rated=p.rated}
+  else{e=f[2]==='23:59'?1440:tm(f[2]);if(e<=s)e+=1440;
+   if(sc.type==='dw'){prog='P'+f[3];kw=PROG.dw[f[3]]/((e-s)/60);rated=sc.rated}
+   else if(sc.type==='oven'){prog=f[3];[kw,rated]=PROG.oven[f[3]]}
+   else{kw=sc.rated*sc.duty;rated=sc.rated}}
+  return {sc,d,s,e,start:d*1440+s,dur:e-s,prog,kw,rated,kwh:kw*(e-s)/60,endLabel:f[2]==='23:59'?'23:59':hhmm(e)}});
+ sc.avg=new Float32Array(WEEK);sc.rat=new Float32Array(WEEK);sc.on=new Uint8Array(WEEK);
+ sc.runs.forEach(r=>{for(let m=r.start;m<r.start+r.dur;m++){const i=m%WEEK;sc.avg[i]+=r.kw;sc.rat[i]=Math.max(sc.rat[i],r.rated);sc.on[i]=1}});
+});
+
+/* ---------- filters ---------- */
+const F={season:'summer',day:'all',period:'all',metric:'kwh',cats:new Set(Object.keys(CATS))};
+let cur=SCENARIOS[0].id, sortKey='start', sortDir=1;
+const dayOK=d=>F.day==='all'||(F.day==='work'?d<5:d>=5);
+const perOK=h=>F.period==='all'||Math.floor(h/6)===+F.period;
+const inSeason=sc=>F.season==='all'||sc.season==='all'||sc.season===F.season;
+const visible=()=>SCENARIOS.filter(sc=>inSeason(sc)&&F.cats.has(sc.cat));
+const nDays=()=>F.day==='all'?7:F.day==='work'?5:2;
+const cv=v=>`var(${v})`;
+const catColor=c=>cv(CATS[c].c);
+const fmt=(v,d=1)=>Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const N=v=>`<span class="num">${v}</span>`;
+const hh=h=>String(h).padStart(2,'0')+':00';
+
+function kpi(sc){let kwh=0,on=0,eve=0,all=0,peak=0;const hr=new Float32Array(24);
+ for(let m=0;m<WEEK;m++){const d=Math.floor(m/1440),h=Math.floor(m%1440/60);if(!dayOK(d))continue;const a=sc.avg[m]/60;all+=a;if(h>=18)eve+=a;
+  if(!perOK(h))continue;kwh+=a;on+=sc.on[m];hr[h]+=a;if(sc.rat[m]>peak)peak=sc.rat[m]}
+ const runs=sc.runs.filter(r=>dayOK(r.d)&&perOK(Math.floor(r.s/60))).length;
+ let ph=0;hr.forEach((v,i)=>{if(v>hr[ph])ph=i});
+ return {kwh,hours:on/60,runs,peak,eve:all?eve/all*100:0,cost:kwh*WEEKS_PER_MONTH*TARIFF,peakHour:kwh?ph:null}}
+const MET={kwh:['u_kwh',1],hours:['u_h',1],runs:['u_times',0],peak:['u_kw',1],eve:['u_pct',0],cost:['u_sar',1]};
+
+function house(list){let tot=0,peak=0,peakAt=0;const byCat={};Object.keys(CATS).forEach(c=>byCat[c]=new Float32Array(24));
+ for(let m=0;m<WEEK;m++){const d=Math.floor(m/1440),h=Math.floor(m%1440/60);if(!dayOK(d))continue;let r=0;
+  list.forEach(sc=>{const a=sc.avg[m];if(a){byCat[sc.cat][h]+=a/60;if(perOK(h))tot+=a/60}r+=sc.rat[m]});
+  if(perOK(h)&&r>peak){peak=r;peakAt=m}}
+ const n=nDays();Object.values(byCat).forEach(a=>{for(let i=0;i<24;i++)a[i]/=n});
+ return {tot,peak,peakAt,byCat}}
+
+/* ---------- static text & language ---------- */
+function applyLang(){const root=$('#scn');root.dir=LANG==='ar'?'rtl':'ltr';root.lang=LANG;
+ root.querySelectorAll('[data-i]').forEach(el=>el.textContent=L(el.dataset.i));
+ $('#tbl-q').placeholder=L('search');$('#tbl-q').setAttribute('aria-label',L('search'));
+ $('#sc-nav').setAttribute('aria-label',LANG==='ar'?'أقسام التحليل':'Analysis sections');
+ $('#sc-filters').setAttribute('aria-label',LANG==='ar'?'مرشحات التحليل':'Analysis filters');
+ $('#tabs').setAttribute('aria-label',LANG==='ar'?'السيناريوهات':'Scenarios');
+ $('#method').innerHTML=METHOD[LANG];
+ $('#lang-en').setAttribute('aria-pressed',LANG==='en');$('#lang-ar').setAttribute('aria-pressed',LANG==='ar');
+ Object.keys(CATS).forEach(k=>{const b=$('#cat-'+k);if(b)b.lastChild.textContent=catName(k)});
+ SCENARIOS.forEach(sc=>{const b=$('#tab-'+sc.id);if(b)b.lastChild.textContent=scName(sc)});
+ COLS_HEAD()}
+['en','ar'].forEach(l=>$('#lang-'+l).onclick=()=>{LANG=l;try{localStorage.setItem('scn-lang',l)}catch(e){}applyLang();scRender()});
+
+/* ---------- filter bar ---------- */
+const catBox=$('#f-cats');
+Object.keys(CATS).forEach(k=>{const b=document.createElement('button');b.className='chip';b.type='button';b.id='cat-'+k;b.setAttribute('aria-pressed','true');
+ const i=document.createElement('i');i.style.background=catColor(k);b.append(i,document.createTextNode(catName(k)));
+ b.onclick=()=>{F.cats.has(k)?F.cats.delete(k):F.cats.add(k);if(!F.cats.size)F.cats.add(k);b.setAttribute('aria-pressed',F.cats.has(k));scRender()};catBox.appendChild(b)});
+[['f-season','season'],['f-day','day'],['f-period','period'],['f-metric','metric']].forEach(([id,k])=>$('#'+id).addEventListener('change',e=>{F[k]=e.target.value;scRender()}));
+const selText=id=>$('#'+id).selectedOptions[0].text;
+const filterLabel=()=>`${selText('f-season')} · ${selText('f-day')} · ${selText('f-period')}`;
+
+/* ---------- executive summary ---------- */
+function execRender(list,H,ks){const ar=LANG==='ar',u=L('u_kwh'),uk=L('u_kw');
+ $('#exec-hint').textContent=(ar?'القيم محسوبة للمرشحات الحالية: ':'Figures for the current filters: ')+filterLabel()+'.';
+ const sorted=[...list].sort((a,b)=>ks[b.id].kwh-ks[a.id].kwh);
+ let night=0;list.forEach(sc=>{for(let m=0;m<WEEK;m++){const d=Math.floor(m/1440),h=Math.floor(m%1440/60);if(dayOK(d)&&perOK(h)&&(h<7||h>=18))night+=sc.avg[m]/60}});
+ const flex=['washer','dishwasher','waterheater','iron'];
+ const flexK=list.filter(sc=>flex.includes(sc.id)).reduce((s,sc)=>s+ks[sc.id].kwh,0);
+ const pd=Math.floor(H.peakAt/1440),pc=v=>H.tot?Math.round(v/H.tot*100)+'%':'—';
+ const cards=ar?[
+  ['الطاقة للفترة المختارة',fmt(H.tot),u,`${list.length} سيناريو · ${nDays()} أيام · نحو ${fmt(H.tot*WEEKS_PER_MONTH*TARIFF,0)} ريال شهرياً`,true],
+  ['أعلى قدرة اسمية متزامنة',fmt(H.peak),uk,H.peak?`${DAYL(pd)} ${hhmm(H.peakAt)} · الحد الأدنى لقدرة العاكس`:'—'],
+  ['طاقة الليل (6 م – 7 ص)',pc(night),'',`${fmt(night)} ${u} تحتاج بطارية`],
+  ['الأحمال القابلة للإزاحة',pc(flexK),'',`${fmt(flexK)} ${u} يمكن نقلها لساعات الشمس`]]:[
+  ['Energy for selected period',fmt(H.tot),u,`${list.length} scenarios · ${nDays()} days · about ${fmt(H.tot*WEEKS_PER_MONTH*TARIFF,0)} SAR/month`,true],
+  ['Highest coincident rated power',fmt(H.peak),uk,H.peak?`${DAYL(pd)} ${hhmm(H.peakAt)} · minimum inverter rating`:'—'],
+  ['Night energy (6 PM – 7 AM)',pc(night),'',`${fmt(night)} ${u} must come from the battery`],
+  ['Shiftable loads',pc(flexK),'',`${fmt(flexK)} ${u} could move to solar hours`]];
+ $('#exec-kpis').innerHTML=cards.map(([k,v,un,d,l])=>`<div class="kpi${l?' lead':''}"><span class="k">${k}</span><span class="v">${v}${un?` <small>${un}</small>`:''}</span><span class="d">${d}</span></div>`).join('');
+ const top3=sorted.slice(0,3).filter(sc=>ks[sc.id].kwh>0).map(sc=>`${scName(sc)} (${N(Math.round(ks[sc.id].kwh/H.tot*100)+'%')})`).join(ar?'، ':', ');
+ const f=[];
+ if(top3)f.push(ar?`أكبر ثلاثة أحمال: ${top3}. تركيز الجهود عليها يعطي أكبر أثر.`:`The three largest loads are ${top3}. Effort spent on these has the most impact.`);
+ if(H.tot)f.push(ar?`${N(pc(night))} من الطاقة تُستهلك بين 6 مساءً و7 صباحاً، خارج ساعات الإنتاج الشمسي، وهذا ما يحدد سعة البطارية.`:`${N(pc(night))} of the energy is used between 6 PM and 7 AM, outside solar hours. This is what sets battery capacity.`);
+ if(H.peak)f.push(ar?`أعلى تزامن اسمي ${N(fmt(H.peak))} ك.و يوم ${DAYL(pd)} الساعة ${N(hhmm(H.peakAt))}، وهو ناتج عن تشغيل أحمال المطبخ والتسخين والتكييف معاً.`:`The highest coincident rated load is ${N(fmt(H.peak))} kW on ${DAYL(pd)} at ${N(hhmm(H.peakAt))}, when kitchen, heating and cooling loads run together.`);
+ f.push(F.season==='winter'?(ar?'في الشتاء تحل التدفئة وسخان المياه محل التكييف، والطاقة الأسبوعية أقل من الصيف، فالصيف هو الحالة الحاكمة للتحجيم.':'In winter, heating and the water heater replace AC, and weekly energy is lower than in summer, so summer is the sizing case.')
+  :(ar?'في الصيف يستهلك التكييف نحو نصف الطاقة رغم أنه وحدة واحدة فقط، ومعظمه ليلاً، فالصيف هو الحالة الحاكمة للتحجيم.':'In summer, AC uses about half the energy even though only one unit is modelled, mostly at night, so summer is the sizing case.'));
+ f.push(ar?'الأجهزة الصغيرة (المايكروويف، التوستر، مكواة الشعر، المروحة) مجتمعة أقل من 5% من الطاقة، وأثرها في النبضات اللحظية لا في الطاقة.':'Small appliances (microwave, toaster, hair iron, fan) together are under 5% of the energy. They matter for short power spikes, not for energy.');
+ $('#exec-find').innerHTML=f.map(x=>`<li>${x}</li>`).join('');
+ $('#exec-rec').innerHTML=(ar?[
+  `حجّم العاكس على أعلى تزامن اسمي (${N(fmt(H.peak))} ك.و) مع هامش 25% لتيار بدء ضاغط المكيف.`,
+  'حجّم البطارية على طاقة الليل في أسبوع صيفي، واضربها في عدد وحدات التكييف الفعلي بدل الوحدة الواحدة في هذا النموذج.',
+  `انقل الأحمال المرنة (غسالة الملابس، غسالة الصحون، إعادة تسخين الخزان) إلى 10:00–14:00: نحو ${N(fmt(flexK))} ك.و.س تنتقل من البطارية إلى الألواح مباشرة.`,
+  'استبدل الدفايات والمكيفات القديمة بوحدات انفرتر، وادرس سخاناً شمسياً حرارياً، فهي أكبر وفر ممكن.',
+  'عايِر القدرات ومعاملات التشغيل بقياس عدّاد ذكي لمنزلين أو ثلاثة من العينة قبل التصميم النهائي، وأضف القلاية الهوائية ومجفف الشعر إلى الاستبيان القادم.']:[
+  `Size the inverter for the highest coincident rated load (${N(fmt(H.peak))} kW) plus a 25% margin for AC compressor start-up current.`,
+  'Size the battery for night energy in a summer week, multiplied by the real number of AC units rather than the single unit modelled here.',
+  `Shift flexible loads (washing machine, dishwasher, water-heater reheating) to 10:00–14:00: about ${N(fmt(flexK))} kWh moves from the battery straight to the panels.`,
+  'Replace resistive heaters and old AC units with inverter units, and consider a solar thermal water heater. These are the biggest savings available.',
+  'Calibrate ratings and duty cycles with smart-meter data from two or three surveyed homes before final design, and add the air fryer and hair dryer to the next survey.']).map(x=>`<li>${x}</li>`).join('')}
+
+/* ---------- comparison bars ---------- */
+function cmpRender(list,ks){const [uk,dp]=MET[F.metric],u=L(uk);
+ $('#cmp-title').textContent=selText('f-metric');$('#cmp-hint').textContent=`${L('unit')}: ${u}. ${L('barsBy')}`;
+ const rows=[...list].sort((a,b)=>ks[b.id][F.metric]-ks[a.id][F.metric]);const mx=Math.max(...rows.map(sc=>ks[sc.id][F.metric]),1e-9);
+ const box=$('#cmp-bars');box.innerHTML='';
+ rows.forEach(sc=>{const v=ks[sc.id][F.metric];const b=document.createElement('button');b.className='sc-bar';b.type='button';b.id='cmp-'+sc.id;
+  if(sc.id===cur)b.setAttribute('aria-current','true');
+  b.innerHTML=`<span class="nm">${scName(sc)}</span><span class="t"><span class="f" style="width:${v/mx*100}%;background:${catColor(sc.cat)}"></span></span><span class="n">${fmt(v,dp)}</span>`;
+  b.onclick=()=>{cur=sc.id;scRender();$('#sc-detail').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})};
+  tipOn(b,()=>{const k=ks[sc.id];return `<b>${scName(sc)}</b><br>${selText('f-metric')}: <span class="m">${fmt(v,dp)}</span><br>${L('m_kwh')}: <span class="m">${fmt(k.kwh)}</span><br>${L('m_hours')}: <span class="m">${fmt(k.hours)}</span><br>${L('m_peak')}: <span class="m">${fmt(k.peak)}</span>`});
+  box.appendChild(b)});
+ const used=[...new Set(list.map(s=>s.cat))];
+ $('#cmp-leg').innerHTML=used.map(c=>`<span><i style="background:${catColor(c)}"></i>${catName(c)}</span>`).join('')}
+
+/* ---------- stacked daily profile ---------- */
+function stackRender(H,list){
+ const cats=Object.keys(CATS).filter(c=>list.some(s=>s.cat===c));
+ const tot=Array.from({length:24},(_,h)=>cats.reduce((s,c)=>s+H.byCat[c][h],0));
+ const mx=Math.max(...tot,.1),step=mx>4?1:mx>2?.5:mx>.8?.2:.1,ym=Math.ceil(mx/step)*step;
+ const W=640,Hh=260,Lm=40,R=10,Tp=12,B=30,pw=W-Lm-R,ph=Hh-Tp-B,x=h=>Lm+h/24*pw,y=v=>Tp+ph-v/ym*ph;
+ let s=`<svg viewBox="0 0 ${W} ${Hh}" width="100%" role="img" aria-label="${L('stackTitle')}">`;
+ if(F.period!=='all'){const p=+F.period;s+=`<rect x="${x(p*6)}" y="${Tp}" width="${pw/4}" height="${ph}" fill="var(--accent-soft)"/>`}
+ for(let g=0;g<=ym+1e-9;g+=step){s+=`<line x1="${Lm}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="var(--grid)"/><text x="${Lm-6}" y="${y(g)+4}" text-anchor="end">${fmt(g,step<1?1:0)}</text>`}
+ s+=`<text x="${Lm-6}" y="${Tp-2}" text-anchor="end" style="fill:var(--ink3)">${L('u_kw')}</text>`;
+ [0,3,6,9,12,15,18,21,24].forEach(h=>s+=`<text x="${x(h)}" y="${Hh-10}" text-anchor="middle">${hh(h)}</text>`);
+ const base=new Float32Array(24);
+ cats.forEach(c=>{let top='',bot='';for(let h=0;h<24;h++){const y1=y(base[h]+H.byCat[c][h]);top+=`${h?'L':'M'}${x(h)},${y1}L${x(h+1)},${y1}`}
+  for(let h=23;h>=0;h--){const y0=y(base[h]);bot+=`L${x(h+1)},${y0}L${x(h)},${y0}`}
+  s+=`<path d="${top}${bot}Z" fill="${catColor(c)}" stroke="var(--surface)" stroke-width="1"/>`;
+  for(let h=0;h<24;h++)base[h]+=H.byCat[c][h]});
+ s+=`<line x1="${Lm}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--ink3)"/>`;
+ s+=`<rect class="xh" x="0" y="${Tp}" width="${pw/24}" height="${ph}" fill="none" stroke="var(--ink)" stroke-width="1.5" rx="2" visibility="hidden"/>`;
+ s+=`<rect class="ov" x="${Lm}" y="${Tp}" width="${pw}" height="${ph}" fill="transparent"/></svg>`;
+ const box=$('#stack');box.innerHTML=s;
+ const ov=box.querySelector('.ov'),xh=box.querySelector('.xh'),svg=box.querySelector('svg');
+ ov.addEventListener('mousemove',e=>{const r=svg.getBoundingClientRect();const px=(e.clientX-r.left)/r.width*W;const h=Math.max(0,Math.min(23,Math.floor((px-Lm)/pw*24)));
+  xh.setAttribute('x',x(h));xh.setAttribute('visibility','visible');
+  tip.innerHTML=`<b>${hh(h)}–${hh(h+1)} · ${PERN[LANG][Math.floor(h/6)]}</b><br>`+[...cats].reverse().filter(c=>H.byCat[c][h]>0.001).map(c=>`<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${catColor(c)}"></span> ${catName(c)}: <span class="m">${fmt(H.byCat[c][h],2)}</span> ${L('u_kw')}`).join('<br>')+`<br><b>${LANG==='ar'?'المجموع':'Total'}: <span class="m">${fmt(tot[h],2)}</span> ${L('u_kw')}</b>`;
+  tip.hidden=false;moveTip(e)});
+ ov.addEventListener('mouseleave',()=>{tip.hidden=true;xh.setAttribute('visibility','hidden')});
+ $('#stack-leg').innerHTML=cats.map(c=>`<span><i style="background:${catColor(c)}"></i>${catName(c)}</span>`).join('')}
+
+/* ---------- tabs & detail ---------- */
+function tabsRender(list){const box=$('#tabs');
+ if(!box.children.length)SCENARIOS.forEach(sc=>{const b=document.createElement('button');b.className='sc-tab';b.type='button';b.setAttribute('role','tab');b.id='tab-'+sc.id;b.setAttribute('aria-controls','tabpanel');
+  const i=document.createElement('i');i.style.background=catColor(sc.cat);b.append(i,document.createTextNode(scName(sc)));b.onclick=()=>{cur=sc.id;scRender()};
+  b.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;const tabs=[...box.querySelectorAll('.sc-tab:not([hidden])')];const k=tabs.indexOf(b);const fwd=(e.key==='ArrowRight')!==(LANG==='ar');const n=tabs[(k+(fwd?1:-1)+tabs.length)%tabs.length];n.focus();n.click()});
+  box.appendChild(b)});
+ const ids=list.map(s=>s.id);if(!ids.includes(cur)&&ids.length)cur=ids[0];
+ SCENARIOS.forEach(sc=>{const b=$('#tab-'+sc.id);b.hidden=!ids.includes(sc.id);b.setAttribute('aria-selected',sc.id===cur);b.tabIndex=sc.id===cur?0:-1})}
+function detailRender(list,ks,H){const p=$('#tabpanel');const sc=SCENARIOS.find(s=>s.id===cur);const ar=LANG==='ar';
+ if(!sc||!list.includes(sc)){p.innerHTML=`<p class="hint" style="margin-top:12px">${ar?'لا توجد سيناريوهات تطابق المرشحات الحالية. غيّر الموسم أو فعّل نوعاً آخر.':'No scenarios match the current filters. Change the season or turn on another type.'}</p>`;return}
+ p.setAttribute('aria-labelledby','tab-'+sc.id);
+ const k=ks[sc.id],t=TXT(sc),share=H.tot?k.kwh/H.tot*100:0,u=L('u_kwh'),uk=L('u_kw');
+ const cards=ar?[['الطاقة',fmt(k.kwh),u,`${fmt(k.kwh/nDays(),2)} ${u} يومياً`,true],['ساعات التشغيل',fmt(k.hours),'ساعة',`${k.runs} مرة تشغيل`],
+  ['أعلى قدرة اسمية',fmt(k.peak),uk,sc.duty<1?`معامل التشغيل ${Math.round(sc.duty*100)}%`:'قدرة ثابتة أثناء التشغيل'],
+  ['حصة المساء',fmt(k.eve,0)+'%','','من طاقة الجهاز بين 6 م و12 م'],
+  ['ساعة الذروة',k.peakHour==null?'—':hh(k.peakHour),'',k.peakHour==null?'لا تشغيل في الفترة':PERN.ar[Math.floor(k.peakHour/6)]],
+  ['حصة من المنزل',fmt(share,0)+'%','','من طاقة السيناريوهات المعروضة'],
+  ['التكلفة الشهرية',fmt(k.cost),'ريال',`بتعرفة ${TARIFF} ريال/ك.و.س`]]:[
+  ['Energy',fmt(k.kwh),u,`${fmt(k.kwh/nDays(),2)} ${u} per day`,true],['Run time',fmt(k.hours),'h',`${k.runs} runs`],
+  ['Highest rated power',fmt(k.peak),uk,sc.duty<1?`Duty cycle ${Math.round(sc.duty*100)}%`:'Constant power while running'],
+  ['Evening share',fmt(k.eve,0)+'%','','of this appliance\'s energy, 6 PM–12 AM'],
+  ['Peak hour',k.peakHour==null?'—':hh(k.peakHour),'',k.peakHour==null?'No runs in this period':PERN.en[Math.floor(k.peakHour/6)]],
+  ['Share of home',fmt(share,0)+'%','','of the energy of the scenarios shown'],
+  ['Monthly cost',fmt(k.cost),'SAR',`at ${TARIFF} SAR/kWh`]];
+ const S=SECT[LANG];
+ const sec=(n,body,cls='')=>`<div class="sc-sec ${cls}"><h4><span>${String(n+1).padStart(2,'0')}</span>${S[n]}</h4>${body}</div>`;
+ const ul=a=>`<ul>${a.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+ const note=sc.duty<1?(ar?`القدرة الاسمية ${fmt(sc.rated)} ك.و لكن المتوسط ${fmt(sc.rated*sc.duty,2)} ك.و بسبب الثرموستات. استخدم الاسمية للعاكس والمتوسط للطاقة والبطارية.`:`Rated power is ${fmt(sc.rated)} kW, but the average is ${fmt(sc.rated*sc.duty,2)} kW because of the thermostat. Use the rated value for the inverter and the average for energy and battery sizing.`)
+  :sc.type==='window'?(ar?`قدرة ثابتة ${fmt(sc.rated,sc.rated<.1?2:1)} ك.و طوال التشغيل، فالقيمتان الاسمية والمتوسطة متساويتان.`:`Constant ${fmt(sc.rated,sc.rated<.1?2:1)} kW while running, so rated and average power are the same.`)
+  :(ar?'القدرة تختلف حسب البرنامج: المتوسط يُستخدم للطاقة والاسمية للذروة.':'Power depends on the program: use the average for energy and the rated value for peaks.');
+ const cur_k=ar?`القيم الحالية: ${N(fmt(k.kwh))} ك.و.س، ${N(fmt(k.peak))} ك.و، ${N(fmt(k.eve,0)+'%')} مساءً`:`Current values: ${N(fmt(k.kwh))} kWh, ${N(fmt(k.peak))} kW peak, ${N(fmt(k.eve,0)+'%')} in the evening`;
+ p.innerHTML=`<div class="sc-head"><h3>${scName(sc)}</h3><span class="en" lang="${ar?'en':'ar'}">${scAlt(sc)}</span></div>
+ <div class="badges"><span class="badge"><i style="background:${catColor(sc.cat)}"></i>${catName(sc.cat)}</span><span class="badge">${X(SEAS[sc.season])}</span>
+ <span class="badge ${sc.source==='survey'?'ok':'warn'}">${sc.source==='survey'?(ar?'مبني على بيانات الاستبيان':'Based on survey data'):(ar?'تقديري: غير موجود في الاستبيان':'Estimate: not in the survey')}</span><span class="badge">${ar?`${sc.runs.length} سطراً في الجدول`:`${sc.runs.length} schedule rows`}</span></div>
+ <p class="sc-desc">${t.desc}</p>
+ <div class="kpis">${cards.map(([a,v,un,d,l])=>`<div class="kpi${l?' lead':''}"><span class="k">${a}</span><span class="v">${v}${un?` <small>${un}</small>`:''}</span><span class="d">${d}</span></div>`).join('')}</div>
+ <h3>${ar?'خريطة التشغيل الأسبوعية · الطاقة في كل ساعة (ك.و.س)':'Weekly run map · energy in each hour (kWh)'}</h3>
+ <div class="scroll"><table class="hm2" id="hm2"></table></div>
+ <div class="secs">
+ ${sec(0,`<p>${t.problem}</p>`)}${sec(1,`<p>${t.why}</p>`)}${sec(2,ul(t.assume))}${sec(3,`<p>${t.method}</p>`)}
+ ${sec(4,ul(t.kpis.concat([cur_k])))}${sec(5,`<p>${t.interp}</p>`)}${sec(6,`<p>${t.limits}</p>`)}${sec(7,`<p>${note}</p>`)}
+ ${sec(8,`<p>${t.rec}</p>`,'rec')}
+ </div>`;
+ const grid=[];let mx=0;for(let d=0;d<7;d++){grid[d]=new Float32Array(24);for(let m=d*1440;m<(d+1)*1440;m++)grid[d][Math.floor((m-d*1440)/60)]+=sc.avg[m]/60;grid[d].forEach(v=>{if(v>mx)mx=v})}
+ const col=v=>v<=0?'var(--grid)':`var(--s${Math.min(5,1+Math.floor(v/mx*4.999))})`;
+ const hm=$('#hm2');
+ hm.innerHTML='<tr><th></th>'+Array.from({length:24},(_,h)=>`<th>${String(h).padStart(2,'0')}</th>`).join('')+'</tr>'+
+ [0,1,2,3,4,5,6].map(d=>`<tr><th class="rn">${DAYL(d)}</th>`+Array.from({length:24},(_,h)=>{const dim=!(dayOK(d)&&perOK(h));return `<td data-d="${d}" data-h="${h}" style="background:${col(grid[d][h])};${dim?'opacity:.3':''}"></td>`}).join('')+'</tr>').join('');
+ hm.querySelectorAll('td').forEach(td=>{const d=+td.dataset.d,h=+td.dataset.h;tipOn(td,()=>{const v=grid[d][h];const c=d*1440+h*60;const rs=sc.runs.filter(r=>{const a=r.start,b=r.start+r.dur;return (a<c+60&&b>c)||(a<c+60+WEEK&&b>c+WEEK)});
+  return `<b>${scName(sc)}</b><br>${DAYL(d)} ${hh(h)}–${hh(h+1)}<br>${ar?'الطاقة':'Energy'}: <span class="m">${fmt(v,3)}</span> ${u}`+(rs.length?'<br>'+rs.map(r=>`<span class="m">${hhmm(r.s)}–${r.endLabel}</span> ${r.prog}`).join('<br>'):'')})})}
+
+/* ---------- table ---------- */
+const COLS={en:[['sc','Appliance'],['cat','Type'],['start','Day & start'],['end','End'],['dur','Minutes'],['prog','Program'],['kw','Avg power (kW)'],['rated','Rated power (kW)'],['kwh','Energy (kWh)']],
+ ar:[['sc','الجهاز'],['cat','النوع'],['start','اليوم والبداية'],['end','النهاية'],['dur','المدة (دقيقة)'],['prog','البرنامج'],['kw','متوسط القدرة (ك.و)'],['rated','القدرة الاسمية (ك.و)'],['kwh','الطاقة (ك.و.س)']]};
+function COLS_HEAD(){$('#dt-head').innerHTML=COLS[LANG].map(([k,n])=>`<th data-k="${k}" scope="col"><button type="button" id="sort-${k}">${n}</button></th>`).join('');
+ $('#dt-head').querySelectorAll('th').forEach(th=>th.querySelector('button').onclick=()=>{const k=th.dataset.k;sortDir=sortKey===k?-sortDir:(['kwh','kw','rated','dur'].includes(k)?-1:1);sortKey=k;tableRender()})}
+$('#tbl-q').addEventListener('input',tableRender);$('#tbl-only').addEventListener('change',tableRender);
+function tableRender(){const q=$('#tbl-q').value.trim().toLowerCase();const only=$('#tbl-only').checked;const list=visible();
+ let rows=list.flatMap(sc=>sc.runs).filter(r=>dayOK(r.d)&&perOK(Math.floor(r.s/60))&&(!only||r.sc.id===cur));
+ if(q)rows=rows.filter(r=>[r.sc.name,r.sc.en,DAYN.ar[r.d],DAYN.en[r.d],r.prog,CATS[r.sc.cat].en,CATS[r.sc.cat].ar,hhmm(r.s)].join(' ').toLowerCase().includes(q));
+ const val=(r,k)=>k==='sc'?scName(r.sc):k==='cat'?catName(r.sc.cat):k==='end'?r.start+r.dur:k==='prog'?r.prog:r[k];
+ rows.sort((a,b)=>{const x=val(a,sortKey),y=val(b,sortKey);return (x<y?-1:x>y?1:0)*sortDir||a.start-b.start});
+ $('#dt-head').querySelectorAll('th').forEach(th=>th.dataset.k===sortKey?th.setAttribute('aria-sort',sortDir>0?'ascending':'descending'):th.removeAttribute('aria-sort'));
+ const tk=rows.reduce((s,r)=>s+r.kwh,0);
+ $('#tbl-count').innerHTML=LANG==='ar'?`${rows.length} تشغيلاً · ${N(fmt(tk))} ك.و.س`:`${rows.length} runs · ${N(fmt(tk))} kWh`;
+ $('#dt-body').innerHTML=rows.map(r=>`<tr><td><i style="background:${catColor(r.sc.cat)}"></i>${scName(r.sc)}</td><td>${catName(r.sc.cat)}</td><td>${DAYL(r.d)} ${N(hhmm(r.s))}</td><td class="num">${r.endLabel}</td><td class="num">${r.dur}</td><td>${r.prog||'—'}</td><td class="num">${fmt(r.kw,2)}</td><td class="num">${fmt(r.rated,2)}</td><td class="num">${fmt(r.kwh,3)}</td></tr>`).join('')||`<tr><td colspan="9" style="color:var(--ink3)">${LANG==='ar'?'لا توجد تشغيلات تطابق البحث أو المرشحات.':'No runs match the search or filters.'}</td></tr>`}
+
+/* ---------- render all ---------- */
+function scRender(){const list=visible();const ks={};list.forEach(sc=>ks[sc.id]=kpi(sc));const H=house(list);
+ tabsRender(list);execRender(list,H,ks);cmpRender(list,ks);stackRender(H,list);detailRender(list,ks,H);tableRender()}
+tip.setAttribute('dir','auto');
+applyLang();
+scRender();
+</script>
+
+</body>
+</html>
