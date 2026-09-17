@@ -49,3 +49,5 @@ This is the underlying data behind the "Behavioral Survey Results" chart referen
 dashboard's assumptions about a "typical Saudi household" load profile. It's placed here in
 Data Setup because it informs the same appliance-behaviour modelling this toolkit's
 [Appliance Inventory](../README.md#appliance-inventory) documents from direct measurement.
+
+URL : https://claude.ai/artifact/FnYm5E4pc4Ep9qMuwGvMiY
