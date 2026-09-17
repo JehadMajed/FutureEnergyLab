@@ -13,6 +13,25 @@ what time of day they run, and roughly how long per day.
 [`مسح ميداني لمعرفة أنماط استهلاك الأجهزة الكهربائية للطاقة بالمنازل بالخرج.csv`](مسح%20ميداني%20لمعرفة%20أنماط%20استهلاك%20الأجهزة%20الكهربائية%20للطاقة%20بالمنازل%20بالخرج.csv)
 — raw survey export, UTF-8, 139 rows, one per respondent.
 
+[`appliance-scenario-dashboard.html`](appliance-scenario-dashboard.html)
+— interactive dashboard built from the survey (open it in a browser, no install needed).
+It has two parts:
+
+- **Survey results** (English): appliance ownership, time-of-day use, hours per day,
+  units per home and monthly bills, with hover details on every chart.
+- **Appliance scenario analysis** (English / العربية switch): 15 weekly operating
+  schedules for a typical Saudi home (split AC, fan, water heater, space heater, oil
+  heater, oven & cooker, air fryer, microwave, kettle, toaster, washing machine,
+  dishwasher, clothes iron, TV, hair iron). Each schedule is converted to a
+  minute-by-minute load (kW / kWh) and documented with its problem, rationale,
+  assumptions, method, KPIs, interpretation, limits and recommendation. The page adds
+  season / day-type / time-of-day / category filters, comparison charts, a stacked daily
+  load profile, a searchable and sortable run table, and an executive summary for
+  microgrid sizing. Air fryer, oil heater and hair iron are estimates (not in the survey);
+  power ratings and duty cycles are typical engineering values to be calibrated with
+  smart-meter data. New scenarios are added in the `SCENARIOS` / `EN_TEXT` arrays in the
+  page's script.
+
 Per respondent, the survey records:
 
 - Neighbourhood (حي) and approximate monthly electricity bill (SAR)
