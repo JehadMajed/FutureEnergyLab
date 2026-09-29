@@ -90,9 +90,10 @@ Full list with status in [`docs/PUBLICATIONS.md`](docs/PUBLICATIONS.md).
 - **Inferring Low-Voltage Distribution Topology from Trench Footprints: A Deep Learning
   Framework with Infrared Thermal Validation** — accepted (journal) / published (IEEE conference); see [`Topology/`](Topology/).
 - **Time-series analysis of photovoltaic curtailment in radial distribution networks** — published.
+- **Forecasting-Aided State Estimation in Distribution Networks Considering Behind-the-Meter Resources** — [status].
+- **Forecasting-Aided State Estimation with Deep Learning-Generated Pseudo Measurements** — [status].
+- **Locational Detection of False Data Injection Attacks in Smart Grids: A Cloud-Edge Framework Based on Split Learning** — [status].
 - A patent application related to arc-fault detection is in progress.
-
----
 
 ## Lab Team
 
