@@ -312,7 +312,7 @@ npx wrangler pages secret put MQTT1_PASS
 
 | Role                        | Person                                        |
 | --------------------------- | --------------------------------------------- |
-| **Supervised by**           | Dr. Malek Alduhaimi                           |
+| **Supervised by**           | Dr. Malek Alduhaymi                           |
 | **Designed & Developed by** | Jehad Majed                                   |
 | **Institution**             | Prince Sattam bin Abdulaziz University (PSAU) |
 | **College**                 | College of Engineering                        |
