@@ -1565,9 +1565,15 @@ setInterval(fetchRealAnalytics, 120000);
 const EZVIZ_SERIAL = "BA8030786";
 const EZVIZ_ACCESS_TOKEN = "at.3tb75dv54q8j50tg62afpdhncwx3pmad-6t7ue3xcq0-12oi638-xb2bljsr6";
 
-// Live Stream URL (Tailscale Funnel - 24/7 Secure HTTPS Stream)
-const LIVE_CAMERA_URL = "https://desktop-ueq2tj6.tail05b01c.ts.net/stream.html?src=panel_cam&media=video";
+// Live Stream URL (Cloudflare Tunnel → go2rtc on the lab PC, port 1984).
+// Tailscale no longer works on the university network (Fortinet SSL inspection),
+// so the feed is published through the Cloudflare Tunnel, which only needs outbound HTTPS.
+const LIVE_CAMERA_URL = "https://panel-cam.83838737rufhfhfucjfjdi8fi39.shop/stream.html?src=panel_cam&media=video";
 const SERVER2_URL = "";
+
+// The university NAT/firewall blocks the UDP that WebRTC needs, so the player uses
+// MSE over WebSocket (same HTTPS connection as the tunnel), with HLS / MJPEG fallback.
+const CAMERA_PLAYER_MODE = "mse,hls,mjpeg";
 
 /* ══════════════════════════════════════════════════════════════════════════ */
 
@@ -1738,25 +1744,20 @@ function initCameraFeed() {
     camFeedImg.src = url + (url.includes("?") ? "&" : "?") + "t=" + new Date().getTime();
 
   } else {
-    // ── Try direct WebRTC (video-only, guaranteed muted) ──────────────
+    // ── go2rtc player page over the tunnel (MSE, video-only, muted) ───
     if (camFeedImg) camFeedImg.classList.add("hidden");
+    if (camFeedVideo) camFeedVideo.classList.add("hidden");
 
     try {
       const urlObj = new URL(url);
-      const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
       const src = urlObj.searchParams.get("src") || "panel_cam";
-
-      connectWebRTC(baseUrl, src).then((ok) => {
-        if (!ok) {
-          // WebRTC API failed → fall back to iframe with muted params
-          let finalUrl = url.split("?")[0] + "?src=" + src + "&media=video&muted=true&mute=1";
-          if (camFeedIframe) {
-            camFeedIframe.classList.remove("hidden");
-            camFeedIframe.src = finalUrl;
-          }
-          showLiveState();
-        }
-      });
+      const finalUrl = `${urlObj.origin}${urlObj.pathname}?src=${encodeURIComponent(src)}` +
+        `&mode=${CAMERA_PLAYER_MODE}&media=video&muted=true&mute=1`;
+      if (camFeedIframe) {
+        camFeedIframe.classList.remove("hidden");
+        camFeedIframe.src = finalUrl;
+      }
+      showLiveState();
     } catch (e) {
       // Bad URL — fall back to iframe
       let finalUrl = url;
