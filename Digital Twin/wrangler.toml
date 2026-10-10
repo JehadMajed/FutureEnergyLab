@@ -2,6 +2,13 @@ name = "digital-twin-lamps-panel"
 pages_build_output_dir = "./dist"
 compatibility_date = "2024-01-01"
 
+# Field analytics, one JSON per month, written every Tuesday by the lab PC
+# (tools/analytics-upload/publish_analytics.py) and read by /api/real_analytics.
+# Private: the data is not stored in Git.
+[[kv_namespaces]]
+binding = "ANALYTICS"
+id = "85878685227f4770a131812640da5ad0"
+
 # ── Secrets are NOT declared here ──────────────────────────────────────
 # There used to be a [vars] block listing HA_BASE, HA_TOKEN, MQTT1_PASS and
 # the rest, all set to "". Those deploy as real plaintext environment

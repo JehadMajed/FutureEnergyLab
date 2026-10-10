@@ -5,30 +5,21 @@
      GET /api/real_analytics                → latest published month
      GET /api/real_analytics?month=2026-08  → that month
 
-   Every Tuesday the lab PC publishes one processed JSON per month to
-   GitHub (tools/analytics-upload/publish_analytics.py → data/analytics/);
-   the current month is republished each week until it is complete. This
-   function reads the files from there, so updates appear on the site
-   without a redeploy. Responses are edge-cached for 10 minutes.
+   Every Tuesday the lab PC publishes one processed JSON per month to the
+   private Workers KV namespace bound as ANALYTICS (keys analytics/index.json
+   and analytics/<YYYY-MM>.json), via
+   tools/analytics-upload/publish_analytics.py. The current month is
+   republished each week until it is complete. Nothing is stored in Git and
+   no redeploy is needed for new data.
 
-   If GitHub cannot be reached, July 2026 is still served from the copy
+   If KV is unavailable, July 2026 is still served from real_analytics.json
    bundled at build time, so the overview never comes up empty.
-
-   Optional variable ANALYTICS_BASE_URL overrides the data location
-   (used for local testing).
    ═══════════════════════════════════════════════════════════════════ */
-import july from '../../data/analytics/2026-07.json';
+import legacyJuly from '../../real_analytics.json';
 
-const DEFAULT_BASE =
-  "https://raw.githubusercontent.com/JehadMajed/FutureEnergyLab/main/Digital%20Twin/data/analytics";
-const CACHE_TTL = 600;
+const PREFIX = "analytics/";
+const CACHE_TTL = 600;          // seconds, edge cache for KV reads and for browsers
 const MONTH_RE = /^\d{4}-\d{2}$/;
-
-async function getJSON(url) {
-  const res = await fetch(url, { cf: { cacheTtl: CACHE_TTL, cacheEverything: true } });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res.json();
-}
 
 function reply(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -55,18 +46,56 @@ function shape(doc, months, source) {
   };
 }
 
+/* The pre-pipeline July file, in the same shape as a published month. */
+function bundledJuly() {
+  const byDay = Object.fromEntries(legacyJuly.map(r => [r.day_str, r]));
+  const daily = [];
+  for (let d = 1; d <= 31; d++) {
+    const day = `2026-07-${String(d).padStart(2, "0")}`;
+    const r = byDay[day];
+    daily.push(r ? {
+      day, has_data: true,
+      total_readings: r.total_readings, running_readings: r.running_readings,
+      run_hours: Math.round(r.run_seconds / 36) / 100,
+      zero_hours: Math.round(r.zero_seconds / 36) / 100,
+    } : { day, has_data: false, total_readings: 0, running_readings: 0, run_hours: 0, zero_hours: 0 });
+  }
+  const sum = (k, rows = legacyJuly) => rows.reduce((a, r) => a + r[k], 0);
+  const run = sum("run_seconds") / 3600, zero = sum("zero_seconds") / 3600;
+  const running = legacyJuly.filter(r => r.running_readings);
+  const r1 = x => Math.round(x * 10) / 10;
+  return {
+    month: "2026-07", complete: true, data_through: "2026-07-31",
+    summary: {
+      days_in_month: 31, period_days: 31, total_days: legacyJuly.length,
+      total_readings: sum("total_readings"),
+      total_run_hours: r1(run), total_zero_hours: r1(zero),
+      uptime_percentage: r1(run / (run + zero) * 100),
+      total_energy_kwh: Math.round(sum("energy_kwh") * 100) / 100,
+      // Weighted by running readings: idle days have no PF and must not pull it to zero.
+      avg_power_factor: Math.round(running.reduce((a, r) => a + r.avg_power_factor * r.running_readings, 0)
+                                   / sum("running_readings", running) * 1000) / 1000,
+    },
+    daily,
+  };
+}
+
 export async function onRequest({ request, env = {} }) {
-  const base = (env.ANALYTICS_BASE_URL || DEFAULT_BASE).replace(/\/+$/, "");
   const want = new URL(request.url).searchParams.get("month");
   if (want && !MONTH_RE.test(want)) return reply({ ok: false, error: "bad_month" }, 400);
 
-  let index;
+  const kv = env.ANALYTICS;
+  const read = key => kv.get(PREFIX + key, { type: "json", cacheTtl: CACHE_TTL });
+
+  let index = null;
   try {
-    index = await getJSON(`${base}/index.json`);
+    if (kv) index = await read("index.json");
   } catch (err) {
-    console.warn("[real_analytics] index unavailable, serving bundled July:", err.message);
-    if (want && want !== july.month) return reply({ ok: false, error: "data_source_unavailable" }, 502);
-    return reply(shape(july, [july.month], "bundled"));
+    console.warn("[real_analytics] KV index read failed:", err.message);
+  }
+  if (!index) {
+    if (want && want !== "2026-07") return reply({ ok: false, error: "data_source_unavailable" }, 502);
+    return reply(shape(bundledJuly(), ["2026-07"], "bundled"));
   }
 
   const months = (index.months || []).map(m => m.month).sort();
@@ -74,10 +103,11 @@ export async function onRequest({ request, env = {} }) {
   if (!months.includes(month)) return reply({ ok: false, error: "unknown_month", months }, 404);
 
   try {
-    return reply(shape(await getJSON(`${base}/${month}.json`), months, "github"));
+    const doc = await read(`${month}.json`);
+    if (doc) return reply(shape(doc, months, "kv"));
   } catch (err) {
-    console.warn(`[real_analytics] ${month} unavailable:`, err.message);
-    if (month === july.month) return reply(shape(july, months, "bundled"));
-    return reply({ ok: false, error: "data_source_unavailable" }, 502);
+    console.warn(`[real_analytics] KV read of ${month} failed:`, err.message);
   }
+  if (month === "2026-07") return reply(shape(bundledJuly(), months, "bundled"));
+  return reply({ ok: false, error: "data_source_unavailable" }, 502);
 }
