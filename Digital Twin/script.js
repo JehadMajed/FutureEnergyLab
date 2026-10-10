@@ -1513,7 +1513,19 @@ async function fetchRealAnalytics() {
     if (tagEl) tagEl.textContent = "Verified Field Data — " + label;
     if (eyebrowEl) eyebrowEl.textContent = "Field Record — " + label;
     if (badgeEl) badgeEl.textContent = s.total_readings.toLocaleString("en-US") + " readings";
-    if (footerEl) footerEl.textContent = s.total_days + " of " + (s.period_days || s.days_in_month) + " days logged | " + s.total_energy_kwh.toFixed(1) + " kWh total | " + s.uptime_percentage.toFixed(1) + "% availability";
+    if (footerEl) {
+      let text = s.total_days + " of " + (s.period_days || s.days_in_month) + " days logged | " + s.total_energy_kwh.toFixed(1) + " kWh total | " + s.uptime_percentage.toFixed(1) + "% availability";
+      // The lab PC uploads every Tuesday; flag the data if the uploads have stopped.
+      let stale = false;
+      if (data.updated_at) {
+        const updated = new Date(data.updated_at);
+        stale = Date.now() - updated.getTime() > 9.5 * 86400000;
+        text += " | updated " + updated.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+        if (stale) text = "⚠ Weekly upload overdue — " + text;
+      }
+      footerEl.textContent = text;
+      footerEl.classList.toggle("real-stale", stale);
+    }
 
     const days = data.daily.map(function (d) { return d.day.slice(5); });
     const runHours = data.daily.map(function (d) { return d.run_hours; });

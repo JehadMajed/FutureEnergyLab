@@ -36,8 +36,11 @@ import hashlib
 import json
 import logging
 import os
+import platform
 import re
+import shutil
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -50,7 +53,8 @@ try:  # University network does TLS inspection; trust the Windows certificate st
 except ImportError:
     pass
 
-TOOL_VERSION = "1.1.0"
+TOOL_VERSION = "1.2.0"
+LOG_RETENTION_DAYS = 400
 SCHEMA_VERSION = 1
 HERE = Path(__file__).resolve().parent
 log = logging.getLogger("publish_analytics")
@@ -151,11 +155,31 @@ def find_files(cfg: dict, start: dt.datetime) -> list[Path]:
     return files
 
 
-def read_sheets(path: Path) -> list[pd.DataFrame]:
+def _read(path: Path) -> list[pd.DataFrame]:
     if path.suffix.lower() == ".csv":
         return [pd.read_csv(path, low_memory=False)]
     sheets = pd.read_excel(path, sheet_name=None, engine="calamine")
     return [df for df in sheets.values() if not df.empty]
+
+
+def read_sheets(path: Path) -> list[pd.DataFrame]:
+    """Read a file, tolerating the logger holding it open: retry, then read a copy."""
+    err = None
+    for wait in (0, 15, 30, 60):
+        time.sleep(wait)
+        try:
+            return _read(path)
+        except Exception as e:  # locked, or caught mid-write
+            err = e
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                copy = Path(tmp) / path.name
+                shutil.copyfile(path, copy)
+                return _read(copy)
+        except Exception as e:
+            err = e
+        log.warning("      %s not readable yet (%s); retrying", path.name, err)
+    raise err
 
 
 def parse_timestamps(col: pd.Series, utc_offset_h: float) -> pd.Series:
@@ -265,7 +289,7 @@ def pull(cfg: dict, start: dt.datetime, end: dt.datetime) -> tuple[pd.DataFrame,
         t0 = time.time()
         try:
             sheets = read_sheets(f)
-        except Exception as e:  # unreadable file: report it, never silently skip
+        except Exception as e:  # unreadable after retries: report it, never silently skip
             raise InputError(f"cannot read {f}: {e}") from e
         rows_in_month = 0
         for sheet in sheets:
@@ -514,6 +538,10 @@ def setup_logging() -> Path:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     logdir = HERE / "logs"
     logdir.mkdir(exist_ok=True)
+    cutoff = time.time() - LOG_RETENTION_DAYS * 86400
+    for old in logdir.glob("run_*.log"):
+        if old.stat().st_mtime < cutoff:
+            old.unlink(missing_ok=True)
     logfile = logdir / f"run_{dt.datetime.now():%Y%m%d-%H%M%S}.log"
     fmt = logging.Formatter("%(asctime)s %(levelname)-7s %(message)s", "%Y-%m-%d %H:%M:%S")
     for h in (logging.StreamHandler(sys.stdout), logging.FileHandler(logfile, encoding="utf-8")):
@@ -587,35 +615,71 @@ def run_month(month: str, cfg: dict, kv: KV, index: dict | None,
     return 0
 
 
-def run(args) -> int:
-    cfg = load_config(args.config)
-    ccfg = cfg["cloudflare"]
-    token_env = ccfg.get("token_env", "FEL_CF_TOKEN")
-    token = os.environ.get(token_env)
-    kv = KV(ccfg["account_id"], ccfg["namespace_id"], ccfg.get("key_prefix", "analytics/"), token)
-    if not args.dry_run and not token:
-        raise InputError(f"environment variable {token_env} is not set")
+def load_token(ccfg: dict) -> str | None:
+    """Token from the environment, else from a local file readable only by the task's account."""
+    env = os.environ.get(ccfg.get("token_env", "FEL_CF_TOKEN"), "").strip()
+    if env:
+        return env
+    f = Path(ccfg.get("token_file", "secrets/cf_token.txt"))
+    f = f if f.is_absolute() else HERE / f
+    if f.exists():
+        return f.read_text(encoding="utf-8-sig").strip() or None
+    return None
 
-    today = dt.date.today()
-    months = [args.month] if args.month else months_between(cfg["start_month"], today)
-    for m in months:
-        month_bounds(m)
-    log.info("publish_analytics %s  months=%s  dry_run=%s", TOOL_VERSION, ",".join(months), args.dry_run)
-    index = None if args.dry_run else load_index(kv)
 
-    # Each month stands alone: a problem in one is logged and does not stop the others.
-    worst = 0
-    for month in months:
-        try:
-            code = run_month(month, cfg, kv, index, args, today)
-        except InputError as e:
-            log.error("[%s] INPUT ERROR: %s", month, e)
-            code = 2
-        except UploadError as e:
-            log.error("[%s] UPLOAD ERROR: %s", month, e)
-            code = 3
-        worst = max(worst, code)
-    return worst
+class Run:
+    """State of one run, so the heartbeat can report it even after a failure."""
+
+    def __init__(self, args):
+        self.args, self.kv, self.results, self.error = args, None, {}, None
+
+    def execute(self) -> int:
+        cfg = load_config(self.args.config)
+        ccfg = cfg["cloudflare"]
+        token = load_token(ccfg)
+        self.kv = KV(ccfg["account_id"], ccfg["namespace_id"], ccfg.get("key_prefix", "analytics/"), token)
+        if not self.args.dry_run and not token:
+            raise InputError("no Cloudflare token: set FEL_CF_TOKEN or create secrets/cf_token.txt "
+                             "(run set_token.ps1)")
+
+        today = dt.date.today()
+        months = [self.args.month] if self.args.month else months_between(cfg["start_month"], today)
+        for m in months:
+            month_bounds(m)
+        log.info("publish_analytics %s  months=%s  dry_run=%s", TOOL_VERSION, ",".join(months),
+                 self.args.dry_run)
+        index = None if self.args.dry_run else load_index(self.kv)
+
+        # Each month stands alone: a problem in one is logged and does not stop the others.
+        worst = 0
+        for month in months:
+            msg = None
+            try:
+                code = run_month(month, cfg, self.kv, index, self.args, today)
+                if code == 1:
+                    msg = "validation failed (see log)"
+            except InputError as e:
+                log.error("[%s] INPUT ERROR: %s", month, e)
+                code, msg = 2, f"input: {e}"
+            except UploadError as e:
+                log.error("[%s] UPLOAD ERROR: %s", month, e)
+                code, msg = 3, f"upload: {e}"
+            except Exception as e:
+                log.exception("[%s] UNEXPECTED ERROR", month)
+                code, msg = 2, f"unexpected: {e!r}"
+            self.results[month] = {"code": code, "error": msg[:300] if msg else None}
+            worst = max(worst, code)
+        return worst
+
+    def heartbeat(self, code: int, logfile: Path) -> None:
+        """Tell the watchdog this PC is alive and how the run went. Written on every real run."""
+        if self.args.dry_run or self.kv is None or "Authorization" not in self.kv.s.headers:
+            return
+        beat = {"at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+                "host": platform.node(), "tool_version": TOOL_VERSION, "exit_code": code,
+                "error": self.error, "months": self.results, "log": logfile.name}
+        self.kv.put("heartbeat.json", to_bytes(beat))
+        log.info("HEARTBEAT written (exit %d)", code)
 
 
 def main() -> int:
@@ -627,17 +691,23 @@ def main() -> int:
     args = p.parse_args()
 
     logfile = setup_logging()
+    r = Run(args)
     try:
-        code = run(args)
+        code = r.execute()
     except InputError as e:
         log.error("INPUT ERROR: %s", e)
-        code = 2
+        code, r.error = 2, f"input: {e}"
     except UploadError as e:
         log.error("UPLOAD ERROR: %s", e)
-        code = 3
-    except Exception:
+        code, r.error = 3, f"upload: {e}"
+    except Exception as e:
         log.exception("UNEXPECTED ERROR")
-        code = 2
+        code, r.error = 2, f"unexpected: {e!r}"
+    try:
+        r.heartbeat(code, logfile)
+    except Exception as e:  # the watchdog will notice the missing heartbeat
+        log.error("HEARTBEAT failed: %s", e)
+        code = max(code, 3)
     log.info("exit %d | log %s", code, logfile)
     return code
 

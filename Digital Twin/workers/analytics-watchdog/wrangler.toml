@@ -1,0 +1,17 @@
+# Daily check that the lab PC is still publishing the lamp panel analytics.
+# Cron-only Worker: no public URL. Alerts go to the phone through ntfy.
+#
+# Deploy:  npx wrangler deploy           (from this folder)
+# Secret:  npx wrangler secret put NTFY_TOPIC
+name = "fel-analytics-watchdog"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+workers_dev = false
+
+[triggers]
+crons = ["0 6 * * *"]   # 06:00 UTC = 09:00 Saudi time, every day
+
+# Same KV namespace the website reads and the lab PC writes.
+[[kv_namespaces]]
+binding = "ANALYTICS"
+id = "85878685227f4770a131812640da5ad0"
