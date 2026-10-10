@@ -1455,29 +1455,65 @@ setInterval(pollHistory, HISTORY_POLL_MS);
 updateGauges({ T_j: PHYS.T_amb, P: 0, V: PHYS.V_rated, eta: PHYS.eta_rated * 100, lumen: 100 });
 
 /* =======================================================================
-   MODULE: REAL OPERATIONAL ANALYTICS (July 2026 Field Data)
+   MODULE: REAL OPERATIONAL ANALYTICS (monthly field data)
+   One processed JSON per month, published from the lab PC every Tuesday by
+   tools/analytics-upload/publish_analytics.py and served by
+   /api/real_analytics. The current month is partial until it ends.
    ======================================================================= */
 let chartRealUptime = null;
+let realMonth = "";   // "" = latest published month
+
+function monthLabel(month) {
+  const [y, m] = month.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+}
+
+function fillMonthSelect(months, current) {
+  const sel = document.getElementById("real-month-select");
+  if (!sel) return;
+  const want = months.slice().reverse().join(",");
+  if (sel.dataset.months !== want) {
+    sel.innerHTML = months.slice().reverse()
+      .map(m => `<option value="${m}">${monthLabel(m)}</option>`).join("");
+    sel.dataset.months = want;
+  }
+  sel.value = current;
+  sel.disabled = months.length < 2;
+}
 
 async function fetchRealAnalytics() {
   try {
-    const res = await fetch(API_BASE + "/api/real_analytics");
+    const qs = realMonth ? "?month=" + encodeURIComponent(realMonth) : "";
+    const res = await fetch(API_BASE + "/api/real_analytics" + qs);
     const data = await res.json();
     if (!data.ok) return;
 
     const s = data.summary;
+    let label = monthLabel(data.month);
+    if (data.complete === false && data.data_through) {
+      const through = new Date(data.data_through + "T00:00:00")
+        .toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+      label += " (to " + through + ")";
+    }
+    fillMonthSelect(data.months || [data.month], data.month);
 
     const uptimeEl = document.getElementById("real-uptime-val");
     const runEl = document.getElementById("real-run-hours-val");
     const zeroEl = document.getElementById("real-zero-hours-val");
     const pfEl = document.getElementById("real-pf-val");
     const footerEl = document.getElementById("real-chart-footer");
+    const tagEl = document.getElementById("real-sec-tag");
+    const eyebrowEl = document.getElementById("real-chart-eyebrow");
+    const badgeEl = document.getElementById("real-readings-badge");
 
     if (uptimeEl) uptimeEl.textContent = s.uptime_percentage.toFixed(1) + " %";
     if (runEl) runEl.textContent = s.total_run_hours.toFixed(1) + " h";
     if (zeroEl) zeroEl.textContent = s.total_zero_hours.toFixed(1) + " h";
-    if (pfEl) pfEl.textContent = s.avg_power_factor.toFixed(2);
-    if (footerEl) footerEl.textContent = s.total_days + " days analyzed | " + s.total_energy_kwh.toFixed(1) + " kWh total | " + s.uptime_percentage.toFixed(1) + "% availability";
+    if (pfEl) pfEl.textContent = s.avg_power_factor == null ? "--" : s.avg_power_factor.toFixed(2);
+    if (tagEl) tagEl.textContent = "Verified Field Data — " + label;
+    if (eyebrowEl) eyebrowEl.textContent = "Field Record — " + label;
+    if (badgeEl) badgeEl.textContent = s.total_readings.toLocaleString("en-US") + " readings";
+    if (footerEl) footerEl.textContent = s.total_days + " of " + (s.period_days || s.days_in_month) + " days logged | " + s.total_energy_kwh.toFixed(1) + " kWh total | " + s.uptime_percentage.toFixed(1) + "% availability";
 
     const days = data.daily.map(function (d) { return d.day.slice(5); });
     const runHours = data.daily.map(function (d) { return d.run_hours; });
@@ -1532,7 +1568,7 @@ async function fetchRealAnalytics() {
         scales: {
           x: {
             stacked: true,
-            title: { display: true, text: "Date (July 2026)", font: { size: 11 }, color: "#64748B" },
+            title: { display: true, text: "Date (" + label + ")", font: { size: 11 }, color: "#64748B" },
             grid: { color: "rgba(217, 224, 231, 0.6)" },
             ticks: { font: { size: 10 }, color: "#64748B", maxRotation: 45 },
           },
@@ -1549,6 +1585,11 @@ async function fetchRealAnalytics() {
     console.warn("[REAL_ANALYTICS] Fetch failed:", e);
   }
 }
+
+document.getElementById("real-month-select")?.addEventListener("change", function (e) {
+  realMonth = e.target.value;
+  fetchRealAnalytics();
+});
 
 fetchRealAnalytics();
 setInterval(fetchRealAnalytics, 120000);

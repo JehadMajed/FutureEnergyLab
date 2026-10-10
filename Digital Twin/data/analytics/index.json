@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "months": [
+    {
+      "month": "2026-07",
+      "file": "2026-07.json",
+      "complete": true,
+      "data_through": "2026-07-31",
+      "sha256": "abd28582a8dc90b9c5fa9964af9bf60a3e1006a3156860db40eba78ff3dfa8c9",
+      "published_at": "2026-10-10T14:29:13+00:00",
+      "total_days": 27,
+      "total_energy_kwh": 72.81
+    }
+  ],
+  "latest": "2026-07",
+  "updated_at": "2026-10-10T14:29:13+00:00"
+}
