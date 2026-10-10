@@ -2920,3 +2920,14 @@ model-viewer {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px var(--primary-soft);
 }
+
+/* Month picker next to the field-data badge (overview tab) */
+.real-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.real-hdr-right .cam-select-sm {
+  font-size: 12px;
+  padding: 5px 8px;
+}

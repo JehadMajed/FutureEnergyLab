@@ -152,10 +152,13 @@
         <div class="industrial-section">
           <div class="section-hdr">
             <div class="section-title-wrap">
-              <span class="sec-tag">Verified Field Data — July 2026</span>
+              <span class="sec-tag" id="real-sec-tag">Verified Field Data</span>
               <h2 class="sec-heading">Running Time vs. Zero-Current Downtime Analysis</h2>
             </div>
-            <span class="badge-verified">1,872,587 readings</span>
+            <div class="real-hdr-right">
+              <select id="real-month-select" class="cam-select-sm" aria-label="Month"></select>
+              <span class="badge-verified" id="real-readings-badge">-- readings</span>
+            </div>
           </div>
 
           <div class="real-kpi-grid">
@@ -184,7 +187,7 @@
           <div class="chart-card real-chart-card">
             <div class="chart-header">
               <div>
-                <div class="chart-eyebrow">Field Record — July 2026</div>
+                <div class="chart-eyebrow" id="real-chart-eyebrow">Field Record</div>
                 <h3 class="chart-title">Daily Operating vs. Zero-Current Hours</h3>
               </div>
               <div class="chart-legend-custom">

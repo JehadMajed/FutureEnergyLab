@@ -1,0 +1,31 @@
+{
+  "data_folder": "C:/LampPanel/Logs",
+  "start_month": "2026-08",
+  "file_patterns": ["*.xlsx", "*.xlsm", "*.xls", "*.csv"],
+  "skip_files_older_than_month": true,
+  "utc_offset_hours": 3,
+
+  "columns": {
+    "timestamp": null,
+    "voltage": null,
+    "current": null,
+    "power": null,
+    "power_factor": null
+  },
+
+  "ha_entities": {
+    "current": "sensor.lamps_panel_current",
+    "voltage": "sensor.lamps_panel_voltage",
+    "power": "sensor.lamps_panel_active_power"
+  },
+
+  "running_threshold_a": 0.10,
+  "max_gap_s": 10,
+
+  "github": {
+    "repo": "JehadMajed/FutureEnergyLab",
+    "branch": "main",
+    "path": "Digital Twin/data/analytics",
+    "token_env": "FEL_GITHUB_TOKEN"
+  }
+}

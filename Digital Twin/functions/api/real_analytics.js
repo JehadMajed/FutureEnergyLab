@@ -1,58 +1,83 @@
-// دمج البيانات مباشرة أثناء البناء
-import results from '../../real_analytics.json';
+/* ═══════════════════════════════════════════════════════════════════
+   Cloudflare Pages Function — /api/real_analytics
+   Monthly field analytics for the overview tab.
 
-export async function onRequest(context) {
+     GET /api/real_analytics                → latest published month
+     GET /api/real_analytics?month=2026-08  → that month
+
+   Every Tuesday the lab PC publishes one processed JSON per month to
+   GitHub (tools/analytics-upload/publish_analytics.py → data/analytics/);
+   the current month is republished each week until it is complete. This
+   function reads the files from there, so updates appear on the site
+   without a redeploy. Responses are edge-cached for 10 minutes.
+
+   If GitHub cannot be reached, July 2026 is still served from the copy
+   bundled at build time, so the overview never comes up empty.
+
+   Optional variable ANALYTICS_BASE_URL overrides the data location
+   (used for local testing).
+   ═══════════════════════════════════════════════════════════════════ */
+import july from '../../data/analytics/2026-07.json';
+
+const DEFAULT_BASE =
+  "https://raw.githubusercontent.com/JehadMajed/FutureEnergyLab/main/Digital%20Twin/data/analytics";
+const CACHE_TTL = 600;
+const MONTH_RE = /^\d{4}-\d{2}$/;
+
+async function getJSON(url) {
+  const res = await fetch(url, { cf: { cacheTtl: CACHE_TTL, cacheEverything: true } });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return res.json();
+}
+
+function reply(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": status === 200 ? `public, max-age=${CACHE_TTL}` : "no-store",
+    },
+  });
+}
+
+function shape(doc, months, source) {
+  return {
+    ok: true,
+    source,
+    month: doc.month,
+    months,
+    complete: doc.complete !== false,
+    data_through: doc.data_through,
+    generated_at: doc.generated_at,
+    validation: doc.validation,
+    summary: doc.summary,
+    daily: doc.daily,
+  };
+}
+
+export async function onRequest({ request, env = {} }) {
+  const base = (env.ANALYTICS_BASE_URL || DEFAULT_BASE).replace(/\/+$/, "");
+  const want = new URL(request.url).searchParams.get("month");
+  if (want && !MONTH_RE.test(want)) return reply({ ok: false, error: "bad_month" }, 400);
+
+  let index;
   try {
-    const daily = results.map(r => ({
-      day: r.day_str,
-      total_readings: r.total_readings,
-      running_readings: r.running_readings,
-      zero_readings: r.zero_readings,
-      run_hours: Math.round((r.run_seconds / 3600.0) * 100) / 100,
-      zero_hours: Math.round((r.zero_seconds / 3600.0) * 100) / 100,
-      avg_power: Math.round(r.avg_running_power * 10) / 10,
-      avg_voltage: Math.round(r.avg_voltage * 10) / 10,
-      avg_pf: Math.round(r.avg_power_factor * 100) / 100,
-      energy_kwh: Math.round(r.energy_kwh * 100) / 100
-    }));
-
-    let tot_run_hours = 0;
-    let tot_zero_hours = 0;
-    let tot_energy = 0;
-    let sum_avg_pf = 0;
-
-    daily.forEach(r => {
-      tot_run_hours += r.run_hours;
-      tot_zero_hours += r.zero_hours;
-      tot_energy += r.energy_kwh;
-      sum_avg_pf += r.avg_pf;
-    });
-
-    const tot_hours = tot_run_hours + tot_zero_hours;
-    const uptime_pct = tot_hours > 0 ? Math.round((tot_run_hours / tot_hours) * 1000) / 10 : 0.0;
-    const avg_pf_overall = daily.length > 0 ? Math.round((sum_avg_pf / daily.length) * 100) / 100 : 0.70;
-
-    return new Response(JSON.stringify({
-      ok: true,
-      daily,
-      summary: {
-        total_days: daily.length,
-        total_run_hours: Math.round(tot_run_hours * 10) / 10,
-        total_zero_hours: Math.round(tot_zero_hours * 10) / 10,
-        uptime_percentage: uptime_pct,
-        total_energy_kwh: Math.round(tot_energy * 10) / 10,
-        avg_power_factor: avg_pf_overall
-      }
-    }), {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "public, max-age=3600"
-      }
-    });
+    index = await getJSON(`${base}/index.json`);
   } catch (err) {
-    return new Response(JSON.stringify({ ok: false, error: err.message, daily: [], summary: {} }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    console.warn("[real_analytics] index unavailable, serving bundled July:", err.message);
+    if (want && want !== july.month) return reply({ ok: false, error: "data_source_unavailable" }, 502);
+    return reply(shape(july, [july.month], "bundled"));
+  }
+
+  const months = (index.months || []).map(m => m.month).sort();
+  const month = want || index.latest || months[months.length - 1];
+  if (!months.includes(month)) return reply({ ok: false, error: "unknown_month", months }, 404);
+
+  try {
+    return reply(shape(await getJSON(`${base}/${month}.json`), months, "github"));
+  } catch (err) {
+    console.warn(`[real_analytics] ${month} unavailable:`, err.message);
+    if (month === july.month) return reply(shape(july, months, "bundled"));
+    return reply({ ok: false, error: "data_source_unavailable" }, 502);
   }
 }
