@@ -3,6 +3,7 @@
   "start_month": "2026-08",
   "file_patterns": ["*.xlsx", "*.xlsm", "*.xls", "*.csv"],
   "skip_files_older_than_month": true,
+  "sheets": null,
   "utc_offset_hours": 3,
 
   "columns": {
