@@ -19,18 +19,20 @@ It has two parts:
 
 - **Survey results** (English): appliance ownership, time-of-day use, hours per day,
   units per home and monthly bills, with hover details on every chart.
-- **Appliance scenario analysis** (English / العربية switch): 15 weekly operating
-  schedules for a typical Saudi home (split AC, fan, water heater, space heater, oil
-  heater, oven & cooker, air fryer, microwave, kettle, toaster, washing machine,
-  dishwasher, clothes iron, TV, hair iron). Each schedule is converted to a
+- **Appliance scenario analysis** (English / العربية switch, opens on the winter case):
+  21 weekly operating schedules for a typical Saudi home — space heater, oil heater,
+  water heater, oven & cooker, air fryer, microwave, kettle, toaster, blender, washing
+  machine, semi-automatic washer, dishwasher, clothes iron, vacuum, hair dryer, hair
+  iron, TV, fridge, water cooler, split AC and fan. Each schedule is converted to a
   minute-by-minute load (kW / kWh) and documented with its problem, rationale,
   assumptions, method, KPIs, interpretation, limits and recommendation. The page adds
   season / day-type / time-of-day / category filters, comparison charts, a stacked daily
   load profile, a searchable and sortable run table, and an executive summary for
-  microgrid sizing. Air fryer, oil heater and hair iron are estimates (not in the survey);
-  power ratings and duty cycles are typical engineering values to be calibrated with
-  smart-meter data. New scenarios are added in the `SCENARIOS` / `EN_TEXT` arrays in the
-  page's script.
+  microgrid sizing. The summer-only scenarios (split AC, fan) are hidden in the winter
+  view. Air fryer, oil heater, hair dryer and hair iron are estimates (not in the
+  survey); power ratings and duty cycles are typical engineering values to be calibrated
+  with smart-meter data. New scenarios are added in the `SCENARIOS` / `EN_TEXT` arrays in
+  the page's script.
 
 Per respondent, the survey records:
 
@@ -41,6 +43,11 @@ Per respondent, the survey records:
   - Time-of-day period(s) the appliance runs (morning / afternoon / evening / night)
   - Number of that appliance owned in the household
   - Average daily operating hours
+
+[`winter-appliance-scenarios.csv`](winter-appliance-scenarios.csv)
+— the winter schedules as one flat table: one row per run, with appliance, category,
+season, day, start, end, duration, program, `Enabled`/`Mode` columns matching the
+Node-RED schedule format, plus average power, rated power and energy per run.
 
 ## Where this is used
 
