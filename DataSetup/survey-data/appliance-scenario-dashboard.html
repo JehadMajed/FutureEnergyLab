@@ -196,7 +196,7 @@ code.k{font-family:var(--mono);font-size:12px;background:var(--bg);border:1px so
 <nav class="sc-nav" id="sc-nav"><a href="#sc-exec" data-i="navExec"></a><a href="#sc-compare" data-i="navCmp"></a><a href="#sc-detail" data-i="navDet"></a><a href="#sc-table" data-i="navTbl"></a><a href="#sc-method" data-i="navMeth"></a></nav>
 
 <div class="sc-filters" role="group" id="sc-filters">
-<div class="sc-f"><label for="f-season" data-i="fSeason"></label><select id="f-season"><option value="summer" data-i="oSummer"></option><option value="winter" data-i="oWinter"></option><option value="all" data-i="oAllSc"></option></select></div>
+<div class="sc-f"><label for="f-season" data-i="fSeason"></label><select id="f-season"><option value="summer" data-i="oSummer"></option><option value="winter" data-i="oWinter" selected></option><option value="all" data-i="oAllSc"></option></select></div>
 <div class="sc-f"><label for="f-day" data-i="fDay"></label><select id="f-day"><option value="all" data-i="oWeek"></option><option value="work" data-i="oWork"></option><option value="weekend" data-i="oWeekend"></option></select></div>
 <div class="sc-f"><label for="f-period" data-i="fPeriod"></label><select id="f-period"><option value="all" data-i="oDay"></option><option value="0" data-i="oP0"></option><option value="1" data-i="oP1"></option><option value="2" data-i="oP2"></option><option value="3" data-i="oP3"></option></select></div>
 <div class="sc-f"><label for="f-metric" data-i="fMetric"></label><select id="f-metric"><option value="kwh" data-i="m_kwh"></option><option value="hours" data-i="m_hours"></option><option value="runs" data-i="m_runs"></option><option value="peak" data-i="m_peak"></option><option value="eve" data-i="m_eve"></option><option value="cost" data-i="m_cost"></option></select></div>
@@ -793,7 +793,120 @@ method:'الطاقة = 0.06 × المدة.',
 kpis:['عدد مرات التشغيل','الطاقة الأسبوعية'],
 interp:'نحو 0.2 ك.و.س أسبوعياً، أي مهمل في التحجيم.',
 limits:'سيناريو تقديري. إذا كان المقصود مجفف الشعر فيجب رفع القدرة إلى 1.2–2.2 ك.و مع تقصير المدة.',
-rec:'يمكن حذفه من حسابات التحجيم. إن أُضيف مجفف الشعر فعامله كنبضة قدرة صباحية مثل الكاوية.'})}
+rec:'يمكن حذفه من حسابات التحجيم. إن أُضيف مجفف الشعر فعامله كنبضة قدرة صباحية مثل الكاوية.'})},
+{id:'vacuum',name:'المكنسة الكهربائية',en:'Vacuum cleaner',cat:'cleaning',season:'all',rated:1.2,duty:1,type:'window',source:'survey',
+rows:`sunday,16:00,16:20
+monday,10:30,10:50
+tuesday,16:00,16:15
+wednesday,10:30,10:50
+thursday,16:30,17:00
+friday,09:00,09:20
+saturday,11:00,11:40`,
+t:T({desc:'سبع جلسات تنظيف أسبوعياً، قصيرة في أيام العمل وأطول يوم السبت.',
+problem:'حمل قصير بقدرة عالية (1.2 ك.و) يعمل في منتصف النهار، ويمثل نمط النبضة المتوسطة بين الغلاية والتلفاز.',
+why:'86% من المنازل تملك مكنسة، واستخدامها بعد الظهر (45%) وصباحاً (32%) ونادر فجراً (8%). شتاءً يزداد الجلوس داخل البيت وتُفرش السجاد، فترتفع وتيرة التنظيف.',
+assume:['قدرة 1.2 ك.و، محرك بلا ثرموستات فالقدرة ثابتة','جلسات 15–20 دقيقة في أيام العمل','جلسة السبت 40 دقيقة (تنظيف أسبوعي شامل)','جلسة الجمعة صباحاً قبل صلاة الجمعة'],
+method:'الطاقة = 1.2 ك.و × مدة كل جلسة، بلا معامل تشغيل لأن المحرك يسحب قدرته كاملة.',
+kpis:['عدد الجلسات','أعلى قدرة اسمية','الطاقة الأسبوعية'],
+interp:'نحو 3 ك.و.س أسبوعياً فقط، لكن معظمها في منتصف النهار فتُغطّى مباشرة من الألواح الشمسية. أثرها على البطارية شبه معدوم.',
+limits:'المكانس المركزية أو ذات القدرة 2 ك.و تضاعف الرقم. المنازل الكبيرة ذات العاملة المنزلية تشغّلها يومياً لمدة أطول.',
+rec:'لا تحتاج إدارة. أبقِ جلساتها في النهار كما هي، فهي مثال جيد على حمل يقع كله داخل نافذة الإنتاج الشمسي.'})},
+{id:'hairdryer',name:'مجفف الشعر',en:'Hair dryer',cat:'care',season:'all',rated:1.8,duty:.9,type:'window',source:'estimate',
+rows:`sunday,06:40,06:50
+monday,06:40,06:50
+tuesday,06:40,06:50
+wednesday,06:40,06:50
+thursday,06:40,06:50
+thursday,19:15,19:30
+friday,11:00,11:15
+friday,17:10,17:25
+saturday,10:45,11:00
+saturday,19:40,19:55`,
+t:T({desc:'تجفيف الشعر بعد الاستحمام صباح أيام العمل، وقبل الخروج في المناسبات.',
+problem:'نبضة قدرة كبيرة (1.8 ك.و) في الصباح الباكر، قبل أن يصل الإنتاج الشمسي إلى ذروته.',
+why:'استخدامه يرتفع كثيراً في الشتاء، لأن الخروج بشعر مبلل في البرد غير وارد. وهو أكبر أحمال العناية الشخصية بفارق كبير عن مكواة الشعر (60 واط).',
+assume:['قدرة 1.8 ك.و','معامل تشغيل 90% (يُطفأ لحظياً أثناء التسريح)','جلسات 10–15 دقيقة','5 صباحات عمل بعد الاستحمام، وجلسات إضافية للمناسبات'],
+method:'الطاقة = 1.8 × 0.9 × المدة.',
+kpis:['أعلى قدرة اسمية','التزامن الصباحي مع الكاوية والغلاية','الطاقة الأسبوعية'],
+interp:'نحو 3.5 ك.و.س أسبوعياً، لكن الأهم أنه يتزامن مع الكاوية (2 ك.و) والغلاية (2.1 ك.و) وسخان المياه في نافذة 06:15–06:50، فتتكوّن ذروة صباحية حادة.',
+limits:'سيناريو تقديري غير موجود في الاستبيان. يختلف كثيراً بعدد أفراد الأسرة وطول الشعر.',
+rec:'راعِ الذروة الصباحية المركّبة عند تحديد قدرة العاكس. توزيع أوقات الاستحمام بين أفراد الأسرة يخفّض هذه الذروة أكثر من أي إجراء آخر.'})},
+{id:'blender',name:'الخلاط',en:'Blender',cat:'cooking',season:'all',rated:.4,duty:1,type:'window',source:'survey',
+rows:`sunday,13:30,13:35
+monday,13:30,13:34
+tuesday,20:45,20:49
+wednesday,13:30,13:35
+thursday,13:15,13:20
+friday,12:00,12:06
+friday,20:00,20:04
+saturday,12:45,12:50
+saturday,20:30,20:34`,
+t:T({desc:'استخدامات قصيرة حول تحضير الغداء، مع تقليل شتوي لأن العصائر الباردة تقل.',
+problem:'أصغر أحمال المطبخ، ويوضح الحد الذي تصبح عنده النمذجة التفصيلية غير مجدية.',
+why:'83% من المنازل تملك خلاطاً، و55% يستخدمونه بعد الظهر و44% مساءً، و79 من 115 أجابوا يستخدمونه ساعة أو أقل.',
+assume:['قدرة 400 واط','تشغيل 4–6 دقائق','تقليل من 12 إلى 9 استخدامات أسبوعياً في الشتاء (العصائر الباردة تقل)','الاستخدام المتبقي مرتبط بالطبخ: هرس وصلصات'],
+method:'الطاقة = 0.4 × المدة.',
+kpis:['عدد مرات التشغيل','الطاقة الأسبوعية'],
+interp:'أقل من 0.3 ك.و.س أسبوعياً، أي مهمل تماماً في التحجيم. يبقى مفيداً كمؤشر على سلوك المطبخ لا كحمل.',
+limits:'الخلاطات الاحترافية تصل إلى 1.5 ك.و. الأسر التي تعد العصائر يومياً صيفاً ترفع الرقم ثلاثة أضعاف.',
+rec:'اجمعه مع التوستر والمايكروويف في «أحمال مطبخ صغيرة» واحدة بدل نمذجة كل جهاز، فمجموعها أقل من 3 ك.و.س أسبوعياً.'})},
+{id:'watercooler',name:'برادة المياه',en:'Water cooler',cat:'cooling',season:'all',rated:.5,duty:.1,type:'window',source:'survey',
+rows:`sunday,00:00,23:59
+monday,00:00,23:59
+tuesday,00:00,23:59
+wednesday,00:00,23:59
+thursday,00:00,23:59
+friday,00:00,23:59
+saturday,00:00,23:59`,
+t:T({desc:'برادة بارد وساخن موصولة طوال الوقت، يتحكم بها الثرموستات لا الجدول.',
+problem:'حمل مستمر صغير يعمل 24 ساعة. الجدول السابق كان يقطع عنها التيار نصف اليوم، وهو ما يرفع الاستهلاك بدل خفضه.',
+why:'80% من المنازل تملكها، واستخدامها مرتفع في كل الفترات (77–87%)، و61 منزلاً يشغّلونها أكثر من 5 ساعات. ليست جهازاً موسمياً.',
+assume:['قدرة اسمية 500 واط (ضاغط التبريد مع خزان التسخين)','معامل تشغيل 10% بفعل الثرموستات','تشغيل مستمر 24 ساعة','شتاءً تقل دورات التبريد تلقائياً لأن ماء الشبكة أبرد، ويزيد استخدام الساخن'],
+method:'الطاقة = 0.5 × 0.1 × 168 ساعة أسبوعياً. القدرة المتوسطة 50 واط مستمرة.',
+kpis:['الطاقة الأسبوعية','الحمل الأساسي المستمر','حصة الليل'],
+interp:'نحو 8 ك.و.س أسبوعياً موزعة بالتساوي على مدار اليوم، فهي جزء من «الحمل الأساسي» الذي يجب أن تغطيه البطارية طوال الليل مع الثلاجة.',
+limits:'الطراز والعزل يغيّران الاستهلاك للضعف. البرادات ذات خزان الماء الساخن الدائم تستهلك أكثر بكثير من المبرّدة فقط.',
+rec:'اتركها على الثرموستات ولا تقطع عنها التيار بجدول، فقطع التيار يجبرها على إعادة تبريد الخزان كاملاً. إن أردت توفيراً، أطفئ خزان الماء الساخن فيها شتاءً فقط إن كان غير مستخدم.'})},
+{id:'fridge',name:'الثلاجة',en:'Fridge',cat:'cooling',season:'all',rated:.15,duty:.4,type:'window',source:'survey',
+rows:`sunday,00:00,23:59
+monday,00:00,23:59
+tuesday,00:00,23:59
+wednesday,00:00,23:59
+thursday,00:00,23:59
+friday,00:00,23:59
+saturday,00:00,23:59`,
+t:T({desc:'الثلاجة تعمل على مدار الساعة طوال العام، ولا جدول لها سوى التشغيل الدائم.',
+problem:'الحمل الوحيد الذي لا يتوقف أبداً، فهو الأرضية التي تحدد أدنى استهلاك ليلي للمنزل.',
+why:'الثلاجة أعلى الأجهزة امتلاكاً في الاستبيان (99%)، و83% قالوا إنها تعمل «طوال اليوم»، و99 من 135 أجابوا أكثر من 5 ساعات يومياً. هي المرجع الذي تُقاس عليه بقية الأحمال.',
+assume:['قدرة ضاغط 150 واط','معامل تشغيل 40% في الشتاء (يرتفع صيفاً)','تشغيل مستمر بلا انقطاع','ثلاجة واحدة؛ 25% من المنازل تملك ثلاجتين'],
+method:'الطاقة = 0.15 × 0.4 × 168 ساعة. القدرة المتوسطة 60 واط مستمرة.',
+kpis:['الحمل الأساسي الليلي','الطاقة الأسبوعية','نسبة من استهلاك المنزل'],
+interp:'نحو 10 ك.و.س أسبوعياً بقدرة متوسطة 60 واط. الأهم أنها مع البرادة تشكّل نحو 110 واط تعمل كل ليلة بلا انقطاع، وهذا ما يحدد أدنى سعة بطارية مطلوبة حتى لو أُطفئ كل شيء آخر.',
+limits:'الثلاجات القديمة تستهلك ضعفين إلى ثلاثة. الفريزر المنفصل (89% في الاستبيان) حمل إضافي مماثل غير محسوب هنا.',
+rec:'لا تُدرجها في أي منطق فصل أحمال: قاطعها يجب أن يبقى مغلقاً دائماً. احسب لها ولبرادة المياه وللفريزر حملاً أساسياً ثابتاً نحو 0.2 ك.و عند تحجيم البطارية الليلية.'})},
+{id:'semiwash',name:'الغسالة نصف الأوتوماتيك',en:'Semi-automatic washer',cat:'cleaning',season:'all',rated:.4,duty:.85,type:'window',source:'survey',
+rows:`sunday,19:00,19:35
+sunday,21:00,21:35
+monday,19:30,20:05
+tuesday,19:00,19:35
+tuesday,21:00,21:35
+wednesday,19:30,20:05
+thursday,19:00,19:35
+friday,09:30,10:05
+friday,11:00,11:35
+friday,19:30,20:05
+saturday,09:30,10:05
+saturday,11:00,11:35
+saturday,19:30,20:05`,
+t:T({desc:'13 دورة أسبوعياً، كل دورة 25 دقيقة غسل ثم 10 دقائق تصريف، مع نقل أربع دورات إلى نهار نهاية الأسبوع.',
+problem:'غسالة ثانية تعمل بالتوازي مع الأوتوماتيك، ودوراتها أقصر وأكثر عدداً، وكانت كلها مساءً.',
+why:'الغسالة نصف الأوتوماتيك شائعة في المنازل السعودية للملابس الثقيلة والسجاد. برامجها الثلاثة (P_NORMAL ثم P_DRAIN ثم P_OFF) تجعلها مثالاً جيداً على الحمل المتعدد المراحل.',
+assume:['قدرة محرك 400 واط بلا سخان ماء','معامل تشغيل 85% (توقف بين الغسل والتصريف)','دورة 35 دقيقة شاملة التصريف','نقل 4 دورات إلى صباح الجمعة والسبت، لأن الغسيل يحتاج شمس النهار ليجف شتاءً'],
+method:'كل دورة نافذة واحدة من بدء P_NORMAL حتى P_OFF. الطاقة = 0.4 × 0.85 × المدة.',
+kpis:['عدد الدورات','الطاقة الأسبوعية','حصة النهار بعد الإزاحة'],
+interp:'نحو 2.6 ك.و.س أسبوعياً، أي أقل بكثير من الغسالة الأوتوماتيك (9.4) لأنها لا تسخّن الماء. وهذا يوضح أن معظم طاقة الغسيل تذهب لتسخين الماء لا للمحرك.',
+limits:'إن كانت بديلاً عن الأوتوماتيك لا إضافة لها، فجمع الاثنتين يضاعف عدد الدورات الأسبوعية (25 دورة) بما لا يمثّل أسرة واحدة.',
+rec:'استخدمها للملابس الثقيلة شتاءً بدل الأوتوماتيك كلما أمكن، فهي توفّر نحو 85% من طاقة الغسلة. وأبقِ دورات نهاية الأسبوع في النهار.'})}
 ];
 
 
@@ -933,7 +1046,61 @@ method:'Energy = 0.06 × duration.',
 kpis:['Number of runs','Weekly energy'],
 interp:'About 0.2 kWh a week; negligible for sizing.',
 limits:'Estimated scenario. If a hair dryer is meant, raise the power to 1.2–2.2 kW and shorten the duration.',
-rec:'Can be left out of sizing. If a hair dryer is added, treat it as a morning power pulse like the iron.'}
+rec:'Can be left out of sizing. If a hair dryer is added, treat it as a morning power pulse like the iron.'},
+vacuum:{desc:'Seven cleaning sessions a week: short on workdays, longer on Saturday.',
+problem:'A short, high-power load (1.2 kW) that runs in the middle of the day — the mid-sized pulse between the kettle and the TV.',
+why:'86% of homes own a vacuum, used in the afternoon (45%) and morning (32%), rarely at dawn (8%). In winter people spend more time indoors and rugs are laid out, so cleaning is more frequent.',
+assume:['1.2 kW rated; a motor with no thermostat, so power is constant','15–20 min sessions on workdays','40 min weekly session on Saturday','Friday morning session before the prayer'],
+method:'Energy = 1.2 kW × session length, with no duty cycle because the motor draws full power.',
+kpis:['Number of sessions','Highest rated power','Weekly energy'],
+interp:'Only about 3 kWh a week, and most of it at midday where the panels cover it directly. Its effect on the battery is almost nil.',
+limits:'Central vacuums or 2 kW models double the figure. Large households with a housekeeper run it daily and for longer.',
+rec:'No management needed. Keep its sessions in daylight: it is a good example of a load that sits entirely inside the solar window.'},
+hairdryer:{desc:'Drying hair after the morning shower on workdays, and before going out for events.',
+problem:'A large power pulse (1.8 kW) early in the morning, before solar output reaches its peak.',
+why:'Use rises sharply in winter, because nobody goes out with wet hair in the cold. It is by far the largest personal-care load, against 60 W for the hair iron.',
+assume:['1.8 kW rated','Duty cycle 90% (switched off briefly while styling)','10–15 min sessions','Five workday mornings after showers, plus sessions before events'],
+method:'Energy = 1.8 × 0.9 × duration.',
+kpis:['Highest rated power','Morning coincidence with the iron and kettle','Weekly energy'],
+interp:'About 3.5 kWh a week, but what matters is that it coincides with the iron (2 kW), the kettle (2.1 kW) and the water heater inside the 06:15–06:50 window, creating a sharp morning peak.',
+limits:'An estimated scenario, not in the survey. It varies a lot with household size and hair length.',
+rec:'Account for this combined morning peak when sizing the inverter. Staggering shower times across the family lowers it more than anything else.'},
+blender:{desc:'Short runs around lunch preparation, reduced for winter because cold drinks are less common.',
+problem:'The smallest kitchen load, and the point where modelling each appliance separately stops paying off.',
+why:'83% of homes own a blender; 55% use it in the afternoon and 44% in the evening, and 79 of 115 who answered use it an hour a day or less.',
+assume:['400 W rated','4–6 min per run','Cut from 12 to 9 runs a week in winter (fewer cold juices)','Remaining use is cooking-related: purées and sauces'],
+method:'Energy = 0.4 × duration.',
+kpis:['Number of runs','Weekly energy'],
+interp:'Under 0.3 kWh a week, negligible for sizing. It stays useful as an indicator of kitchen behaviour, not as a load.',
+limits:'Professional blenders reach 1.5 kW. Households making juice daily in summer triple this figure.',
+rec:'Merge it with the toaster and microwave into one "small kitchen loads" item instead of modelling each: together they are under 3 kWh a week.'},
+watercooler:{desc:'A hot-and-cold water dispenser left connected around the clock, governed by its thermostat rather than a schedule.',
+problem:'A small continuous load running 24 hours. The previous schedule cut its power for half the day, which raises consumption instead of lowering it.',
+why:'80% of homes own one, use is high in every period (77–87%), and 61 homes run it more than 5 hours. It is not a seasonal appliance.',
+assume:['500 W rated (cooling compressor plus hot tank)','Duty cycle 10% under thermostat control','Runs continuously, 24 hours','In winter cooling cycles drop by themselves because mains water is colder, while hot-water use rises'],
+method:'Energy = 0.5 × 0.1 × 168 h per week, i.e. a continuous average of 50 W.',
+kpis:['Weekly energy','Continuous base load','Night share'],
+interp:'About 8 kWh a week spread evenly across the day. It is part of the base load the battery must carry all night, together with the fridge.',
+limits:'Model and insulation can double this. Dispensers with a permanently hot tank use far more than cooling-only ones.',
+rec:'Leave it on its thermostat and do not cut its power on a schedule, because that forces a full tank re-cool. For savings, switch off its hot tank in winter only if it goes unused.'},
+fridge:{desc:'The fridge runs around the clock all year; its only schedule is permanent operation.',
+problem:'The one load that never stops, so it sets the floor for the home\'s overnight consumption.',
+why:'The fridge is the most widely owned appliance in the survey (99%), 83% said it runs "all day", and 99 of 135 answered more than 5 hours a day. It is the reference every other load is measured against.',
+assume:['150 W compressor','Duty cycle 40% in winter (higher in summer)','Continuous operation, never interrupted','One fridge; 25% of homes have two'],
+method:'Energy = 0.15 × 0.4 × 168 h, i.e. a continuous average of 60 W.',
+kpis:['Overnight base load','Weekly energy','Share of home consumption'],
+interp:'About 10 kWh a week at an average of 60 W. More importantly, together with the water cooler that is roughly 110 W running every night without pause, which sets the minimum battery capacity even if everything else is switched off.',
+limits:'Older fridges use two to three times as much. A separate freezer (89% in the survey) is a similar load not counted here.',
+rec:'Never include it in any load-shedding logic: its breaker should stay closed at all times. Budget a fixed base load of about 0.2 kW for the fridge, freezer and water cooler when sizing the night battery.'},
+semiwash:{desc:'13 cycles a week, each 25 min of washing plus 10 min of draining, with four cycles moved into weekend daylight.',
+problem:'A second washer running alongside the automatic one, with shorter and more frequent cycles, all of them previously in the evening.',
+why:'Semi-automatic washers are common in Saudi homes for heavy clothes and rugs. Their three programs (P_NORMAL, then P_DRAIN, then P_OFF) make a good example of a multi-stage load.',
+assume:['400 W motor, no water heater','Duty cycle 85% (pauses between wash and drain)','35 min per cycle including draining','Four cycles moved to Friday and Saturday mornings, because laundry needs daylight to dry in winter'],
+method:'Each cycle is one window from the P_NORMAL start to P_OFF. Energy = 0.4 × 0.85 × duration.',
+kpis:['Number of cycles','Weekly energy','Daytime share after shifting'],
+interp:'About 2.6 kWh a week, far below the automatic washer (9.4), because it does not heat water. That shows most laundry energy goes into heating water, not into the motor.',
+limits:'If it replaces the automatic washer rather than supplementing it, counting both doubles the weekly cycles (25) beyond what one household does.',
+rec:'Use it for heavy winter clothes instead of the automatic washer where possible: it saves about 85% of a wash\'s energy. Keep the weekend cycles in daylight.'}
 };
 
 /* ---------- UI strings ---------- */
@@ -1004,8 +1171,8 @@ SCENARIOS.forEach(sc=>{
 });
 
 /* ---------- filters ---------- */
-const F={season:'summer',day:'all',period:'all',metric:'kwh',cats:new Set(Object.keys(CATS))};
-let cur=SCENARIOS[0].id, sortKey='start', sortDir=1;
+const F={season:'winter',day:'all',period:'all',metric:'kwh',cats:new Set(Object.keys(CATS))};
+let cur=(SCENARIOS.find(s=>s.season==='winter')||SCENARIOS[0]).id, sortKey='start', sortDir=1;
 const dayOK=d=>F.day==='all'||(F.day==='work'?d<5:d>=5);
 const perOK=h=>F.period==='all'||Math.floor(h/6)===+F.period;
 const inSeason=sc=>F.season==='all'||sc.season==='all'||sc.season===F.season;
