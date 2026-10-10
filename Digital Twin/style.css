@@ -2931,3 +2931,9 @@ model-viewer {
   font-size: 12px;
   padding: 5px 8px;
 }
+
+/* Field data footer when the weekly upload from the lab PC is overdue */
+.chart-footer.real-stale {
+  color: var(--warning);
+  font-weight: 600;
+}

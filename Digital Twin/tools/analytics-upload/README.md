@@ -36,42 +36,39 @@ A problem in one month is logged and does not stop the other months. Every run w
 
 ## Set up on the lab PC (once)
 
-1. **Python 3.10+** and the packages:
-   ```
-   pip install -r requirements.txt
-   ```
-2. **Config:** copy `config.example.json` to `config.json` and set `data_folder` to the folder
-   holding the Excel files (`start_month` is the first month to publish). The columns are detected from the headers (`Time`, `Voltage (V)`,
-   `Current(A)`, `Active Power (W)`, `PF`, …). If detection fails, the error lists the headers
-   it found; write the exact names under `columns`. If the date and time are in separate
-   columns, use `"timestamp": ["Date", "Time"]`. A Home Assistant history export
-   (`entity_id, state, last_changed`) is also understood, using the entity ids in `ha_entities`.
-3. **Cloudflare token:** signed in to Cloudflare as the account that owns the site
-   (gehadm36@gmail.com), go to My Profile → API Tokens → Create Token → *Custom token*:
-   permission **Account · Workers KV Storage · Edit**, account resources **Include →
-   Gehadm36@gmail.com's Account**. Then:
-   ```
-   setx FEL_CF_TOKEN "<token>"
-   ```
-   Open a new PowerShell afterwards so the variable is visible.
-4. **Test on real data without uploading:**
-   ```
-   python publish_analytics.py --dry-run
-   ```
-   Check the summaries in the log and in `output/`.
-5. **Schedule it:**
-   ```
-   powershell -ExecutionPolicy Bypass -File .\install_task.ps1
-   ```
-   The task runs **every Tuesday at 03:00**. If the PC is off or offline then, Windows runs it as
-   soon as the PC is back.
+Step-by-step instructions, written for Claude Code on the lab PC: [LAB_PC_SETUP.md](LAB_PC_SETUP.md).
+In short:
+
+1. A dedicated Python 3.12 in `C:\FEL\python312`, a `.venv`, and the pinned `requirements.txt`.
+2. `config.json` from `config.example.json`, with `data_folder` set; check with `--dry-run`.
+3. A Cloudflare API token (Workers KV Storage: Edit, **no expiry**), saved by running
+   `set_token.ps1` yourself. It is stored in `secrets\cf_token.txt`, readable only by SYSTEM,
+   Administrators and you. `FEL_CF_TOKEN` in the environment also works.
+4. `install_task.ps1` (elevated): a scheduled task running **as SYSTEM every Tuesday at 03:00**,
+   so nobody has to be logged on and a password change cannot break it. A run missed while the
+   PC was off happens as soon as it is back.
+
+## Built to run unattended
+
+| Risk over the years | What handles it |
+|---|---|
+| PC off, broken, offline, or the task gone | Each run writes `analytics/heartbeat.json` to KV. The **watchdog** Worker (`workers/analytics-watchdog`) checks it daily in Cloudflare and sends a phone alert through ntfy, even when the PC is dead |
+| A run fails (bad data, file format changed, token revoked) | The heartbeat carries the error; the watchdog alerts the same day |
+| Alerts silently broken | The watchdog sends an "all good" message on the 1st of every month |
+| Visitors seeing old data as current | The overview shows the last upload date and flags it when overdue |
+| No one logged on, password changed | The task runs as SYSTEM |
+| Python or packages upgraded by someone else | Private Python in `C:\FEL\python312`, pinned package versions |
+| Logger holding an Excel file open | Reads are retried, then made from a copy |
+| Logs filling the disk | Logs older than 400 days are deleted |
+| Token expiring | Created without an expiry date |
 
 ## Manual use
 
 ```
-python publish_analytics.py                          # start_month to today (what the task runs)
-python publish_analytics.py --month 2026-08          # one month only
-python publish_analytics.py --month 2026-08 --force  # republish a finished month after fixing its files
+.venv\Scripts\python publish_analytics.py --dry-run                # check everything, upload nothing
+.venv\Scripts\python publish_analytics.py --month 2026-08          # one month only
+.venv\Scripts\python publish_analytics.py --month 2026-08 --force  # republish a finished month
+Start-ScheduledTask "FEL Lamp Panel Analytics Upload"              # a full run exactly as scheduled
 ```
 
 Exit codes: `0` ok or nothing to do · `1` validation failed · `2` input or config error ·

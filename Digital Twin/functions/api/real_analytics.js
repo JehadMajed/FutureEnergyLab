@@ -31,10 +31,11 @@ function reply(body, status = 200) {
   });
 }
 
-function shape(doc, months, source) {
+function shape(doc, months, source, updatedAt) {
   return {
     ok: true,
     source,
+    updated_at: updatedAt || null,   // last successful upload from the lab PC
     month: doc.month,
     months,
     complete: doc.complete !== false,
@@ -104,7 +105,7 @@ export async function onRequest({ request, env = {} }) {
 
   try {
     const doc = await read(`${month}.json`);
-    if (doc) return reply(shape(doc, months, "kv"));
+    if (doc) return reply(shape(doc, months, "kv", index.updated_at));
   } catch (err) {
     console.warn(`[real_analytics] KV read of ${month} failed:`, err.message);
   }

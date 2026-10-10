@@ -1,5 +1,6 @@
 config.json
 output/
 logs/
+secrets/
 .venv/
 __pycache__/
