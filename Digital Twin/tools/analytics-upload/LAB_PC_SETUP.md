@@ -13,22 +13,23 @@ must run `publish_analytics.py`, which:
 1. reads the Excel files from **1 August 2026** up to the end of Monday,
 2. reduces them to one per-day summary JSON per calendar month,
 3. validates the result (and refuses to publish bad data),
-4. uploads the JSON to GitHub (`JehadMajed/FutureEnergyLab`, folder
-   `Digital Twin/data/analytics/`), then reads it back and checks the SHA-256.
+4. uploads the JSON to the website's **private Cloudflare Workers KV** namespace, then reads it
+   back and checks the SHA-256.
 
-The website <https://digital-twin-lamps-panel.pages.dev/> reads those files and shows them in the
-first tab under **Verified Field Data**, with a month picker. The site side is already deployed;
-only this PC is left. Raw readings never leave this PC.
+The website <https://digital-twin-lamps-panel.pages.dev/> reads KV and shows the data in the
+first tab under **Verified Field Data**, with a month picker. The site side and the KV namespace
+are already deployed; only this PC is left. Raw readings never leave this PC, and nothing goes to
+GitHub (the repository is public).
 
 Full tool documentation: `README.md` in the same folder.
 
 ## Rules
 
-- **Never ask the user to paste the GitHub token into the chat, and never type it yourself.**
+- **Never ask the user to paste the Cloudflare token into the chat, and never type it yourself.**
   The user creates it and sets it in their own terminal (step 6).
 - Do not edit `publish_analytics.py`'s validation limits to make a check pass. If a check fails,
   find out why from the data and report it to the user.
-- Do not commit or push anything from this PC. The tool uploads through the GitHub API.
+- Do not commit or push anything from this PC. The tool uploads through the Cloudflare API.
 - Use PowerShell. Install location: `C:\FEL\analytics-upload` (outside OneDrive, so sync cannot
   lock or move files).
 
@@ -101,6 +102,7 @@ Copy-Item config.example.json config.json
 Edit `config.json`:
 - `data_folder`: the folder from step 4 (forward slashes, e.g. `"D:/LampPanel/Logs"`).
 - `start_month`: leave `"2026-08"`.
+- `cloudflare`: leave as it is (account and namespace ids are already filled in; they are not secrets).
 - `columns`: leave all `null` first; the tool detects headers such as `Time`, `Voltage (V)`,
   `Current(A)`, `Active Power (W)`, `PF`. Set exact header names only if the dry run says it
   could not find a column. Separate date and time columns: `"timestamp": ["Date", "Time"]`.
@@ -122,36 +124,37 @@ It should end with `exit 0`. For each month, check the summary line in the outpu
 If something fails or looks wrong, fix the config (columns, folder) and run again. If the data
 itself is the problem (logger gaps, wrong values), stop and explain it to the user.
 
-## Step 6 — GitHub token (USER)
+## Step 6 — Cloudflare token (USER)
 
 Tell the user to do these steps themselves, and wait until they confirm:
 
-1. github.com → Settings → Developer settings → Personal access tokens → **Fine-grained tokens**
-   → Generate new token.
-2. Repository access: **Only select repositories** → `FutureEnergyLab`.
-3. Permissions → Repository permissions → **Contents: Read and write**. Nothing else.
-4. Expiration: one year, with a reminder to renew.
-5. In their own PowerShell window: `setx FEL_GITHUB_TOKEN "<the token>"`.
-6. Close that window.
+1. Sign in at dash.cloudflare.com as **gehadm36@gmail.com** (the account that owns the site).
+2. My Profile → **API Tokens** → Create Token → **Create Custom Token**.
+3. Name: `lab-pc-analytics-upload`.
+4. Permissions: **Account → Workers KV Storage → Edit**. Nothing else.
+5. Account Resources: **Include → Gehadm36@gmail.com's Account**.
+6. TTL: optional (one year is fine, with a reminder to renew). Create the token and copy it.
+7. In their own PowerShell window: `setx FEL_CF_TOKEN "<the token>"`, then close that window.
 
 Then, in a **new** PowerShell, check that it is set without printing it:
 
 ```powershell
-[bool][Environment]::GetEnvironmentVariable("FEL_GITHUB_TOKEN","User")   # must be True
+[bool][Environment]::GetEnvironmentVariable("FEL_CF_TOKEN","User")   # must be True
 ```
 
 ## Step 7 — First real upload
 
 ```powershell
 cd C:\FEL\analytics-upload
-$env:FEL_GITHUB_TOKEN = [Environment]::GetEnvironmentVariable("FEL_GITHUB_TOKEN","User")
+$env:FEL_CF_TOKEN = [Environment]::GetEnvironmentVariable("FEL_CF_TOKEN","User")
 .\.venv\Scripts\python publish_analytics.py
 ```
 
 Expected: each month ends with `published and verified`, then `exit 0`. Exit `3` means the
-upload failed (check the token's repository and permission). Exit `1` or `2`: see the log.
+upload failed (check the token's permission and account; HTTP 403 = wrong permission or
+account). Exit `1` or `2`: see the log.
 
-Within about 15 minutes, check the site:
+Within about 10 minutes, check the site:
 
 ```powershell
 (Invoke-RestMethod https://digital-twin-lamps-panel.pages.dev/api/real_analytics).months

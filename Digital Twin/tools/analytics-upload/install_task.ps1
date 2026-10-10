@@ -15,8 +15,8 @@ param(
 
 $dir = $PSScriptRoot
 if (-not (Test-Path "$dir\config.json")) { throw "Create config.json first (copy config.example.json)." }
-if (-not [Environment]::GetEnvironmentVariable("FEL_GITHUB_TOKEN", "User")) {
-  throw "Set the token first:  setx FEL_GITHUB_TOKEN <token>  (then open a new PowerShell)."
+if (-not [Environment]::GetEnvironmentVariable("FEL_CF_TOKEN", "User")) {
+  throw "Set the token first:  setx FEL_CF_TOKEN <token>  (then open a new PowerShell)."
 }
 
 $action   = New-ScheduledTaskAction -Execute $Python `
@@ -28,7 +28,7 @@ $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -RunOnlyIfNetworkAv
 
 Register-ScheduledTask -TaskName "FEL Lamp Panel Analytics Upload" -Action $action `
   -Trigger $trigger -Settings $settings -Force `
-  -Description "Processes the lamp panel logs and publishes the monthly JSON summaries to GitHub." | Out-Null
+  -Description "Processes the lamp panel logs and publishes the monthly JSON summaries to Cloudflare KV." | Out-Null
 
 Write-Host "Registered 'FEL Lamp Panel Analytics Upload' (every $Day at $At)."
 Write-Host "Test it now:  Start-ScheduledTask 'FEL Lamp Panel Analytics Upload'   then check .\logs\"

@@ -5,18 +5,20 @@ Every **Tuesday**, publishes the lamp panel analytics from the **lab PC** to the
 processed JSON per calendar month, from `start_month` (August 2026) to the current month.
 
 ```
-Lab PC (Excel logs) ──► publish_analytics.py ──► GitHub: data/analytics/<YYYY-MM>.json ──► /api/real_analytics ──► Overview tab
-                        pull · process ·        + index.json                         (edge cache 10 min)     month picker
-                        validate · upload
+Lab PC (Excel logs) ──► publish_analytics.py ──► Cloudflare Workers KV (private) ──► /api/real_analytics ──► Overview tab
+                        pull · process ·        analytics/<YYYY-MM>.json            (edge cache 10 min)     month picker
+                        validate · upload       analytics/index.json
 ```
 
-Raw readings never leave the PC. Only the processed summary (~10 kB) is published.
+Raw readings never leave the PC. Only the processed summary (~10 kB) is uploaded, to a private
+KV namespace bound to the website; nothing is stored in Git. If KV is ever unreachable, the site
+falls back to the July 2026 figures bundled in `real_analytics.json`.
 
 ## What each Tuesday run does
 
 | Month | What happens |
 |---|---|
-| **Finished, not yet final on GitHub** | Processed and published once as *complete* |
+| **Finished, not yet final in KV** | Processed and published once as *complete* |
 | **Finished, already final** | Skipped |
 | **Current month** | Republished from day 1 to the end of yesterday (Monday); the site shows it as *October 2026 (to 12 Oct)* |
 
@@ -27,7 +29,7 @@ Each month goes through these four steps:
 | **Pull** | Reads every `.xlsx / .xls / .csv` in `data_folder` (all sheets, subfolders included) and keeps the rows that fall in the month. Skips Excel lock files (`~$…`) and files last written before the month started. | the folder is missing, a file cannot be read, or the month has no readings |
 | **Process** | Removes duplicate timestamps and physically impossible rows, then builds per-day figures (running and zero-current hours, energy, average power, voltage and PF) plus month totals. Gaps longer than `max_gap_s` count as *no data*, not as idle time. | — |
 | **Validate** | Checks that at most 1 % of rows are invalid, that energy agrees with power × hours (within 5 %), and that no day is longer than 24 h. Coverage and duplicates are reported as warnings. | any check fails |
-| **Upload** | Commits `<month>.json` first and `index.json` second, then reads both back from GitHub and compares SHA-256. Retries network errors up to 3 times. | the read-back does not match |
+| **Upload** | Writes `<month>.json` first and `index.json` second to KV, then reads both back and compares SHA-256 (allowing up to a minute for KV to settle). Retries network errors up to 3 times. | the read-back does not match |
 
 A problem in one month is logged and does not stop the other months. Every run writes
 `logs/run_<time>.log` and keeps a local copy of each JSON in `output/`.
@@ -44,10 +46,12 @@ A problem in one month is logged and does not stop the other months. Every run w
    it found; write the exact names under `columns`. If the date and time are in separate
    columns, use `"timestamp": ["Date", "Time"]`. A Home Assistant history export
    (`entity_id, state, last_changed`) is also understood, using the entity ids in `ha_entities`.
-3. **GitHub token:** create a *fine-grained* token at GitHub → Settings → Developer settings,
-   limited to the **FutureEnergyLab** repository, permission **Contents: Read and write**. Then:
+3. **Cloudflare token:** signed in to Cloudflare as the account that owns the site
+   (gehadm36@gmail.com), go to My Profile → API Tokens → Create Token → *Custom token*:
+   permission **Account · Workers KV Storage · Edit**, account resources **Include →
+   Gehadm36@gmail.com's Account**. Then:
    ```
-   setx FEL_GITHUB_TOKEN "github_pat_..."
+   setx FEL_CF_TOKEN "<token>"
    ```
    Open a new PowerShell afterwards so the variable is visible.
 4. **Test on real data without uploading:**

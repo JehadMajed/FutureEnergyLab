@@ -11,11 +11,12 @@ For each month it:
   1. PULL      reads the logger's Excel / CSV files from a local folder
   2. PROCESS   reduces the one-second readings to a per-day summary
   3. VALIDATE  refuses to publish data that fails range / consistency checks
-  4. UPLOAD    commits <month>.json and index.json to GitHub, then reads both
-               back and compares SHA-256, so a partial upload is caught.
+  4. UPLOAD    writes <month>.json and index.json to the website's private
+               Cloudflare Workers KV namespace, then reads both back and
+               compares SHA-256, so a partial upload is caught.
 
 Raw readings never leave the PC; only the processed JSON (~10 kB) is published.
-The website reads it from GitHub through /api/real_analytics.
+The website reads it from KV through /api/real_analytics. Nothing goes to Git.
 
 Usage:
   python publish_analytics.py                          # every month from start_month to today
@@ -29,7 +30,6 @@ Exit codes: 0 ok / nothing to do | 1 validation failed | 2 input or config error
 from __future__ import annotations
 
 import argparse
-import base64
 import calendar
 import datetime as dt
 import hashlib
@@ -79,7 +79,7 @@ class InputError(Exception):
 
 
 class UploadError(Exception):
-    """GitHub upload or read-back verification failed (exit 3)."""
+    """Upload or read-back verification failed (exit 3)."""
 
 
 # ── config ──────────────────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ def load_config(path: Path) -> dict:
     if not path.exists():
         raise InputError(f"config not found: {path} (copy config.example.json to config.json)")
     cfg = json.loads(path.read_text(encoding="utf-8"))
-    for key in ("data_folder", "github", "start_month"):
+    for key in ("data_folder", "cloudflare", "start_month"):
         if key not in cfg:
             raise InputError(f"config: missing '{key}'")
     month_bounds(cfg["start_month"])
@@ -421,26 +421,26 @@ def validate(daily: list[dict], summary: dict, stats: dict, complete: bool) -> l
 
 # ── 4. UPLOAD ───────────────────────────────────────────────────────────────
 
-class GitHub:
-    API = "https://api.github.com"
+class KV:
+    """Cloudflare Workers KV over the REST API (the namespace the website reads)."""
+    API = "https://api.cloudflare.com/client/v4"
 
-    def __init__(self, repo: str, branch: str, token: str | None):
-        self.repo, self.branch = repo, branch
+    def __init__(self, account_id: str, namespace_id: str, prefix: str, token: str | None):
+        self.namespace, self.prefix = namespace_id, prefix
+        self.base = f"{self.API}/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/values/"
         self.s = requests.Session()
-        self.s.headers.update({"Accept": "application/vnd.github+json",
-                               "X-GitHub-Api-Version": "2022-11-28",
-                               "User-Agent": f"fel-monthly-upload/{TOOL_VERSION}"})
+        self.s.headers["User-Agent"] = f"fel-analytics-upload/{TOOL_VERSION}"
         if token:
             self.s.headers["Authorization"] = f"Bearer {token}"
 
-    def _url(self, path: str) -> str:
-        return f"{self.API}/repos/{self.repo}/contents/{requests.utils.quote(path)}"
+    def _url(self, key: str) -> str:
+        return self.base + requests.utils.quote(self.prefix + key, safe="")
 
     def _call(self, method: str, url: str, **kw) -> requests.Response:
         for attempt, wait in enumerate((5, 20, 60, None), 1):
             try:
                 r = self.s.request(method, url, timeout=60, **kw)
-                if r.status_code < 500:
+                if r.status_code < 500 and r.status_code != 429:
                     return r
                 err = f"HTTP {r.status_code}"
             except requests.RequestException as e:
@@ -450,54 +450,48 @@ class GitHub:
             log.warning("      %s failed (%s), retrying in %ds", method, err, wait)
             time.sleep(wait)
 
-    def get(self, path: str) -> tuple[bytes | None, str | None]:
-        r = self._call("GET", self._url(path), params={"ref": self.branch})
+    def get(self, key: str) -> bytes | None:
+        r = self._call("GET", self._url(key))
         if r.status_code == 404:
-            return None, None
+            return None
         if r.status_code != 200:
-            raise UploadError(f"GET {path}: HTTP {r.status_code} {r.text[:200]}")
-        j = r.json()
-        return base64.b64decode(j["content"]), j["sha"]
+            raise UploadError(f"GET {key}: HTTP {r.status_code} {r.text[:200]}")
+        return r.content
 
-    def put(self, path: str, content: bytes, message: str) -> None:
-        for _ in range(3):  # 409 = file changed since we read its sha; reread and retry
-            _, sha = self.get(path)
-            body = {"message": message, "branch": self.branch,
-                    "content": base64.b64encode(content).decode()}
-            if sha:
-                body["sha"] = sha
-            r = self._call("PUT", self._url(path), json=body)
-            if r.status_code in (200, 201):
+    def put(self, key: str, content: bytes) -> None:
+        r = self._call("PUT", self._url(key), data=content,
+                       headers={"Content-Type": "application/octet-stream"})
+        if r.status_code != 200 or not r.json().get("success"):
+            raise UploadError(f"PUT {key}: HTTP {r.status_code} {r.text[:300]}")
+
+    def put_verified(self, key: str, content: bytes) -> None:
+        self.put(key, content)
+        want = hashlib.sha256(content).hexdigest()
+        # KV is eventually consistent; give a fresh write up to ~1 min to be readable.
+        for wait in (0, 5, 15, 40):
+            time.sleep(wait)
+            got = hashlib.sha256(self.get(key) or b"").hexdigest()
+            if got == want:
+                log.info("      %s%s  verified sha256 %s", self.prefix, key, want[:12])
                 return
-            if r.status_code != 409:
-                raise UploadError(f"PUT {path}: HTTP {r.status_code} {r.text[:300]}")
-        raise UploadError(f"PUT {path}: kept conflicting (409)")
-
-    def put_verified(self, path: str, content: bytes, message: str) -> None:
-        self.put(path, content, message)
-        back, _ = self.get(path)
-        want, got = hashlib.sha256(content).hexdigest(), hashlib.sha256(back or b"").hexdigest()
-        if want != got:
-            raise UploadError(f"read-back of {path} does not match (sha256 {got[:12]} != {want[:12]})")
-        log.info("      %s  verified sha256 %s", path, want[:12])
+        raise UploadError(f"read-back of {key} does not match (sha256 {got[:12]} != {want[:12]})")
 
 
 def to_bytes(obj) -> bytes:
     return (json.dumps(obj, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
 
 
-def load_index(gh: GitHub, base: str) -> dict:
-    raw, _ = gh.get(f"{base}/index.json")
+def load_index(kv: KV) -> dict:
+    raw = kv.get("index.json")
     if raw is None:
         return {"schema_version": SCHEMA_VERSION, "months": []}
     return json.loads(raw)
 
 
-def publish(gh: GitHub, base: str, doc: dict, index: dict) -> None:
+def publish(kv: KV, doc: dict, index: dict) -> None:
     month = doc["month"]
     content = to_bytes(doc)
-    gh.put_verified(f"{base}/{month}.json", content, f"data: lamp panel analytics {month}"
-                    + ("" if doc["complete"] else f" (through {doc['data_through']})"))
+    kv.put_verified(f"{month}.json", content)
 
     entry = {"month": month, "file": f"{month}.json",
              "complete": doc["complete"], "data_through": doc["data_through"],
@@ -510,7 +504,7 @@ def publish(gh: GitHub, base: str, doc: dict, index: dict) -> None:
     index.update({"schema_version": SCHEMA_VERSION, "months": months,
                   "latest": months[-1]["month"], "updated_at": doc["generated_at"]})
     # Month file first, index second: the site never lists a month it cannot load.
-    gh.put_verified(f"{base}/index.json", to_bytes(index), f"data: index after {month}")
+    kv.put_verified("index.json", to_bytes(index))
 
 
 # ── main ────────────────────────────────────────────────────────────────────
@@ -529,7 +523,7 @@ def setup_logging() -> Path:
     return logfile
 
 
-def run_month(month: str, cfg: dict, gh: GitHub, base: str, index: dict | None,
+def run_month(month: str, cfg: dict, kv: KV, index: dict | None,
               args, today: dt.date) -> int:
     start, end, complete = period(month, today)
     if end <= start:
@@ -587,19 +581,18 @@ def run_month(month: str, cfg: dict, gh: GitHub, base: str, index: dict | None,
         log.info("[%s] dry run: validation passed, nothing uploaded", month)
         return 0
 
-    log.info("UPLOAD  %s -> %s@%s", base, gh.repo, gh.branch)
-    publish(gh, base, doc, index)
+    log.info("UPLOAD  -> Cloudflare KV namespace %s", kv.namespace)
+    publish(kv, doc, index)
     log.info("[%s] published and verified", month)
     return 0
 
 
 def run(args) -> int:
     cfg = load_config(args.config)
-    gcfg = cfg["github"]
-    base = gcfg.get("path", "Digital Twin/data/analytics").strip("/")
-    token_env = gcfg.get("token_env", "FEL_GITHUB_TOKEN")
+    ccfg = cfg["cloudflare"]
+    token_env = ccfg.get("token_env", "FEL_CF_TOKEN")
     token = os.environ.get(token_env)
-    gh = GitHub(gcfg["repo"], gcfg.get("branch", "main"), token)
+    kv = KV(ccfg["account_id"], ccfg["namespace_id"], ccfg.get("key_prefix", "analytics/"), token)
     if not args.dry_run and not token:
         raise InputError(f"environment variable {token_env} is not set")
 
@@ -608,13 +601,13 @@ def run(args) -> int:
     for m in months:
         month_bounds(m)
     log.info("publish_analytics %s  months=%s  dry_run=%s", TOOL_VERSION, ",".join(months), args.dry_run)
-    index = None if args.dry_run else load_index(gh, base)
+    index = None if args.dry_run else load_index(kv)
 
     # Each month stands alone: a problem in one is logged and does not stop the others.
     worst = 0
     for month in months:
         try:
-            code = run_month(month, cfg, gh, base, index, args, today)
+            code = run_month(month, cfg, kv, index, args, today)
         except InputError as e:
             log.error("[%s] INPUT ERROR: %s", month, e)
             code = 2
