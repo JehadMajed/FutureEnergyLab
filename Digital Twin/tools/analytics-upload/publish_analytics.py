@@ -53,7 +53,7 @@ try:  # University network does TLS inspection; trust the Windows certificate st
 except ImportError:
     pass
 
-TOOL_VERSION = "1.2.0"
+TOOL_VERSION = "1.3.0"
 LOG_RETENTION_DAYS = 400
 SCHEMA_VERSION = 1
 HERE = Path(__file__).resolve().parent
@@ -70,6 +70,8 @@ ALIASES = {
     "power": ["active_power", "activepower", "power", "watt", "watts", "p", "القدرة"],
 }
 QUANTITIES = ["voltage", "current", "power", "power_factor"]
+REQUIRED = ["timestamp", "voltage", "current", "power"]
+HEADER_SCAN_ROWS = 20   # how far down a sheet the real header row may sit
 
 # Physically possible ranges for this panel (230 V, 40 x 11 W lamps). Rows outside
 # are dropped; if more than MAX_INVALID_FRACTION of rows are dropped, nothing is published.
@@ -98,6 +100,7 @@ def load_config(path: Path) -> dict:
     month_bounds(cfg["start_month"])
     cfg.setdefault("file_patterns", ["*.xlsx", "*.xlsm", "*.xls", "*.csv"])
     cfg.setdefault("utc_offset_hours", 3)
+    cfg.setdefault("sheets", None)
     cfg.setdefault("columns", {})
     cfg.setdefault("ha_entities", {})
     cfg.setdefault("running_threshold_a", 0.10)
@@ -155,14 +158,13 @@ def find_files(cfg: dict, start: dt.datetime) -> list[Path]:
     return files
 
 
-def _read(path: Path) -> list[pd.DataFrame]:
+def _read(path: Path) -> dict[str, pd.DataFrame]:
     if path.suffix.lower() == ".csv":
-        return [pd.read_csv(path, low_memory=False)]
-    sheets = pd.read_excel(path, sheet_name=None, engine="calamine")
-    return [df for df in sheets.values() if not df.empty]
+        return {path.stem: pd.read_csv(path, low_memory=False)}
+    return pd.read_excel(path, sheet_name=None, engine="calamine")
 
 
-def read_sheets(path: Path) -> list[pd.DataFrame]:
+def read_sheets(path: Path) -> dict[str, pd.DataFrame]:
     """Read a file, tolerating the logger holding it open: retry, then read a copy."""
     err = None
     for wait in (0, 15, 30, 60):
@@ -206,7 +208,7 @@ def parse_timestamps(col: pd.Series, utc_offset_h: float) -> pd.Series:
     return ts
 
 
-def map_wide_columns(df: pd.DataFrame, explicit: dict) -> dict:
+def map_wide_columns(df: pd.DataFrame, explicit: dict, strict: bool = True) -> dict:
     """quantity -> source column name (or list of columns for split date + time)."""
     headers = {norm_header(c): c for c in df.columns}
     found, used = {}, set()
@@ -216,6 +218,8 @@ def map_wide_columns(df: pd.DataFrame, explicit: dict) -> dict:
             cols = want if isinstance(want, list) else [want]
             missing = [c for c in cols if c not in df.columns]
             if missing:
+                if not strict:
+                    continue
                 raise InputError(f"config columns.{qty}: {missing} not in sheet headers {list(df.columns)}")
             found[qty] = want
             used.update(cols)
@@ -228,6 +232,26 @@ def map_wide_columns(df: pd.DataFrame, explicit: dict) -> dict:
             found[qty] = hit
             used.add(hit)
     return found
+
+
+def find_header(df: pd.DataFrame, explicit: dict) -> pd.DataFrame:
+    """Logger files may start with a blank or title row: pandas then names the columns
+    'Unnamed: N' and the real header ends up as a data row. If the current headers do
+    not name every required column, promote the first of the top rows that does."""
+    cols = map_wide_columns(df, explicit, strict=False)
+    if all(q in cols for q in REQUIRED):
+        return df
+    for i in range(min(HEADER_SCAN_ROWS, len(df))):
+        names = [str(v).strip() if pd.notna(v) and str(v).strip() else f"Unnamed: {j}"
+                 for j, v in enumerate(df.iloc[i])]
+        if len(set(names)) < len(names):
+            continue
+        cand = df.iloc[i + 1:].set_axis(names, axis=1)
+        cols = map_wide_columns(cand, explicit, strict=False)
+        if all(q in cols for q in REQUIRED):
+            # Columns read below a text header row are 'object'; restore real dtypes.
+            return cand.reset_index(drop=True).infer_objects()
+    return df
 
 
 def normalise_sheet(df: pd.DataFrame, cfg: dict, source: str) -> pd.DataFrame:
@@ -261,6 +285,7 @@ def normalise_sheet(df: pd.DataFrame, cfg: dict, source: str) -> pd.DataFrame:
         out = (out.reindex(out.index.union(grid)).ffill().reindex(grid)
                .rename_axis("ts").reset_index())
     else:
+        df = find_header(df, cfg["columns"])
         cols = map_wide_columns(df, cfg["columns"])
         missing = [q for q in ("timestamp", "voltage", "current", "power") if q not in cols]
         if missing:
@@ -291,9 +316,17 @@ def pull(cfg: dict, start: dt.datetime, end: dt.datetime) -> tuple[pd.DataFrame,
             sheets = read_sheets(f)
         except Exception as e:  # unreadable after retries: report it, never silently skip
             raise InputError(f"cannot read {f}: {e}") from e
+        if cfg["sheets"]:
+            # Only the named data sheet(s); a summary or run-log sheet beside the
+            # readings must never be parsed as readings.
+            sheets = {n: s for n, s in sheets.items() if n in cfg["sheets"]}
+            if not sheets:
+                raise InputError(f"{f.name}: none of the sheets {cfg['sheets']} found")
         rows_in_month = 0
-        for sheet in sheets:
-            part = normalise_sheet(sheet, cfg, f.name)
+        for name, sheet in sheets.items():
+            if sheet.empty:
+                continue
+            part = normalise_sheet(sheet, cfg, f"{f.name} [{name}]")
             part = part[(part.ts >= start) & (part.ts < end)]
             if len(part):
                 frames.append(part)
