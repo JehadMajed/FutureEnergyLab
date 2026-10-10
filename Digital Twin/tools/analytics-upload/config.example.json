@@ -22,10 +22,10 @@
   "running_threshold_a": 0.10,
   "max_gap_s": 10,
 
-  "github": {
-    "repo": "JehadMajed/FutureEnergyLab",
-    "branch": "main",
-    "path": "Digital Twin/data/analytics",
-    "token_env": "FEL_GITHUB_TOKEN"
+  "cloudflare": {
+    "account_id": "ec552c03e811bbf0aafe8f33436b87b4",
+    "namespace_id": "85878685227f4770a131812640da5ad0",
+    "key_prefix": "analytics/",
+    "token_env": "FEL_CF_TOKEN"
   }
 }

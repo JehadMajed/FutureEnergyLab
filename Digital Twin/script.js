@@ -1457,7 +1457,7 @@ updateGauges({ T_j: PHYS.T_amb, P: 0, V: PHYS.V_rated, eta: PHYS.eta_rated * 100
 /* =======================================================================
    MODULE: REAL OPERATIONAL ANALYTICS (monthly field data)
    One processed JSON per month, published from the lab PC every Tuesday by
-   tools/analytics-upload/publish_analytics.py and served by
+   tools/analytics-upload/publish_analytics.py to Workers KV and served by
    /api/real_analytics. The current month is partial until it ends.
    ======================================================================= */
 let chartRealUptime = null;
@@ -1592,7 +1592,7 @@ document.getElementById("real-month-select")?.addEventListener("change", functio
 });
 
 fetchRealAnalytics();
-setInterval(fetchRealAnalytics, 120000);
+setInterval(fetchRealAnalytics, 30 * 60 * 1000);   // data changes weekly
 
 /* ══════════════════════════════════════════════════════════════════════════
    ██████████████████████████████████████████████████████████████████████████
