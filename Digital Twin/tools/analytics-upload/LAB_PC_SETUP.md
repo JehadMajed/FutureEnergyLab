@@ -119,8 +119,12 @@ Copy-Item config.example.json config.json
 Edit `config.json`:
 - `data_folder`: the folder from step 4 (forward slashes, e.g. `"D:/LampPanel/Logs"`).
 - `start_month`: leave `"2026-08"`. `cloudflare`: leave as it is (ids are not secrets).
-- `columns`: leave all `null` first; set exact header names only if the dry run cannot find a
-  column. Separate date and time columns: `"timestamp": ["Date", "Time"]`.
+- `file_patterns`: narrow it to the logger's own files (e.g. `["LAMPS_PANEL_Device_*.xlsx"]`).
+- `sheets`: if a file has other sheets beside the readings (summary, run log), list only the
+  readings sheet, e.g. `["Data"]`. A summary row must never be read as a reading.
+- `columns`: leave all `null` first; the tool finds the header row by itself, even below a
+  blank first row. Set exact header names only if the dry run cannot find a column, and never
+  `"Unnamed: N"` names. Separate date and time columns: `"timestamp": ["Date", "Time"]`.
 - Home Assistant history exports (`entity_id, state, last_changed`): set `ha_entities` to match.
 
 ```powershell

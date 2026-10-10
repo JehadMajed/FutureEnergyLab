@@ -26,7 +26,7 @@ Each month goes through these four steps:
 
 | Step | What happens | Stops the upload if… |
 |---|---|---|
-| **Pull** | Reads every `.xlsx / .xls / .csv` in `data_folder` (all sheets, subfolders included) and keeps the rows that fall in the month. Skips Excel lock files (`~$…`) and files last written before the month started. | the folder is missing, a file cannot be read, or the month has no readings |
+| **Pull** | Reads every file matching `file_patterns` in `data_folder` (subfolders included; only the sheets listed in `sheets`, or all sheets if it is `null`) and keeps the rows that fall in the month. Finds the header row by itself if a sheet starts with blank or title rows. Skips Excel lock files (`~$…`) and files last written before the month started. | the folder is missing, a file cannot be read, or the month has no readings |
 | **Process** | Removes duplicate timestamps and physically impossible rows, then builds per-day figures (running and zero-current hours, energy, average power, voltage and PF) plus month totals. Gaps longer than `max_gap_s` count as *no data*, not as idle time. | — |
 | **Validate** | Checks that at most 1 % of rows are invalid, that energy agrees with power × hours (within 5 %), and that no day is longer than 24 h. Coverage and duplicates are reported as warnings. | any check fails |
 | **Upload** | Writes `<month>.json` first and `index.json` second to KV, then reads both back and compares SHA-256 (allowing up to a minute for KV to settle). Retries network errors up to 3 times. | the read-back does not match |
