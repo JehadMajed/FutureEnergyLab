@@ -1461,11 +1461,15 @@ updateGauges({ T_j: PHYS.T_amb, P: 0, V: PHYS.V_rated, eta: PHYS.eta_rated * 100
    /api/real_analytics. The current month is partial until it ends.
    ======================================================================= */
 let chartRealUptime = null;
-let realMonth = "";   // "" = latest published month
+let realMonth = "all";   // "all" = every month since July 2026, or "YYYY-MM"
 
-function monthLabel(month) {
+function monthLabel(month, style) {
   const [y, m] = month.split("-").map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+  return new Date(y, m - 1, 1).toLocaleDateString("en-GB", { month: style || "long", year: "numeric" });
+}
+
+function rangeLabel(first, last) {
+  return first === last ? monthLabel(first) : monthLabel(first, "short") + " – " + monthLabel(last, "short");
 }
 
 function fillMonthSelect(months, current) {
@@ -1473,7 +1477,9 @@ function fillMonthSelect(months, current) {
   if (!sel) return;
   const want = months.slice().reverse().join(",");
   if (sel.dataset.months !== want) {
-    sel.innerHTML = months.slice().reverse()
+    const all = months.length > 1
+      ? `<option value="all">All months (${rangeLabel(months[0], months[months.length - 1])})</option>` : "";
+    sel.innerHTML = all + months.slice().reverse()
       .map(m => `<option value="${m}">${monthLabel(m)}</option>`).join("");
     sel.dataset.months = want;
   }
@@ -1489,7 +1495,8 @@ async function fetchRealAnalytics() {
     if (!data.ok) return;
 
     const s = data.summary;
-    let label = monthLabel(data.month);
+    const isAll = data.month === "all";
+    let label = isAll ? rangeLabel(data.first_month, data.last_month) : monthLabel(data.month);
     if (data.complete === false && data.data_through) {
       const through = new Date(data.data_through + "T00:00:00")
         .toLocaleDateString("en-GB", { day: "numeric", month: "short" });
@@ -1527,7 +1534,11 @@ async function fetchRealAnalytics() {
       footerEl.classList.toggle("real-stale", stale);
     }
 
-    const days = data.daily.map(function (d) { return d.day.slice(5); });
+    const days = data.daily.map(function (d) {
+      return isAll
+        ? new Date(d.day + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+        : d.day.slice(5);
+    });
     const runHours = data.daily.map(function (d) { return d.run_hours; });
     const zeroHrs = data.daily.map(function (d) { return d.zero_hours; });
 
