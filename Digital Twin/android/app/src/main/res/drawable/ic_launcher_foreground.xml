@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Light bulb with filament and rays, inside the 66dp safe zone of the 108dp adaptive canvas. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:strokeColor="#FFD54F" android:strokeWidth="2.6" android:strokeLineCap="round"
+        android:pathData="M54,24 L54,29 M35,31 L38.5,34.5 M73,31 L69.5,34.5 M28,49 L33,49 M80,49 L75,49" />
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M54,33 C44.6,33 37.5,40.2 37.5,49.2 C37.5,55 40.4,59.3 44,62.6 C45.6,64.1 46.5,66 46.5,68.1 L46.5,70 L61.5,70 L61.5,68.1 C61.5,66 62.4,64.1 64,62.6 C67.6,59.3 70.5,55 70.5,49.2 C70.5,40.2 63.4,33 54,33 Z" />
+    <path android:strokeColor="#006C6B" android:strokeWidth="2.4" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M49.5,69 L49.5,58 L52,53.5 L54,58 L56,53.5 L58.5,58 L58.5,69" />
+    <path android:fillColor="#E0F2F1"
+        android:pathData="M46.5,72 L61.5,72 L61.5,75 L46.5,75 Z M47.5,77 L60.5,77 L60.5,80 L47.5,80 Z M50,82 L58,82 C58,84.2 56.2,86 54,86 C51.8,86 50,84.2 50,82 Z" />
+</vector>
