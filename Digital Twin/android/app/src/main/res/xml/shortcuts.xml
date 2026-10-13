@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press the app icon to jump straight to a tab of the site. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="live" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_live" android:shortcutLongLabel="@string/shortcut_live_long">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="sa.edu.psau.fel.lamppanel"
+            android:targetClass="sa.edu.psau.fel.lamppanel.MainActivity">
+            <extra android:name="tab" android:value="overview" />
+        </intent>
+    </shortcut>
+    <shortcut android:shortcutId="model" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_model" android:shortcutLongLabel="@string/shortcut_model_long">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="sa.edu.psau.fel.lamppanel"
+            android:targetClass="sa.edu.psau.fel.lamppanel.MainActivity">
+            <extra android:name="tab" android:value="model" />
+        </intent>
+    </shortcut>
+    <shortcut android:shortcutId="simulation" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_sim" android:shortcutLongLabel="@string/shortcut_sim_long">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="sa.edu.psau.fel.lamppanel"
+            android:targetClass="sa.edu.psau.fel.lamppanel.MainActivity">
+            <extra android:name="tab" android:value="simulation" />
+        </intent>
+    </shortcut>
+</shortcuts>
