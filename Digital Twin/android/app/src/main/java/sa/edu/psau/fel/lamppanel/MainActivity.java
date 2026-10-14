@@ -55,7 +55,7 @@ import java.util.List;
 public class MainActivity extends Activity {
 
     private static final String OFFLINE_URL = "file:///android_asset/offline.html";
-    private static final List<String> TABS = Arrays.asList("live", "records", "control", "more");
+    private static final List<String> TABS = Arrays.asList("live", "records", "simulate", "control");
     private static final long SPLASH_MAX_MS = 4000;
     private static final int BRAND = 0xFF006C6B;
     private static final long OFFLINE_RETRY_MS = 10_000;
@@ -329,7 +329,7 @@ public class MainActivity extends Activity {
             + "function top(){A.onScroll((window.scrollY||document.documentElement.scrollTop||0)<=0);}"
             + "window.addEventListener('scroll',top,{passive:true});top();"
             + "document.addEventListener('touchstart',function(e){var t=e.target;"
-            + "A.onTouch(!!(t&&t.closest&&t.closest('model-viewer,canvas,iframe,video,input,select,textarea,.chart-scroll,.chips')));},"
+            + "A.onTouch(!!(t&&t.closest&&t.closest('model-viewer,canvas,iframe,video,input,select,textarea,.chart-scroll,.chips,.board,.scen-row,.sheet')));},"
             + "{passive:true,capture:true});})();";
 
     // ── navigation ──────────────────────────────────────────────────────────

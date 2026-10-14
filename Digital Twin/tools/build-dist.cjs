@@ -31,6 +31,7 @@ const ASSETS = [
   'app/index.html',          // the phone app (opened by the Android APK)
   'app/app.css',
   'app/app.js',
+  'app/sim-engine.js',
 ];
 
 /* Anything matching these must never reach the deploy directory. */

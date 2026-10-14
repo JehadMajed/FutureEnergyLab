@@ -5,6 +5,8 @@
     <string name="shortcut_live_long">Live power and lamp state</string>
     <string name="shortcut_records">Field data</string>
     <string name="shortcut_records_long">Monthly field records</string>
+    <string name="shortcut_simulate">Simulate</string>
+    <string name="shortcut_simulate_long">40-lamp physics simulation</string>
     <string name="shortcut_control">Control</string>
     <string name="shortcut_control_long">Camera, 3D twin and commands</string>
 </resources>
