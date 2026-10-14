@@ -3027,3 +3027,85 @@ html.lp-app .status-badge {
 html.lp-app .tab-content {
   padding: 12px;
 }
+
+/* =====================================================================
+   PHONES: the Simulation tab. Same content and identity, laid out for a
+   narrow screen. Also used by the Android app, which shows this tab in
+   its Simulate screen (?tab=simulation&embed=sim -> html.embed-sim).
+   ===================================================================== */
+html.embed-sim .topbar,
+html.embed-sim .tab-nav {
+  display: none;
+}
+html.embed-sim .tab-content {
+  padding: 10px 10px 18px;
+}
+/* File downloads (CSV, report) cannot be saved from inside the app. */
+html.embed-sim .s3-toolbar,
+html.embed-sim #bt-export {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  /* minmax(0, 1fr): the sideways scenario row must not widen its column */
+  .sim3-hero { grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 12px; }
+  .sim3-grid-col, .sim3-scenario-col { min-width: 0; }
+  .sim3-bottom { gap: 12px; }
+  .sim3-card { padding: 14px; }
+  .sim3-specs-row { gap: 5px; }
+  .sim3-spec-chip { font-size: 11px; padding: 3px 8px; }
+  #sim-model { height: 320px; }
+  .s3-viewer-legend { gap: 4px 10px; }
+
+  /* KPI strip: 3 + 2 */
+  .s3-kpi-strip { grid-template-columns: repeat(3, 1fr); gap: 10px 8px; }
+
+  /* Control bar: buttons, speed and time jump each get a full row */
+  .s3-ctrl-bar { gap: 10px; }
+  .s3-ctrl-left, .s3-ctrl-center, .s3-ctrl-right { width: 100%; }
+  .s3-ctrl-left > button { flex: 1; }
+  .s3-speed-pills { flex: 1; display: flex; justify-content: space-between; }
+  .s3-speed-pill { flex: 1; }
+  .s3-ctrl-right .s3-jump-input { flex: 1; min-width: 0; }
+  .s3-jump-presets { width: 100%; }
+  .s3-jump-preset { flex: 1; }
+
+  /* Scenarios: swipe sideways instead of a tall scrolling list */
+  .s3-scenario-list {
+    flex-direction: row; max-height: none; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; margin: 0 -14px 14px; padding: 2px 14px 6px;
+  }
+  .s3-sc-card { flex: 0 0 84%; scroll-snap-align: start; display: flex; flex-direction: column; }
+  .s3-sc-run { margin-top: auto; }
+
+  /* Fault injection: two per row */
+  .s3-fault-section { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .s3-fault-title, .s3-fault-clear { grid-column: 1 / -1; }
+  .s3-fault-btn { margin-bottom: 0; min-height: 40px; }
+
+  /* Gauges: three across, manual control below */
+  .sim3-gauges { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .sim3-gauge-card { padding: 10px 4px 12px; }
+  .sim3-manual-card { grid-column: 1 / -1; padding: 14px; }
+  .gauge-svg { width: 100%; max-width: 104px; height: auto; }
+  .gauge-num { font-size: 18px; }
+  .gauge-unit-label { font-size: 11px; }
+  .gauge-name { font-size: 11.5px; line-height: 1.25; }
+  .gauge-status { font-size: 11px; }
+
+  .s3-strip-row { gap: 12px; }
+  .s3-strip-card, .s3-validate-card { padding: 14px; }
+  .s3-validate-card .chart-wrap { height: 220px; }
+  .sim3-charts { gap: 12px; }
+  .sim3-chart-card { padding: 14px; }
+
+  .s3-scenario-list { scrollbar-width: none; }
+  .s3-scenario-list::-webkit-scrollbar { display: none; }
+  /* Long readouts (e.g. the residual EWMA) wrap instead of being cut off */
+  .s3-ins-v { white-space: normal; overflow: visible; }
+
+  /* Alarm rows: time, severity and ACK on one line, the message below at full width */
+  .log-body .log-entry { grid-template-columns: auto auto 1fr auto; row-gap: 4px; }
+  .log-body .log-entry .log-msg { grid-column: 1 / -1; grid-row: 2; }
+  .log-body .log-entry .alm-ack-btn { grid-column: 4; grid-row: 1; }
+}

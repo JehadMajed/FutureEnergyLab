@@ -14,7 +14,6 @@
   <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.4/dist/mqtt.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
-  <script src="sim-engine.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -222,110 +221,12 @@
     </section>
 
     <!-- ─────────────── SIMULATE ─────────────── -->
+    <!-- The dashboard's own Simulation tab (../?tab=simulation&embed=sim), so the
+         phone shows exactly the same model, 3D twin and tools. Loaded on first visit. -->
     <section class="screen" id="screen-simulate" aria-label="Simulate">
-      <div class="sim-hero" id="sim-hero" data-state="idle">
-        <div class="sim-top">
-          <div>
-            <span class="sim-kicker">Physics model · 40 lamps</span>
-            <div class="sim-clock"><span id="sim-hours">0</span><small>h</small></div>
-            <span class="sim-sub" id="sim-sub">Panel off. Pick a scenario or switch it on.</span>
-          </div>
-          <span class="sim-badge" id="sim-badge">Standby</span>
-        </div>
-        <div class="sim-progress" id="sim-progress" hidden><i id="sim-progress-bar"></i></div>
-
-        <div class="board" id="board" role="grid" aria-label="Lamp board, tap a lamp to inspect it"></div>
-
-        <div class="sim-legend">
-          <span><i class="lg lg-cool"></i>Cool</span><span><i class="lg lg-hot"></i>Hot</span>
-          <span><i class="lg lg-flick"></i>Flicker</span><span><i class="lg lg-dead"></i>Failed</span>
-        </div>
-
-        <div class="sim-controls">
-          <button class="sim-btn" id="sim-power" type="button" aria-pressed="false" aria-label="Panel power">
-            <svg viewBox="0 0 24 24"><path d="M12 3v8M6.4 6.4a8 8 0 1 0 11.2 0"/></svg>
-          </button>
-          <button class="sim-btn sim-play" id="sim-play" type="button" aria-label="Run">
-            <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
-          </button>
-          <button class="sim-btn" id="sim-reset" type="button" aria-label="Reset">
-            <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></svg>
-          </button>
-        </div>
-        <div class="speed" id="speed" role="radiogroup" aria-label="Speed"></div>
-      </div>
-
-      <h3 class="sim-h">Scenarios</h3>
-      <div class="scen-row" id="scenarios"></div>
-
-      <div class="kpis sim-kpis">
-        <div class="kpi"><span class="kpi-label">Panel health</span><span class="kpi-value"><span id="k-health">100</span><small>%</small></span><i class="bar"><b id="kb-health"></b></i></div>
-        <div class="kpi"><span class="kpi-label">Light output</span><span class="kpi-value"><span id="k-lumens">0</span><small>%</small></span><i class="bar"><b id="kb-lumens"></b></i></div>
-        <div class="kpi"><span class="kpi-label">Junction temp</span><span class="kpi-value"><span id="k-tj">25</span><small>°C</small></span><i class="bar"><b id="kb-tj"></b></i></div>
-        <div class="kpi"><span class="kpi-label">Failed lamps</span><span class="kpi-value"><span id="k-failed">0</span><small>/ 40</small></span><i class="bar"><b id="kb-failed"></b></i></div>
-        <div class="kpi"><span class="kpi-label">Ageing rate</span><span class="kpi-value"><span id="k-af">1.00</span><small>×</small></span><span class="kpi-sub">Arrhenius factor</span></div>
-        <div class="kpi"><span class="kpi-label">Panel draw</span><span class="kpi-value"><span id="k-power">0</span><small>W</small></span><span class="kpi-sub" id="k-current">0.00 A</span></div>
-      </div>
-
-      <div class="card">
-        <div class="card-hdr"><h2>Conditions</h2><span class="chip" id="cond-note">Within rating</span></div>
-        <label class="slider">
-          <span class="sl-top"><span>Supply voltage</span><b id="v-out">230 V</b></span>
-          <input type="range" id="in-v" min="180" max="270" step="1" value="230">
-          <span class="sl-scale"><span>180</span><span class="ok-band">220–240 rated</span><span>270</span></span>
-        </label>
-        <label class="slider">
-          <span class="sl-top"><span>Ambient temperature</span><b id="t-out">25 °C</b></span>
-          <input type="range" id="in-t" min="-20" max="70" step="1" value="25">
-          <span class="sl-scale"><span>−20</span><span class="ok-band">up to 45 rated</span><span>70</span></span>
-        </label>
-        <label class="slider">
-          <span class="sl-top"><span>Lamps energised</span><b id="n-out">40</b></span>
-          <input type="range" id="in-n" min="0" max="40" step="1" value="40">
-        </label>
-        <h4 class="faults-h">Inject a fault</h4>
-        <div class="faults" id="faults">
-          <button type="button" class="fault" data-fault="overvolt">Overvoltage +15%</button>
-          <button type="button" class="fault" data-fault="dust">Dust on heatsinks</button>
-          <button type="button" class="fault" data-fault="ambient">Ambient +20 °C</button>
-          <button type="button" class="fault" data-fault="row">Top row off</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-hdr"><h2>Ageing</h2><div class="legend"><i class="lg-run"></i>Health <i class="lg-amber"></i>Light</div></div>
-        <svg class="age-chart" id="age-chart" viewBox="0 0 320 120" preserveAspectRatio="none">
-          <path class="age-grid" d="M0,30H320M0,60H320M0,90H320"/>
-          <path id="age-lm" class="age-lm"/>
-          <path id="age-h" class="age-h"/>
-        </svg>
-        <div class="spark-axis"><span>0 h</span><span id="age-end">--</span></div>
-        <div class="jump">
-          <span>Jump ahead</span>
-          <button type="button" class="period" data-jump="1000">+1,000 h</button>
-          <button type="button" class="period" data-jump="5000">+5,000 h</button>
-          <button type="button" class="period" data-jump="10000">+10,000 h</button>
-        </div>
-      </div>
-
-      <div class="card details">
-        <div class="card-hdr"><h2>Forecast</h2><span class="chip" id="duty-chip">12 h/day duty</span></div>
-        <div class="row"><span>Working lamps reach 70% light (L70)</span><b id="f-l70">--</b></div>
-        <div class="row"><span>10% of lamps failed (B10)</span><b id="f-b10">--</b></div>
-        <div class="row"><span>Energy used</span><b id="f-kwh">--</b></div>
-        <div class="row"><span>Energy cost (SEC tariff)</span><b id="f-cost">--</b></div>
-        <div class="row"><span>Lost as heat</span><b id="f-heat">--</b></div>
-        <div class="row"><span>Lamps to replace</span><b id="f-repl">--</b></div>
-      </div>
-
-      <div class="card">
-        <div class="card-hdr"><h2>Events</h2><span class="chip" id="ev-count">0</span></div>
-        <ol class="events" id="events"><li class="ev-empty">Nothing yet.</li></ol>
-      </div>
-
-      <p class="note sim-honest">Junction temperature, light output and ageing are modelled: the real panel has no thermal or light sensors. Electrical values are calibrated from 1,310 measured readings; lamp limits come from the Philips 11 W datasheet.</p>
+      <div class="sim-loading" id="sim-loading">Loading the simulation…</div>
     </section>
+
   </main>
 
   <!-- Bottom navigation -->
