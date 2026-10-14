@@ -1,20 +1,28 @@
 # Lamp Panel — Android app
 
-An Android app (APK) for the Lamp Panel Digital Twin. It opens the live site,
-<https://digital-twin-lamps-panel.pages.dev/>, full screen, so **every site update reaches the
-app without a new APK**. A new APK is only needed when the app shell itself changes.
+An Android app (APK) for the Lamp Panel Digital Twin. It opens the phone interface of the
+site, <https://digital-twin-lamps-panel.pages.dev/app/> (source: `../app/`), full screen, so
+**every update to that page reaches the app without a new APK**. A new APK is only needed
+when the app shell itself changes.
 
-What the app adds around the site:
+The phone interface has four sections in a bottom bar: **Live** (power ring, lamp state,
+voltage, current, power factor, NB2 breaker, session trend, this month), **Field data** (the
+weekly uploads from the lab PC, per month or all months), **Control** (live camera, 3D twin,
+Unlock / Open / Close with confirmation) and **More** (the full dashboard and simulation,
+about). It uses the same identity as the dashboard: teal #006C6B, Inter, the PSAU logo.
+
+What the app shell adds around the page:
 
 | Feature | Detail |
 |---|---|
 | Splash screen | Brand colour and bulb icon until the page has drawn (at most 4 s) |
-| Pull to refresh | Only from the top of the page, never while touching the 3D model, a chart, a slider or the camera |
-| Offline screen | Shown when there is no internet; reconnects by itself when the network returns |
-| Launcher shortcuts | Long-press the icon: *Live data*, *3D model*, *Simulation* |
-| Back button | Goes back through the site's tabs to *Data Overview*, then leaves the app |
-| Full-screen video | The camera feed's full-screen mode hides the system bars |
-| External links | Open in a Chrome Custom Tab; the app itself only shows the site |
+| Pull to refresh | Only from the top of the page, never while touching the 3D model, a chart, the camera or a slider |
+| Offline screen | Shown when there is no internet; retries when Android confirms the network works, and every 10 s |
+| Launcher shortcuts | Long-press the icon: *Live*, *Control*, *Field data* |
+| Back button | Back from the full dashboard to the app, then to *Live*, then out of the app |
+| Haptics | A short tap on navigation and commands |
+| Full-screen video | The camera's full-screen mode hides the system bars |
+| External links | Open in a Chrome Custom Tab |
 | Battery | Page timers pause while the app is in the background |
 | Icon | Adaptive icon, with a monochrome version for Android 13+ themed icons |
 
@@ -27,7 +35,8 @@ Requirements: JDK 21, Android SDK (platform 35, build-tools 35.0.0), Gradle 8.11
 ```powershell
 cd "Digital Twin\android"
 .\gradlew assembleRelease
-# APK: app\build\outputs\apk\release\app-release.apk
+# APK: %TEMP%\lamppanel-build\app\outputs\apk\release\app-release.apk
+# (built outside this folder: OneDrive locks build files while it syncs them)
 ```
 
 The release build is minified (R8) and signed with the key named in `keystore.properties`.
