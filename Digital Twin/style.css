@@ -3040,6 +3040,18 @@ html.embed-sim .tab-nav {
 html.embed-sim .tab-content {
   padding: 10px 10px 18px;
 }
+/* The app sizes the frame to this page, so the page must not size itself to the frame. */
+html.embed-sim .app-shell {
+  min-height: 0;
+}
+/* The page never scrolls inside the frame: a swipe must pass straight through to
+   the app page. Undo the app-mode overscroll lock and the phone overflow clip,
+   which both stop the swipe at the frame edge. */
+html.embed-sim,
+html.embed-sim body {
+  overflow: visible;
+  overscroll-behavior: auto;
+}
 /* File downloads (CSV, report) cannot be saved from inside the app. */
 html.embed-sim .s3-toolbar,
 html.embed-sim #bt-export {
