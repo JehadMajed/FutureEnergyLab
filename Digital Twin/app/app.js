@@ -462,7 +462,7 @@ function openSheet(cmd) {
   $("sheet-ok").textContent = cmd;
   openPanel($("sheet"));
 }
-/* One scrim for every bottom sheet (command, lamp inspector, about). */
+/* One scrim for every bottom sheet (command, about). */
 function openPanel(el) {
   $("scrim").hidden = false;
   el.hidden = false;
@@ -471,7 +471,6 @@ function closeSheet() {
   $("scrim").hidden = true;
   document.querySelectorAll(".sheet").forEach(s => (s.hidden = true));
   pendingCmd = null;
-  if (sim.sel != null) { lampEls[sim.sel].classList.remove("sel"); sim.sel = null; }
 }
 document.querySelectorAll(".cmd").forEach(b => b.addEventListener("click", () => { haptic(); openSheet(b.dataset.cmd); }));
 $("scrim").addEventListener("click", closeSheet);
@@ -506,356 +505,27 @@ $("sheet-ok").addEventListener("click", async () => {
 
 /* ═══════════════════════════ simulate ═══════════════════════════ */
 
-const S = window.SimEngine;
-const SPEEDS = [1, 5, 20, 200, 1000, 4000];   // simulated hours per real second (as the dashboard)
-const sim = { running: false, visible: false, raf: null, last: null, sel: null, speed: 2,
-              series: [], events: 0, lastUi: 0 };
-const lampEls = [];
-const fmtH = h => Math.floor(h).toLocaleString("en-US");
-const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
-
-function buildSim() {
-  const board = $("board");
-  for (let i = 0; i < S.P.N; i++) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "lamp off";
-    b.setAttribute("aria-label", "Lamp " + (i + 1));
-    b.addEventListener("click", () => { haptic(); inspect(i); });
-    board.appendChild(b);
-    lampEls.push(b);
-  }
-
-  const speed = $("speed");
-  SPEEDS.forEach((h, i) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.textContent = h >= 1000 ? `${h / 1000}k h/s` : `${h} h/s`;
-    b.className = i === sim.speed ? "active" : "";
-    b.setAttribute("role", "radio");
-    b.addEventListener("click", () => {
-      haptic();
-      sim.speed = i;
-      speed.querySelectorAll("button").forEach((x, j) => x.classList.toggle("active", j === i));
-    });
-    speed.appendChild(b);
-  });
-
-  const row = $("scenarios");
-  S.SCENARIOS.forEach(sc => {
-    const c = document.createElement("button");
-    c.type = "button";
-    c.className = "scen";
-    c.dataset.id = sc.id;
-    c.innerHTML = `<b></b><p></p><span class="scen-foot"><span class="risk risk-${sc.risk}">${sc.risk}</span>` +
-                  `<span class="scen-hours">${sc.hours.toLocaleString("en-US")} h</span></span>`;
-    c.querySelector("b").textContent = sc.name;
-    c.querySelector("p").textContent = sc.desc;
-    c.addEventListener("click", () => {
-      haptic();
-      stopSim();
-      clearSimHistory();
-      S.startScenario(sc.id);
-      syncControls();
-      sampleAge(true);
-      startSim();
-    });
-    row.appendChild(c);
-  });
-
-  $("in-v").addEventListener("input", e => { S.G.V = Number(e.target.value); syncControls(); renderSim(true); });
-  $("in-t").addEventListener("input", e => { S.G.Tamb = Number(e.target.value); syncControls(); renderSim(true); });
-  $("in-n").addEventListener("input", e => { S.G.energised = Number(e.target.value); syncControls(); renderSim(true); });
-
-  document.querySelectorAll(".fault").forEach(b => b.addEventListener("click", () => {
-    haptic();
-    const f = S.G.f, k = b.dataset.fault;
-    const on = !b.classList.contains("active");
-    if (k === "overvolt") f.overvolt = on;
-    if (k === "dust") f.dust = on;
-    if (k === "ambient") f.ambient = on ? 20 : 0;
-    if (k === "row") f.rowKill = on ? [0] : [];
-    S.emit(on ? "warn" : "info", (on ? "Fault injected: " : "Fault cleared: ") + b.textContent);
-    syncControls();
-    renderSim(true);
-  }));
-
-  $("sim-power").addEventListener("click", () => {
-    haptic();
-    S.G.contactor = !S.G.contactor;
-    S.emit("info", S.G.contactor ? "Panel switched on" : "Panel switched off");
-    syncControls();
-    renderSim(true);
-  });
-  $("sim-play").addEventListener("click", () => {
-    haptic();
-    if (sim.running) { pauseSim(); return; }
-    if (!S.G.contactor) { S.G.contactor = true; S.emit("info", "Panel switched on"); }
-    if (!sim.series.length) sampleAge(true);
-    startSim();
-  });
-  $("sim-reset").addEventListener("click", () => {
-    haptic();
-    stopSim();
-    S.reset();
-    clearSimHistory();
-    syncControls();
-    renderSim(true);
-    setHeroState("idle");
-  });
-
-  document.querySelectorAll("[data-jump]").forEach(b => b.addEventListener("click", () => {
-    haptic();
-    const hours = Number(b.dataset.jump);
-    const wasRunning = sim.running;
-    pauseSim();
-    if (!S.G.contactor) { toast("The panel is off, so no ageing builds up. Switch it on first."); return; }
-    // A hot panel needs fine time steps; let the message paint before the work starts.
-    toast(`Calculating ${hours.toLocaleString("en-US")} h…`);
-    setTimeout(() => {
-      if (!sim.series.length) sampleAge(true);
-      S.jump(hours, () => sampleAge(true));
-      sampleAge(true);
-      renderSim(true);
-      toast("Now at " + S.summary());
-      if (wasRunning) startSim(); else if (S.G.simHours) setHeroState("paused");
-    }, 60);
-  }));
-
-  S.on(addEvent);
-  syncControls();
-  renderSim(true);
-}
-
-function syncControls() {
-  const G = S.G;
-  $("in-v").value = G.V; $("in-t").value = G.Tamb; $("in-n").value = G.energised;
-  $("v-out").textContent = Math.round(G.V) + " V" + (G.f.overvolt ? ` → ${Math.round(G.V * 1.15)} V` : "");
-  $("t-out").textContent = Math.round(G.Tamb) + " °C" + (G.f.ambient ? ` → ${Math.round(G.Tamb + G.f.ambient)} °C` : "");
-  $("n-out").textContent = G.energised;
-  document.querySelectorAll(".fault").forEach(b => {
-    const k = b.dataset.fault;
-    const on = k === "overvolt" ? !!G.f.overvolt : k === "dust" ? !!G.f.dust
-             : k === "ambient" ? !!G.f.ambient : !!(G.f.rowKill && G.f.rowKill.length);
-    b.classList.toggle("active", on);
-  });
-  const V = G.V * (G.f.overvolt ? 1.15 : 1), T = G.Tamb + (G.f.ambient || 0);
-  const issues = [];
-  if (V < S.P.V_MIN) issues.push("undervoltage");
-  if (V > S.P.V_MAX) issues.push("overvoltage");
-  if (T > S.P.T_AMB_MAX) issues.push("too hot");
-  const note = $("cond-note");
-  note.textContent = issues.length ? "Outside rating: " + issues.join(", ") : "Within rating";
-  note.className = "chip " + (issues.length ? "chip-bad" : "chip-ok");
-  $("sim-power").setAttribute("aria-pressed", G.contactor);
-  document.querySelectorAll(".scen").forEach(c => c.classList.toggle("active", !!G.scenario && c.dataset.id === G.scenario.id));
-}
-
-function setHeroState(state) {
-  $("sim-hero").dataset.state = state;
-  $("sim-badge").textContent = { idle: "Standby", running: "Running", paused: "Paused", done: "Finished" }[state];
-}
-
-function startSim() {
-  if (sim.running) return;
-  sim.running = true;
-  sim.last = null;
-  setHeroState("running");
-  if (sim.visible) sim.raf = requestAnimationFrame(simLoop);
-}
-function pauseSim() {
-  if (!sim.running) return;
-  sim.running = false;
-  cancelAnimationFrame(sim.raf);
-  setHeroState("paused");
-}
-function stopSim() {
-  sim.running = false;
-  cancelAnimationFrame(sim.raf);
-}
-
-/* The model only runs while its screen is open (battery), and picks up again on return. */
+/* The Simulate screen is the dashboard's Simulation tab itself, in a frame between
+   the app bar and the bottom bar. It is created on first visit (so it adds no
+   history entry) and kept, so a running simulation survives switching screens;
+   while hidden the browser stops rendering it. */
+let simFrame = null;
 function simVisible(on) {
-  sim.visible = on;
-  cancelAnimationFrame(sim.raf);
-  if (on) {
-    renderSim(true);
-    if (sim.running) { sim.last = null; sim.raf = requestAnimationFrame(simLoop); }
+  if (on && !simFrame) {
+    simFrame = document.createElement("iframe");
+    simFrame.className = "sim-frame";
+    simFrame.title = "Simulation";
+    simFrame.src = "../?tab=simulation&embed=sim";
+    simFrame.addEventListener("load", () => $("sim-loading").remove(), { once: true });
+    $("screen-simulate").appendChild(simFrame);
   }
+  if (simFrame) simFrame.hidden = !on;
 }
-
-function simLoop(now) {
-  if (!sim.running || !sim.visible) return;
-  const dt = sim.last ? Math.min(0.1, (now - sim.last) / 1000) : 0.016;
-  sim.last = now;
-  S.step(dt * SPEEDS[sim.speed] * 3600);
-  sampleAge(false);
-  renderSim(false);
-
-  const G = S.G;
-  if (!G.lamps.some(l => !l.failed)) {
-    stopSim(); setHeroState("done");
-    S.emit("bad", `All ${S.P.N} lamps failed at ${fmtH(G.simHours)} h`);
-    renderSim(true);
-    return;
-  }
-  if (G.scenario && G.simHours >= G.scenario.hours) {
-    const name = G.scenario.name;
-    stopSim(); G.scenario = null; setHeroState("done");
-    S.emit("ok", `${name} complete at ${S.summary()}`);
-    toast(`${name}: done`);
-    syncControls();
-    renderSim(true);
-    return;
-  }
-  sim.raf = requestAnimationFrame(simLoop);
-}
-
-function clearSimHistory() {
-  sim.series = [];
-  sim.events = 0;
-  $("events").innerHTML = '<li class="ev-empty">Nothing yet.</li>';
-  $("ev-count").textContent = "0";
-}
-
-function sampleAge(force) {
-  const h = S.G.simHours, last = sim.series[sim.series.length - 1];
-  if (h <= 0) return;   // at t = 0 the lamps have not warmed up yet: no meaningful point
-  const target = S.G.scenario ? S.G.scenario.hours : Math.max(1000, h);
-  if (!force && last && h - last.h < target / 200) return;
-  const k = S.kpis();
-  sim.series.push({ h, health: k.health, lm: k.lumens });
-  if (sim.series.length > 400) sim.series = sim.series.filter((_, i) => i % 2 === 0);
-}
-
-function addEvent(ev) {
-  const list = $("events");
-  if (!sim.events) list.innerHTML = "";
-  sim.events++;
-  const li = document.createElement("li");
-  li.innerHTML = `<span class="ev-h">${fmtH(ev.h)} h</span><span></span>`;
-  li.lastChild.textContent = ev.msg;
-  li.lastChild.className = "ev-" + ev.type;
-  list.prepend(li);
-  while (list.children.length > 60) list.lastChild.remove();
-  $("ev-count").textContent = sim.events;
-}
-
-function renderSim(full) {
-  const G = S.G, P = S.P;
-  for (let i = 0; i < G.lamps.length; i++) {
-    const l = G.lamps[i], el = lampEls[i];
-    const b = S.brightness(l);
-    const heat = Math.max(0, Math.min(1, (l.Tj - 25) / (P.T_CASE_MAX - 25)));
-    el.style.setProperty("--b", b.toFixed(2));
-    el.style.setProperty("--h", heat.toFixed(2));
-    el.classList.toggle("dead", l.failed);
-    el.classList.toggle("off", !l.failed && !l.on);
-    el.classList.toggle("hot", !l.failed && (l.foldback || l.Tj >= P.T_CASE_MAX - 5));
-    el.classList.toggle("flick", !l.failed && l.on && l.flicker > 20);
-  }
-  $("sim-hours").textContent = fmtH(G.simHours);
-  const progress = $("sim-progress");
-  progress.hidden = !G.scenario;
-  if (G.scenario) $("sim-progress-bar").style.width = Math.min(100, G.simHours / G.scenario.hours * 100) + "%";
-
-  // Numbers and charts: about 6 times a second is plenty and keeps phones cool.
-  const now = performance.now();
-  if (!full && now - sim.lastUi < 160) return;
-  sim.lastUi = now;
-
-  const k = S.kpis();
-  $("sim-sub").textContent = G.scenario ? `${G.scenario.name} · target ${G.scenario.hours.toLocaleString("en-US")} h`
-    : G.contactor ? `Panel on · ${Math.round(k.el.V)} V · ${Math.round(G.Tamb + (G.f.ambient || 0))} °C · ${k.el.lit} lit`
-    : "Panel off. Pick a scenario or switch it on.";
-  const setBar = (id, pct, color) => { const e = $(id); e.style.width = Math.max(0, Math.min(100, pct)) + "%"; e.style.background = color; };
-  const tone = (v, good, ok) => v >= good ? "#16803C" : v >= ok ? "#D97706" : "#B42318";
-  $("k-health").textContent = k.health.toFixed(1);
-  setBar("kb-health", k.health, tone(k.health, 80, 50));
-  $("k-lumens").textContent = k.lumens.toFixed(1);
-  setBar("kb-lumens", k.lumens, "#FFB300");
-  $("k-tj").textContent = k.Tj.toFixed(1);
-  setBar("kb-tj", (k.Tj - 20) / (P.T_CASE_MAX + 5) * 100, k.Tj < 70 ? "#16803C" : k.Tj < P.T_CASE_MAX ? "#D97706" : "#B42318");
-  $("k-failed").textContent = k.failed;
-  setBar("kb-failed", k.failed / P.N * 100, "#B42318");
-  $("k-af").textContent = k.af.toFixed(2);
-  $("k-power").textContent = Math.round(k.el.P);
-  $("k-current").textContent = k.el.I.toFixed(2) + " A";
-
-  const f = S.forecast(), e = S.energy();
-  const years = h => h / f.dutyHDay / 365;
-  const ahead = (h, passed) => passed ? "Passed" : !isFinite(h) ? "n/a"
-    : `in ${fmtH(h)} h (~${years(h) < 1 ? plural(Math.max(1, Math.round(years(h) * 12)), "month") : years(h).toFixed(1) + " years"})`;
-  $("f-l70").textContent = G.contactor || G.simHours ? ahead(f.hToL70, f.l70Passed) : "--";
-  $("f-b10").textContent = G.contactor || G.simHours ? ahead(f.hToB10, f.b10Passed) : "--";
-  $("f-kwh").textContent = (e.kwh < 10 ? e.kwh.toFixed(2) : fmtH(e.kwh)) + " kWh";
-  $("f-cost").textContent = e.cost.toFixed(2) + " SAR";
-  $("f-heat").textContent = (e.heatKwh < 10 ? e.heatKwh.toFixed(2) : fmtH(e.heatKwh)) + ` kWh (${Math.round(e.heatFrac * 100)}%)`;
-  $("f-repl").textContent = `${f.replacements} / ${P.N}` + (f.replacements ? ` · ${f.replaceCost} SAR` : "");
-  $("duty-chip").textContent = `${f.dutyHDay} h/day duty`;
-
-  drawAge();
-  if (sim.sel != null) fillInspector(sim.sel);
-}
-
-function drawAge() {
-  const pts = sim.series;
-  if (pts.length < 2) { $("age-h").setAttribute("d", ""); $("age-lm").setAttribute("d", ""); $("age-end").textContent = "--"; return; }
-  const W = 320, H = 120, maxH = Math.max(pts[pts.length - 1].h, 1);
-  const x = h => (h / maxH) * W, y = v => H - (v / 100) * (H - 4) - 2;
-  const line = key => pts.map((p, i) => (i ? "L" : "M") + x(p.h).toFixed(1) + "," + y(p[key]).toFixed(1)).join("");
-  $("age-h").setAttribute("d", line("health"));
-  $("age-lm").setAttribute("d", line("lm"));
-  $("age-end").textContent = fmtH(maxH) + " h";
-}
-
-/* Lamp inspector: a bottom sheet that keeps updating while the model runs. */
-function inspect(i) {
-  if (sim.sel != null) lampEls[sim.sel].classList.remove("sel");
-  sim.sel = i;
-  lampEls[i].classList.add("sel");
-  fillInspector(i);
-  openPanel($("insp"));
-}
-
-function fillInspector(i) {
-  const l = S.G.lamps[i], P = S.P;
-  const state = l.failed ? "Failed" : l.foldback ? "Thermal foldback" : l.on ? "On" : "Off";
-  $("insp-title").textContent = `Lamp L${String(i + 1).padStart(2, "0")}`;
-  $("insp-sub").textContent = `Row ${l.row + 1} of ${P.ROWS} from the top · column ${l.col + 1} · ${state}` +
-                              (l.failed ? ` (${l.failMode.replace(/_/g, " ")})` : "");
-  const cells = [
-    ["Health", (l.health * 100).toFixed(1) + " %"],
-    ["Light output", l.failed ? "--" : (l.lumens * 100).toFixed(1) + " %"],
-    ["Junction temp", l.Tj.toFixed(1) + " °C"],
-    ["Hours run", fmtH(l.hoursRun) + " h"],
-    ["Ageing rate", S.arrAF(l.Tj).toFixed(2) + " ×"],
-    ["Flicker (100 Hz)", l.on ? l.flicker.toFixed(0) + " %" : "--"],
-    ["Driver wear", Math.min(100, l.capWear / 1.35 * 100).toFixed(0) + " %"],
-    ["Thermal cycles", String(l.cycles)],
-  ];
-  $("insp-grid").innerHTML = cells.map(c => `<div><span>${c[0]}</span><b>${c[1]}</b></div>`).join("");
-}
-
-(function makeInspector() {
-  const el = document.createElement("div");
-  el.className = "sheet";
-  el.id = "insp";
-  el.hidden = true;
-  el.setAttribute("role", "dialog");
-  el.setAttribute("aria-modal", "true");
-  el.innerHTML = '<div class="sheet-grip"></div><h3 id="insp-title"></h3><p id="insp-sub"></p>' +
-                 '<div class="insp-grid" id="insp-grid"></div>' +
-                 '<button type="button" class="btn btn-ghost" style="width:100%">Close</button>';
-  el.querySelector("button").addEventListener("click", closeSheet);
-  document.body.appendChild(el);
-})();
 
 $("info-btn").addEventListener("click", () => { haptic(); openPanel($("about")); });
 
 /* ═══════════════════════════ boot ═══════════════════════════ */
 
-buildSim();
 $("version").textContent = appVersion ? `Lamp Panel app ${appVersion}` : "Lamp Panel · web";
 go((location.hash || "").slice(1) || "live");
 startLive();

@@ -4,7 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script>if (/LampPanelApp\//.test(navigator.userAgent)) document.documentElement.classList.add("lp-app");</script>
+  <script>
+    if (/LampPanelApp\//.test(navigator.userAgent)) document.documentElement.classList.add("lp-app");
+    if (/[?&]embed=sim/.test(location.search)) document.documentElement.classList.add("embed-sim");
+  </script>
   <title>Digital Twin - Lamps Panel</title>
   <meta name="description"
     content="Industrial SCADA Digital Twin for the NB2 Residential Lamps Panel. Real-time telemetry, verified historical analytics, 3D visualization, and physics-based thermal simulation." />
