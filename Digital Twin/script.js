@@ -575,6 +575,12 @@ function switchTab(id) {
 
 tabBtns.forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
 
+// ?tab=simulation opens straight on a tab (used by the phone app's More screen).
+{
+  const startTab = new URLSearchParams(location.search).get("tab");
+  if (startTab && document.getElementById("tab-btn-" + startTab)) switchTab(startTab);
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    MODULE: LIVE CLOCK
    ═══════════════════════════════════════════════════════════════════ */

@@ -28,6 +28,9 @@ const ASSETS = [
   'Panel.glb',
   'psau-logo.png',
   'history.json',
+  'app/index.html',          // the phone app (opened by the Android APK)
+  'app/app.css',
+  'app/app.js',
 ];
 
 /* Anything matching these must never reach the deploy directory. */
@@ -47,6 +50,7 @@ const copied = [];
 for (const name of ASSETS) {
   const src = path.join(ROOT, name);
   if (!fs.existsSync(src)) { console.error('MISSING: ' + name); process.exit(1); }
+  fs.mkdirSync(path.dirname(path.join(DIST, name)), { recursive: true });
   fs.copyFileSync(src, path.join(DIST, name));
   const kb = fs.statSync(src).size / 1024;
   total += kb;
