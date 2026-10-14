@@ -14,6 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.4/dist/mqtt.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+  <script src="sim-engine.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -25,6 +26,9 @@
       <span class="appbar-kicker">Future Energy Lab</span>
       <h1 id="screen-title">Lamp Panel</h1>
     </div>
+    <button class="info-btn" id="info-btn" type="button" aria-label="About">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
+    </button>
     <div class="conn" id="conn" data-state="connecting" role="status">
       <span class="conn-dot"></span><span id="conn-text">Connecting</span>
     </div>
@@ -197,7 +201,7 @@
       <div class="card">
         <div class="card-hdr">
           <h2>Panel commands</h2>
-          <span class="chip chip-warn">Sign-in required</span>
+          <span class="chip chip-bad">Not protected yet</span>
         </div>
         <div class="cmds">
           <button class="cmd" data-cmd="Unlock" type="button">
@@ -213,26 +217,153 @@
             <span>Close</span>
           </button>
         </div>
-        <p class="note" id="cmd-result">Commands go to the panel through Home Assistant. Each one asks you to confirm.</p>
+        <p class="note" id="cmd-result">These buttons press the real panel through Home Assistant. They are not access-protected yet: anyone with the site can send them. Each one asks you to confirm.</p>
       </div>
     </section>
 
-    <!-- ─────────────── MORE ─────────────── -->
-    <section class="screen" id="screen-more" aria-label="More">
-      <div class="list card">
-        <a class="list-item" href="../?tab=simulation">
-          <span class="li-icon"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg></span>
-          <span class="li-text"><b>Simulation &amp; scenarios</b><small>40-lamp thermal and ageing model</small></span>
-          <span class="li-chev">›</span>
-        </a>
-        <a class="list-item" href="../">
-          <span class="li-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></span>
-          <span class="li-text"><b>Full dashboard</b><small>The complete desktop site</small></span>
-          <span class="li-chev">›</span>
-        </a>
+    <!-- ─────────────── SIMULATE ─────────────── -->
+    <section class="screen" id="screen-simulate" aria-label="Simulate">
+      <div class="sim-hero" id="sim-hero" data-state="idle">
+        <div class="sim-top">
+          <div>
+            <span class="sim-kicker">Physics model · 40 lamps</span>
+            <div class="sim-clock"><span id="sim-hours">0</span><small>h</small></div>
+            <span class="sim-sub" id="sim-sub">Panel off. Pick a scenario or switch it on.</span>
+          </div>
+          <span class="sim-badge" id="sim-badge">Standby</span>
+        </div>
+        <div class="sim-progress" id="sim-progress" hidden><i id="sim-progress-bar"></i></div>
+
+        <div class="board" id="board" role="grid" aria-label="Lamp board, tap a lamp to inspect it"></div>
+
+        <div class="sim-legend">
+          <span><i class="lg lg-cool"></i>Cool</span><span><i class="lg lg-hot"></i>Hot</span>
+          <span><i class="lg lg-flick"></i>Flicker</span><span><i class="lg lg-dead"></i>Failed</span>
+        </div>
+
+        <div class="sim-controls">
+          <button class="sim-btn" id="sim-power" type="button" aria-pressed="false" aria-label="Panel power">
+            <svg viewBox="0 0 24 24"><path d="M12 3v8M6.4 6.4a8 8 0 1 0 11.2 0"/></svg>
+          </button>
+          <button class="sim-btn sim-play" id="sim-play" type="button" aria-label="Run">
+            <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+          </button>
+          <button class="sim-btn" id="sim-reset" type="button" aria-label="Reset">
+            <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></svg>
+          </button>
+        </div>
+        <div class="speed" id="speed" role="radiogroup" aria-label="Speed"></div>
       </div>
 
-      <div class="card about">
+      <h3 class="sim-h">Scenarios</h3>
+      <div class="scen-row" id="scenarios"></div>
+
+      <div class="kpis sim-kpis">
+        <div class="kpi"><span class="kpi-label">Panel health</span><span class="kpi-value"><span id="k-health">100</span><small>%</small></span><i class="bar"><b id="kb-health"></b></i></div>
+        <div class="kpi"><span class="kpi-label">Light output</span><span class="kpi-value"><span id="k-lumens">0</span><small>%</small></span><i class="bar"><b id="kb-lumens"></b></i></div>
+        <div class="kpi"><span class="kpi-label">Junction temp</span><span class="kpi-value"><span id="k-tj">25</span><small>°C</small></span><i class="bar"><b id="kb-tj"></b></i></div>
+        <div class="kpi"><span class="kpi-label">Failed lamps</span><span class="kpi-value"><span id="k-failed">0</span><small>/ 40</small></span><i class="bar"><b id="kb-failed"></b></i></div>
+        <div class="kpi"><span class="kpi-label">Ageing rate</span><span class="kpi-value"><span id="k-af">1.00</span><small>×</small></span><span class="kpi-sub">Arrhenius factor</span></div>
+        <div class="kpi"><span class="kpi-label">Panel draw</span><span class="kpi-value"><span id="k-power">0</span><small>W</small></span><span class="kpi-sub" id="k-current">0.00 A</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><h2>Conditions</h2><span class="chip" id="cond-note">Within rating</span></div>
+        <label class="slider">
+          <span class="sl-top"><span>Supply voltage</span><b id="v-out">230 V</b></span>
+          <input type="range" id="in-v" min="180" max="270" step="1" value="230">
+          <span class="sl-scale"><span>180</span><span class="ok-band">220–240 rated</span><span>270</span></span>
+        </label>
+        <label class="slider">
+          <span class="sl-top"><span>Ambient temperature</span><b id="t-out">25 °C</b></span>
+          <input type="range" id="in-t" min="-20" max="70" step="1" value="25">
+          <span class="sl-scale"><span>−20</span><span class="ok-band">up to 45 rated</span><span>70</span></span>
+        </label>
+        <label class="slider">
+          <span class="sl-top"><span>Lamps energised</span><b id="n-out">40</b></span>
+          <input type="range" id="in-n" min="0" max="40" step="1" value="40">
+        </label>
+        <h4 class="faults-h">Inject a fault</h4>
+        <div class="faults" id="faults">
+          <button type="button" class="fault" data-fault="overvolt">Overvoltage +15%</button>
+          <button type="button" class="fault" data-fault="dust">Dust on heatsinks</button>
+          <button type="button" class="fault" data-fault="ambient">Ambient +20 °C</button>
+          <button type="button" class="fault" data-fault="row">Top row off</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><h2>Ageing</h2><div class="legend"><i class="lg-run"></i>Health <i class="lg-amber"></i>Light</div></div>
+        <svg class="age-chart" id="age-chart" viewBox="0 0 320 120" preserveAspectRatio="none">
+          <path class="age-grid" d="M0,30H320M0,60H320M0,90H320"/>
+          <path id="age-lm" class="age-lm"/>
+          <path id="age-h" class="age-h"/>
+        </svg>
+        <div class="spark-axis"><span>0 h</span><span id="age-end">--</span></div>
+        <div class="jump">
+          <span>Jump ahead</span>
+          <button type="button" class="period" data-jump="1000">+1,000 h</button>
+          <button type="button" class="period" data-jump="5000">+5,000 h</button>
+          <button type="button" class="period" data-jump="10000">+10,000 h</button>
+        </div>
+      </div>
+
+      <div class="card details">
+        <div class="card-hdr"><h2>Forecast</h2><span class="chip" id="duty-chip">12 h/day duty</span></div>
+        <div class="row"><span>Working lamps reach 70% light (L70)</span><b id="f-l70">--</b></div>
+        <div class="row"><span>10% of lamps failed (B10)</span><b id="f-b10">--</b></div>
+        <div class="row"><span>Energy used</span><b id="f-kwh">--</b></div>
+        <div class="row"><span>Energy cost (SEC tariff)</span><b id="f-cost">--</b></div>
+        <div class="row"><span>Lost as heat</span><b id="f-heat">--</b></div>
+        <div class="row"><span>Lamps to replace</span><b id="f-repl">--</b></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><h2>Events</h2><span class="chip" id="ev-count">0</span></div>
+        <ol class="events" id="events"><li class="ev-empty">Nothing yet.</li></ol>
+      </div>
+
+      <p class="note sim-honest">Junction temperature, light output and ageing are modelled: the real panel has no thermal or light sensors. Electrical values are calibrated from 1,310 measured readings; lamp limits come from the Philips 11 W datasheet.</p>
+    </section>
+  </main>
+
+  <!-- Bottom navigation -->
+  <nav class="tabbar" role="tablist" aria-label="Sections">
+    <button class="tab" data-route="live" type="button" role="tab">
+      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg></span>
+      <span class="tab-label">Live</span>
+    </button>
+    <button class="tab" data-route="records" type="button" role="tab">
+      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+      <span class="tab-label">Field data</span>
+    </button>
+    <button class="tab" data-route="simulate" type="button" role="tab">
+      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg></span>
+      <span class="tab-label">Simulate</span>
+    </button>
+    <button class="tab" data-route="control" type="button" role="tab">
+      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span>
+      <span class="tab-label">Control</span>
+    </button>
+  </nav>
+
+  <!-- Confirm sheet -->
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+    <div class="sheet-grip"></div>
+    <h3 id="sheet-title">Send command?</h3>
+    <p id="sheet-text"></p>
+    <div class="sheet-actions">
+      <button type="button" class="btn btn-ghost" id="sheet-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="sheet-ok">Send</button>
+    </div>
+  </div>
+
+  <!-- About sheet -->
+  <div class="sheet about-sheet" id="about" role="dialog" aria-modal="true" aria-label="About" hidden>
+    <div class="sheet-grip"></div>
+      <div class="about">
         <div class="about-head">
           <div class="about-badge">
             <svg viewBox="26 20 56 70"><path class="bulb-glass" d="M54,33 C44.6,33 37.5,40.2 37.5,49.2 C37.5,55 40.4,59.3 44,62.6 C45.6,64.1 46.5,66 46.5,68.1 L46.5,70 L61.5,70 L61.5,68.1 C61.5,66 62.4,64.1 64,62.6 C67.6,59.3 70.5,55 70.5,49.2 C70.5,40.2 63.4,33 54,33 Z"/><path class="bulb-base" d="M46.5,72 L61.5,72 L61.5,75 L46.5,75 Z M47.5,77 L60.5,77 L60.5,80 L47.5,80 Z M50,82 L58,82 C58,84.2 56.2,86 54,86 C51.8,86 50,84.2 50,82 Z"/></svg>
@@ -254,39 +385,6 @@
       </div>
 
       <p class="version" id="version">Lamp Panel</p>
-    </section>
-  </main>
-
-  <!-- Bottom navigation -->
-  <nav class="tabbar" role="tablist" aria-label="Sections">
-    <button class="tab" data-route="live" type="button" role="tab">
-      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg></span>
-      <span class="tab-label">Live</span>
-    </button>
-    <button class="tab" data-route="records" type="button" role="tab">
-      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
-      <span class="tab-label">Field data</span>
-    </button>
-    <button class="tab" data-route="control" type="button" role="tab">
-      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span>
-      <span class="tab-label">Control</span>
-    </button>
-    <button class="tab" data-route="more" type="button" role="tab">
-      <span class="tab-pill"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span>
-      <span class="tab-label">More</span>
-    </button>
-  </nav>
-
-  <!-- Confirm sheet -->
-  <div class="scrim" id="scrim" hidden></div>
-  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
-    <div class="sheet-grip"></div>
-    <h3 id="sheet-title">Send command?</h3>
-    <p id="sheet-text"></p>
-    <div class="sheet-actions">
-      <button type="button" class="btn btn-ghost" id="sheet-cancel">Cancel</button>
-      <button type="button" class="btn btn-primary" id="sheet-ok">Send</button>
-    </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
