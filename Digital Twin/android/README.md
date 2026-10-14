@@ -7,9 +7,10 @@ when the app shell itself changes.
 
 The phone interface has four sections in a bottom bar: **Live** (power ring, lamp state,
 voltage, current, power factor, NB2 breaker, session trend, this month), **Field data** (the
-weekly uploads from the lab PC, per month or all months), **Control** (live camera, 3D twin,
-Unlock / Open / Close with confirmation) and **More** (the full dashboard and simulation,
-about). It uses the same identity as the dashboard: teal #006C6B, Inter, the PSAU logo.
+weekly uploads from the lab PC, per month or all months), **Simulate** (the dashboard's
+40-lamp physics model on a tappable lamp board: scenarios, voltage and temperature, faults,
+ageing chart, L70/B10 forecast, energy cost) and **Control** (live camera, 3D twin,
+Unlock / Open / Close with confirmation). *About* sits behind the info button. It uses the same identity as the dashboard: teal #006C6B, Inter, the PSAU logo.
 
 What the app shell adds around the page:
 
@@ -18,8 +19,8 @@ What the app shell adds around the page:
 | Splash screen | Brand colour and bulb icon until the page has drawn (at most 4 s) |
 | Pull to refresh | Only from the top of the page, never while touching the 3D model, a chart, the camera or a slider |
 | Offline screen | Shown when there is no internet; retries when Android confirms the network works, and every 10 s |
-| Launcher shortcuts | Long-press the icon: *Live*, *Control*, *Field data* |
-| Back button | Back from the full dashboard to the app, then to *Live*, then out of the app |
+| Launcher shortcuts | Long-press the icon: *Live*, *Control*, *Field data*, *Simulate* |
+| Back button | Back through the sections to *Live*, then out of the app |
 | Haptics | A short tap on navigation and commands |
 | Full-screen video | The camera's full-screen mode hides the system bars |
 | External links | Open in a Chrome Custom Tab |

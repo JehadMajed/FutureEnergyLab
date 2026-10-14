@@ -25,4 +25,12 @@
             <extra android:name="tab" android:value="records" />
         </intent>
     </shortcut>
+    <shortcut android:shortcutId="simulate" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_simulate" android:shortcutLongLabel="@string/shortcut_simulate_long">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="sa.edu.psau.fel.lamppanel"
+            android:targetClass="sa.edu.psau.fel.lamppanel.MainActivity">
+            <extra android:name="tab" android:value="simulate" />
+        </intent>
+    </shortcut>
 </shortcuts>
