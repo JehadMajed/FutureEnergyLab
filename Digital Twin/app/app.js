@@ -505,21 +505,54 @@ $("sheet-ok").addEventListener("click", async () => {
 
 /* ═══════════════════════════ simulate ═══════════════════════════ */
 
-/* The Simulate screen is the dashboard's Simulation tab itself, in a frame between
-   the app bar and the bottom bar. It is created on first visit (so it adds no
-   history entry) and kept, so a running simulation survives switching screens;
-   while hidden the browser stops rendering it. */
+/* The Simulate screen is the dashboard's Simulation tab itself, in a frame. It is
+   created on first visit (so it adds no history entry) and kept, so a running
+   simulation survives switching screens; while hidden the browser stops rendering it.
+
+   The frame never scrolls on its own: it is always as tall as the tab, and the app
+   page scrolls, like every other screen. A scrolling frame inside a scrolling page
+   fought with the 3D model's touch handling and with pull to refresh on phones. */
 let simFrame = null;
+
+function fitSimFrame() {
+  const doc = simFrame && simFrame.contentDocument;
+  if (!doc || !doc.body || simFrame.hidden) return;
+  // Bottom edge of the content in page coordinates, plus the body's bottom margin.
+  const shell = doc.querySelector(".app-shell") || doc.body;
+  const bottom = shell.getBoundingClientRect().bottom + doc.defaultView.scrollY +
+                 parseFloat(doc.defaultView.getComputedStyle(doc.body).marginBottom || 0);
+  const h = Math.ceil(bottom);
+  if (h && Math.abs(h - simFrame.offsetHeight) > 1) simFrame.style.height = h + "px";
+}
+
+function wireSimFrame() {
+  const win = simFrame.contentWindow, doc = simFrame.contentDocument;
+  $("sim-loading")?.remove();
+  // Follow the tab's height as cards, charts and the alarm list change size.
+  new win.ResizeObserver(fitSimFrame).observe(doc.querySelector(".app-shell") || doc.body);
+  fitSimFrame();
+  // Touches inside the frame never reach this page, so report them to the app
+  // shell here: dragging the 3D model or a slider must not pull to refresh.
+  doc.addEventListener("touchstart", e => {
+    const t = e.target;
+    if (bridge && bridge.onTouch) bridge.onTouch(!!(t.closest && t.closest("model-viewer,canvas,input,select,textarea,.s3-scenario-list,.log-body")));
+  }, { passive: true, capture: true });
+}
+
 function simVisible(on) {
   if (on && !simFrame) {
     simFrame = document.createElement("iframe");
     simFrame.className = "sim-frame";
     simFrame.title = "Simulation";
+    simFrame.setAttribute("scrolling", "no");
     simFrame.src = "../?tab=simulation&embed=sim";
-    simFrame.addEventListener("load", () => $("sim-loading").remove(), { once: true });
+    simFrame.addEventListener("load", wireSimFrame, { once: true });
     $("screen-simulate").appendChild(simFrame);
   }
-  if (simFrame) simFrame.hidden = !on;
+  if (simFrame) {
+    simFrame.hidden = !on;
+    if (on) requestAnimationFrame(fitSimFrame);
+  }
 }
 
 $("info-btn").addEventListener("click", () => { haptic(); openPanel($("about")); });

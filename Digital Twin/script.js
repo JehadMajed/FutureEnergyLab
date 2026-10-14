@@ -3410,6 +3410,8 @@ setInterval(pollHistory, HISTORY_POLL_MS);
     // On a phone the viewer is narrow; bring the camera closer so the panel fills it.
     if (viewer && window.matchMedia('(max-width: 640px)').matches) {
       viewer.setAttribute('camera-orbit', '0deg 80deg 3.9m');
+      // A vertical swipe scrolls the page; a sideways drag turns the model.
+      viewer.setAttribute('touch-action', 'pan-y');
     }
     initLamps();
     buildScenarioList();
