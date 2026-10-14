@@ -12,7 +12,10 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,19 +44,22 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Lamp Panel: the Digital Twin site (BuildConfig.SITE_URL) in a full-screen WebView.
+ * Lamp Panel: the phone interface of the Digital Twin (BuildConfig.SITE_URL, the site's
+ * /app/ page) in a full-screen WebView.
  *
- * The site itself is loaded live, so every site update reaches the app without a new APK.
+ * The page is loaded live, so every update to it reaches the app without a new APK.
  * Around it the app adds: a splash screen, pull to refresh, an offline screen that
- * reconnects by itself, launcher shortcuts to the site's tabs, back navigation through
- * the tabs, full-screen camera video, and external links in a Custom Tab.
+ * reconnects by itself, launcher shortcuts to the app's sections, back navigation
+ * through them, haptics, full-screen camera video, and external links in a Custom Tab.
  */
 public class MainActivity extends Activity {
 
     private static final String OFFLINE_URL = "file:///android_asset/offline.html";
-    private static final List<String> TABS = Arrays.asList("overview", "model", "simulation", "about");
+    private static final List<String> TABS = Arrays.asList("live", "records", "control", "more");
     private static final long SPLASH_MAX_MS = 4000;
     private static final int BRAND = 0xFF006C6B;
+    private static final long OFFLINE_RETRY_MS = 10_000;
+    private static final String TAG = "LampPanel";
 
     private WebView web;
     private SwipeRefreshLayout swipe;
@@ -64,15 +70,19 @@ public class MainActivity extends Activity {
     private ConnectivityManager.NetworkCallback networkCallback;
 
     private final long startedAt = SystemClock.uptimeMillis();
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean firstLoadDone;
-    private boolean showingOffline;
+    private boolean showingOffline;          // the offline screen is (being) shown
+    private boolean loadingSiteFromOffline;  // a retry from the offline screen is in flight
+    private boolean mainFrameFailed;         // the current main-frame load failed
     private boolean clearHistoryOnLoad;
+    private boolean resumed;
     private String pendingTab;
 
     // Updated from the page through the JavaScript bridge (binder thread).
     private volatile boolean pageAtTop = true;
     private volatile boolean touchOnInteractive;
-    private volatile String activeTab = "overview";
+    private volatile String activeTab = "live";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +108,7 @@ public class MainActivity extends Activity {
 
     private void buildLayout() {
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(getColor(R.color.page));
+        root.setBackgroundColor(Color.WHITE);   // behind the status and navigation bars
 
         web = new WebView(this);
         swipe = new SwipeRefreshLayout(this);
@@ -210,15 +220,22 @@ public class MainActivity extends Activity {
             progress.setVisibility(View.VISIBLE);
             pageAtTop = true;
             touchOnInteractive = false;
+            if (!OFFLINE_URL.equals(url)) mainFrameFailed = false;
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
+            Log.i(TAG, "onPageFinished " + url + " failed=" + mainFrameFailed);
             progress.setVisibility(View.GONE);
             swipe.setRefreshing(false);
             firstLoadDone = true;
             if (OFFLINE_URL.equals(url)) return;
+            // WebView also reports "finished" for a load that failed, after onReceivedError.
+            // That is not the site: the offline screen is (or is about to be) up.
+            if (mainFrameFailed) return;
+            loadingSiteFromOffline = false;
             showingOffline = false;
+            handler.removeCallbacks(offlineRetry);
             if (clearHistoryOnLoad) {
                 clearHistoryOnLoad = false;
                 view.clearHistory();
@@ -232,12 +249,22 @@ public class MainActivity extends Activity {
 
         @Override
         public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-            if (request.isForMainFrame()) showOffline();
+            if (!request.isForMainFrame()) return;
+            Log.w(TAG, "main frame error " + error.getErrorCode() + " " + error.getDescription()
+                    + " for " + request.getUrl());
+            mainFrameFailed();
         }
 
         @Override
         public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse response) {
-            if (request.isForMainFrame() && response.getStatusCode() >= 500) showOffline();
+            if (request.isForMainFrame() && response.getStatusCode() >= 500) mainFrameFailed();
+        }
+
+        /** The failed page has replaced whatever was on screen, so (re)load the offline screen. */
+        private void mainFrameFailed() {
+            mainFrameFailed = true;
+            showingOffline = false;
+            showOffline();
         }
 
         @Override
@@ -293,27 +320,24 @@ public class MainActivity extends Activity {
         public void retry() { runOnUiThread(MainActivity.this::reloadSite); }
     }
 
-    // Injected after each load of the site: reports scroll position, touches on
-    // interactive elements, and tab changes back to the app.
+    // Injected after each page load: reports the scroll position and touches on
+    // interactive elements, for pull to refresh. The /app/ page reports its own
+    // section changes through onTab.
     private static final String BRIDGE_JS =
             "(function(){if(window.__lampPanelApp||!window.LampPanelApp)return;window.__lampPanelApp=1;"
             + "var A=window.LampPanelApp;"
             + "function top(){A.onScroll((window.scrollY||document.documentElement.scrollTop||0)<=0);}"
             + "window.addEventListener('scroll',top,{passive:true});top();"
             + "document.addEventListener('touchstart',function(e){var t=e.target;"
-            + "A.onTouch(!!(t&&t.closest&&t.closest('model-viewer,canvas,iframe,video,input,select,textarea')));},"
-            + "{passive:true,capture:true});"
-            + "document.querySelectorAll('.tab-btn[data-tab]').forEach(function(b){"
-            + "b.addEventListener('click',function(){A.onTab(b.dataset.tab);});});"
-            + "var a=document.querySelector('.tab-btn.active');if(a)A.onTab(a.dataset.tab);})();";
+            + "A.onTouch(!!(t&&t.closest&&t.closest('model-viewer,canvas,iframe,video,input,select,textarea,.chart-scroll,.chips')));},"
+            + "{passive:true,capture:true});})();";
 
     // ── navigation ──────────────────────────────────────────────────────────
 
     private void openTab(String tab) {
         if (!TABS.contains(tab)) return;
         activeTab = tab;
-        web.evaluateJavascript("(function(){var b=document.getElementById('tab-btn-" + tab
-                + "');if(b){b.click();window.scrollTo(0,0);}})();", null);
+        web.evaluateJavascript("window.lampApp&&window.lampApp.go('" + tab + "')", null);
     }
 
     private static String tabFrom(Intent intent) {
@@ -334,7 +358,7 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
         if (customView != null) { exitFullscreen(); return; }
         if (web.canGoBack()) { web.goBack(); return; }
-        if (!showingOffline && !"overview".equals(activeTab)) { openTab("overview"); return; }
+        if (!showingOffline && !"live".equals(activeTab)) { openTab("live"); return; }
         super.onBackPressed();
     }
 
@@ -359,10 +383,13 @@ public class MainActivity extends Activity {
     // ── offline handling ────────────────────────────────────────────────────
 
     private void reloadSite() {
+        Log.i(TAG, "reloadSite online=" + isOnline() + " offlineScreen=" + showingOffline);
         if (!isOnline()) { swipe.setRefreshing(false); showOffline(); return; }
         if (showingOffline) {
-            showingOffline = false;
+            // Leave the offline screen up until the site has actually loaded;
+            // a failed attempt then lands back on it without flicker.
             clearHistoryOnLoad = true;
+            loadingSiteFromOffline = true;
             web.loadUrl(BuildConfig.SITE_URL);
         } else {
             web.reload();
@@ -370,11 +397,26 @@ public class MainActivity extends Activity {
     }
 
     private void showOffline() {
-        if (showingOffline) return;
-        showingOffline = true;
+        Log.i(TAG, "showOffline (already=" + showingOffline + ")");
+        loadingSiteFromOffline = false;
         swipe.setRefreshing(false);
-        web.loadUrl(OFFLINE_URL);
+        if (!showingOffline) {
+            showingOffline = true;
+            web.loadUrl(OFFLINE_URL);
+        }
+        scheduleOfflineRetry();
     }
+
+    /** While the offline screen is up, try again every OFFLINE_RETRY_MS. */
+    private void scheduleOfflineRetry() {
+        handler.removeCallbacks(offlineRetry);
+        handler.postDelayed(offlineRetry, OFFLINE_RETRY_MS);
+    }
+
+    private final Runnable offlineRetry = () -> {
+        if (showingOffline && !loadingSiteFromOffline && resumed) reloadSite();
+        else if (showingOffline) scheduleOfflineRetry();
+    };
 
     private boolean isOnline() {
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
@@ -389,8 +431,12 @@ public class MainActivity extends Activity {
         if (cm == null) return;
         networkCallback = new ConnectivityManager.NetworkCallback() {
             @Override
-            public void onAvailable(Network network) {
-                runOnUiThread(() -> { if (showingOffline) reloadSite(); });
+            public void onCapabilitiesChanged(Network network, NetworkCapabilities caps) {
+                // VALIDATED: Android has confirmed this network really reaches the internet.
+                if (!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) return;
+                runOnUiThread(() -> {
+                    if (showingOffline && !loadingSiteFromOffline) reloadSite();
+                });
             }
         };
         cm.registerDefaultNetworkCallback(networkCallback);
@@ -435,12 +481,15 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        resumed = true;
         web.onResume();
         web.resumeTimers();
+        if (showingOffline) scheduleOfflineRetry();
     }
 
     @Override
     protected void onPause() {
+        resumed = false;
         // Stop the page's timers and live charts in the background to save battery;
         // the site reconnects to the live feed when the app comes back.
         web.onPause();
@@ -450,6 +499,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        handler.removeCallbacksAndMessages(null);
         if (networkCallback != null) {
             ConnectivityManager cm = getSystemService(ConnectivityManager.class);
             if (cm != null) cm.unregisterNetworkCallback(networkCallback);

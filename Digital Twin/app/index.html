@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>Lamp Panel</title>
+  <meta name="description" content="Lamp Panel Digital Twin for phones: live power, field records, camera, 3D model and control.">
+  <link rel="icon" href="../psau-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.4/dist/mqtt.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+  <!-- App bar -->
+  <header class="appbar">
+    <img class="appbar-logo" src="../psau-logo.png" alt="PSAU">
+    <div class="appbar-title">
+      <span class="appbar-kicker">Future Energy Lab</span>
+      <h1 id="screen-title">Lamp Panel</h1>
+    </div>
+    <div class="conn" id="conn" data-state="connecting" role="status">
+      <span class="conn-dot"></span><span id="conn-text">Connecting</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ─────────────── LIVE ─────────────── -->
+    <section class="screen" id="screen-live" aria-label="Live">
+      <div class="hero" id="hero" data-on="false" data-online="true">
+        <div class="hero-top">
+          <span class="hero-label">NB2 Lamps Panel</span>
+          <span class="hero-state" id="hero-state">Waiting</span>
+        </div>
+
+        <div class="ring-wrap">
+          <svg class="ring" viewBox="0 0 220 220" aria-hidden="true">
+            <defs>
+              <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FFE082"/>
+                <stop offset="1" stop-color="#FFB300"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-track" cx="110" cy="110" r="92"/>
+            <circle class="ring-fill" id="ring-fill" cx="110" cy="110" r="92"/>
+          </svg>
+          <div class="ring-center">
+            <svg class="bulb" viewBox="26 20 56 70" aria-hidden="true">
+              <path class="bulb-rays" d="M54,24 L54,29 M35,31 L38.5,34.5 M73,31 L69.5,34.5 M28,49 L33,49 M80,49 L75,49"/>
+              <path class="bulb-glass" d="M54,33 C44.6,33 37.5,40.2 37.5,49.2 C37.5,55 40.4,59.3 44,62.6 C45.6,64.1 46.5,66 46.5,68.1 L46.5,70 L61.5,70 L61.5,68.1 C61.5,66 62.4,64.1 64,62.6 C67.6,59.3 70.5,55 70.5,49.2 C70.5,40.2 63.4,33 54,33 Z"/>
+              <path class="bulb-filament" d="M49.5,69 L49.5,58 L52,53.5 L54,58 L56,53.5 L58.5,58 L58.5,69"/>
+              <path class="bulb-base" d="M46.5,72 L61.5,72 L61.5,75 L46.5,75 Z M47.5,77 L60.5,77 L60.5,80 L47.5,80 Z M50,82 L58,82 C58,84.2 56.2,86 54,86 C51.8,86 50,84.2 50,82 Z"/>
+            </svg>
+            <div class="ring-value"><span id="v-power">--</span><small>W</small></div>
+            <div class="ring-sub" id="ring-sub">of 440 W rated</div>
+          </div>
+        </div>
+
+        <div class="hero-foot">
+          <span>40 × 11 W LED</span>
+          <span id="updated">No data yet</span>
+        </div>
+      </div>
+
+      <div class="tiles">
+        <div class="tile">
+          <span class="tile-label">Voltage</span>
+          <span class="tile-value"><span id="v-voltage">--</span><small>V</small></span>
+          <span class="tile-sub">Supply, 230 V nominal</span>
+        </div>
+        <div class="tile">
+          <span class="tile-label">Current</span>
+          <span class="tile-value"><span id="v-current">--</span><small>A</small></span>
+          <span class="tile-sub">Lamps on above 0.5 A</span>
+        </div>
+        <div class="tile">
+          <span class="tile-label">Power factor</span>
+          <span class="tile-value"><span id="v-pf">--</span></span>
+          <span class="tile-sub">P ÷ (V × I)</span>
+        </div>
+        <div class="tile">
+          <span class="tile-label">NB2 breaker</span>
+          <span class="tile-value tile-text" id="v-nb2">--</span>
+          <span class="tile-sub">Panel circuit</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <h2>Power, this session</h2>
+          <span class="chip" id="spark-span">live</span>
+        </div>
+        <svg class="spark" id="spark" viewBox="0 0 320 96" preserveAspectRatio="none" aria-label="Power trend">
+          <defs>
+            <linearGradient id="spark-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#006C6B" stop-opacity="0.28"/>
+              <stop offset="1" stop-color="#006C6B" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="spark-area" fill="url(#spark-grad)"/>
+          <path id="spark-line" class="spark-line"/>
+        </svg>
+        <div class="spark-axis"><span id="spark-from">--</span><span id="spark-peak">--</span></div>
+      </div>
+
+      <button class="card month-card" id="month-card" type="button">
+        <div class="card-hdr">
+          <h2 id="month-title">This month</h2>
+          <span class="chip chip-link">Field data ›</span>
+        </div>
+        <div class="month-stats">
+          <div><span class="ms-value" id="m-energy">--</span><span class="ms-label">kWh</span></div>
+          <div><span class="ms-value" id="m-run">--</span><span class="ms-label">hours on</span></div>
+          <div><span class="ms-value" id="m-days">--</span><span class="ms-label">days logged</span></div>
+        </div>
+        <div class="month-foot" id="m-foot">Loading…</div>
+      </button>
+    </section>
+
+    <!-- ─────────────── FIELD DATA ─────────────── -->
+    <section class="screen" id="screen-records" aria-label="Field data">
+      <div class="chips" id="period-chips" role="tablist"></div>
+
+      <div class="kpis">
+        <div class="kpi kpi-accent">
+          <span class="kpi-label">Energy</span>
+          <span class="kpi-value"><span id="r-energy">--</span><small>kWh</small></span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">Running</span>
+          <span class="kpi-value"><span id="r-run">--</span><small>h</small></span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">Uptime</span>
+          <span class="kpi-value"><span id="r-uptime">--</span><small>%</small></span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">Avg power factor</span>
+          <span class="kpi-value"><span id="r-pf">--</span></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <h2>Hours per day</h2>
+          <div class="legend"><i class="lg-run"></i>On <i class="lg-idle"></i>Off</div>
+        </div>
+        <div class="chart-scroll" id="chart-scroll">
+          <div class="chart-box" id="chart-box"><canvas id="chart-days"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card details">
+        <div class="row"><span>Days logged</span><b id="r-days">--</b></div>
+        <div class="row"><span>Readings</span><b id="r-readings">--</b></div>
+        <div class="row"><span>Avg power when on</span><b id="r-avgp">--</b></div>
+        <div class="row"><span>Data through</span><b id="r-through">--</b></div>
+        <div class="row"><span>Last upload</span><b id="r-updated">--</b></div>
+        <p class="note" id="r-note">Uploaded weekly from the lab PC (every Tuesday), validated before publishing.</p>
+      </div>
+    </section>
+
+    <!-- ─────────────── CONTROL ─────────────── -->
+    <section class="screen" id="screen-control" aria-label="Control">
+      <div class="card media-card">
+        <div class="card-hdr">
+          <h2>Live camera</h2>
+          <button class="icon-btn" id="cam-full" type="button" aria-label="Full screen">
+            <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+          </button>
+        </div>
+        <div class="cam" id="cam">
+          <iframe id="cam-frame" title="Panel camera" allow="autoplay; fullscreen" loading="lazy"></iframe>
+          <div class="cam-hint" id="cam-hint">Connecting to camera…</div>
+        </div>
+      </div>
+
+      <div class="card media-card">
+        <div class="card-hdr">
+          <h2>3D twin</h2>
+          <span class="chip" id="twin-state">--</span>
+        </div>
+        <div class="twin-wrap" id="twin-wrap">
+          <model-viewer id="twin" alt="3D model of the lamp panel" camera-controls disable-tap
+            shadow-intensity="1.4" exposure="1.1" auto-rotate rotation-per-second="6deg"
+            camera-orbit="0deg 74deg 6.4m" field-of-view="22deg" interaction-prompt="none"></model-viewer>
+          <div class="twin-hint">Loading 3D model…</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <h2>Panel commands</h2>
+          <span class="chip chip-warn">Sign-in required</span>
+        </div>
+        <div class="cmds">
+          <button class="cmd" data-cmd="Unlock" type="button">
+            <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>
+            <span>Unlock</span>
+          </button>
+          <button class="cmd" data-cmd="Open" type="button">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            <span>Open</span>
+          </button>
+          <button class="cmd" data-cmd="Close" type="button">
+            <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span>Close</span>
+          </button>
+        </div>
+        <p class="note" id="cmd-result">Commands go to the panel through Home Assistant. Each one asks you to confirm.</p>
+      </div>
+    </section>
+
+    <!-- ─────────────── MORE ─────────────── -->
+    <section class="screen" id="screen-more" aria-label="More">
+      <div class="list card">
+        <a class="list-item" href="../?tab=simulation">
+          <span class="li-icon"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg></span>
+          <span class="li-text"><b>Simulation &amp; scenarios</b><small>40-lamp thermal and ageing model</small></span>
+          <span class="li-chev">›</span>
+        </a>
+        <a class="list-item" href="../">
+          <span class="li-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></span>
+          <span class="li-text"><b>Full dashboard</b><small>The complete desktop site</small></span>
+          <span class="li-chev">›</span>
+        </a>
+      </div>
+
+      <div class="card about">
+        <div class="about-head">
+          <div class="about-badge">
+            <svg viewBox="26 20 56 70"><path class="bulb-glass" d="M54,33 C44.6,33 37.5,40.2 37.5,49.2 C37.5,55 40.4,59.3 44,62.6 C45.6,64.1 46.5,66 46.5,68.1 L46.5,70 L61.5,70 L61.5,68.1 C61.5,66 62.4,64.1 64,62.6 C67.6,59.3 70.5,55 70.5,49.2 C70.5,40.2 63.4,33 54,33 Z"/><path class="bulb-base" d="M46.5,72 L61.5,72 L61.5,75 L46.5,75 Z M47.5,77 L60.5,77 L60.5,80 L47.5,80 Z M50,82 L58,82 C58,84.2 56.2,86 54,86 C51.8,86 50,84.2 50,82 Z"/></svg>
+          </div>
+          <div>
+            <h2>Lamp Panel Digital Twin</h2>
+            <small>Prince Sattam bin Abdulaziz University<br>College of Engineering · Electrical Engineering</small>
+          </div>
+        </div>
+        <p>A live digital twin of the NB2 residential lamps panel in the Future Energy Lab: forty 11 W LED lamps on a 230 V circuit, measured every second.</p>
+        <div class="specs">
+          <div><span>Lamps</span><b>40 × 11 W LED</b></div>
+          <div><span>Rated load</span><b>≈ 400 W</b></div>
+          <div><span>Supply</span><b>230 V AC</b></div>
+          <div><span>Power factor</span><b>≈ 0.58</b></div>
+          <div><span>Live feed</span><b>MQTT, 1 s</b></div>
+          <div><span>Field data</span><b>Weekly, validated</b></div>
+        </div>
+      </div>
+
+      <p class="version" id="version">Lamp Panel</p>
+    </section>
+  </main>
+
+  <!-- Bottom navigation -->
+  <nav class="tabbar" role="tablist" aria-label="Sections">
+    <button class="tab" data-route="live" type="button" role="tab">
+      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg></span>
+      <span class="tab-label">Live</span>
+    </button>
+    <button class="tab" data-route="records" type="button" role="tab">
+      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+      <span class="tab-label">Field data</span>
+    </button>
+    <button class="tab" data-route="control" type="button" role="tab">
+      <span class="tab-pill"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span>
+      <span class="tab-label">Control</span>
+    </button>
+    <button class="tab" data-route="more" type="button" role="tab">
+      <span class="tab-pill"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span>
+      <span class="tab-label">More</span>
+    </button>
+  </nav>
+
+  <!-- Confirm sheet -->
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+    <div class="sheet-grip"></div>
+    <h3 id="sheet-title">Send command?</h3>
+    <p id="sheet-text"></p>
+    <div class="sheet-actions">
+      <button type="button" class="btn btn-ghost" id="sheet-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="sheet-ok">Send</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -2937,3 +2937,93 @@ model-viewer {
   color: var(--warning);
   font-weight: 600;
 }
+
+/* =====================================================================
+   PHONES: layout fixes for any phone browser and the Android app
+   ===================================================================== */
+/* A 460px minimum overflowed every phone; let the cards shrink to the screen. */
+.charts-row,
+.sim-charts-row {
+  grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr));
+}
+
+@media (max-width: 768px) {
+  /* The column layout needs its full height; with the 72px cap the right-hand
+     group wrapped into a second column off the screen. */
+  .topbar {
+    max-height: none;
+    flex-wrap: nowrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .section-hdr {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .real-hdr-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .sim3-log-hdr {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* =====================================================================
+   ANDROID APP MODE: html.lp-app, set in <head> when the page runs inside
+   the Lamp Panel app (user agent "LampPanelApp/"), which opens this full
+   dashboard from its More screen. The header becomes a compact app bar.
+   ===================================================================== */
+html.lp-app body {
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+html.lp-app .topbar {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  min-height: 56px;
+  max-height: none;
+  padding: 0 16px;
+  gap: 12px;
+  border-left: 0;
+}
+html.lp-app .brand-text,
+html.lp-app .time-badge {
+  display: none;
+}
+html.lp-app .logo-wrap {
+  width: 30px;
+  height: 30px;
+}
+html.lp-app .topbar-center {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+html.lp-app .project-pill {
+  border-left: 0;
+  padding-left: 0;
+  font-size: 17px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html.lp-app .topbar-right {
+  width: auto;
+  padding-top: 0;
+  border-top: 0;
+  gap: 8px;
+}
+html.lp-app .status-badge {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+html.lp-app .tab-content {
+  padding: 12px;
+}

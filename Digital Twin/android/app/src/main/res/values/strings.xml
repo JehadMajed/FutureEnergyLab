@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lamp Panel</string>
-    <string name="shortcut_live">Live data</string>
-    <string name="shortcut_live_long">Live data and field record</string>
-    <string name="shortcut_model">3D model</string>
-    <string name="shortcut_model_long">3D model and control</string>
-    <string name="shortcut_sim">Simulation</string>
-    <string name="shortcut_sim_long">Simulation and scenarios</string>
+    <string name="shortcut_live">Live</string>
+    <string name="shortcut_live_long">Live power and lamp state</string>
+    <string name="shortcut_records">Field data</string>
+    <string name="shortcut_records_long">Monthly field records</string>
+    <string name="shortcut_control">Control</string>
+    <string name="shortcut_control_long">Camera, 3D twin and commands</string>
 </resources>
