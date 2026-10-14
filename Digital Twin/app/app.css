@@ -266,10 +266,8 @@ model-viewer#twin {
 
 /* ── Simulate: the dashboard's Simulation tab in a frame ───────────── */
 .sim-frame {
-  position: fixed; left: 0; right: 0; z-index: 5;
-  top: var(--appbar-h);
-  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
-  width: 100%; height: calc(100% - var(--appbar-h) - var(--tabbar-h) - env(safe-area-inset-bottom));
+  display: block; width: calc(100% + 28px); margin: -14px -14px 0;
+  height: 80vh;                 /* until the tab reports its real height */
   border: 0; background: var(--page);
 }
 .sim-frame[hidden] { display: none; }
