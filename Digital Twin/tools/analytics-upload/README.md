@@ -36,7 +36,7 @@ A problem in one month is logged and does not stop the other months. Every run w
 
 ## Set up on the lab PC (once)
 
-Step-by-step instructions, written for Claude Code on the lab PC: [LAB_PC_SETUP.md](LAB_PC_SETUP.md).
+Step-by-step instructions for the lab PC: [LAB_PC_SETUP.md](LAB_PC_SETUP.md).
 In short:
 
 1. A dedicated Python 3.12 in `C:\FEL\python312`, a `.venv`, and the pinned `requirements.txt`.
