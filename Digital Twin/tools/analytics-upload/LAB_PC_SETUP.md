@@ -1,6 +1,6 @@
 # Lab PC Setup — Lamp Panel Analytics Upload
 
-> **For Claude Code running on the lab PC.** The user will open this file and ask you to carry it
+> **For the AI assistant running on the lab PC.** The user will open this file and ask you to carry it
 > out. Work through the steps in order, run the commands yourself, and stop to ask the user only
 > where a step says **ASK** or **USER**. Reply to the user in Arabic.
 

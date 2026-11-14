@@ -121,6 +121,10 @@ Full list with status in [`docs/PUBLICATIONS.md`](docs/PUBLICATIONS.md).
 - Jehad Majed Aldayeh
 - Omar Amir Fadl
 
+### Collaborators
+
+- Dr. Kemal Aygül, Assistant Professor, Iskenderun Technical University, Türkiye ([@kemal-aygul](https://github.com/kemal-aygul))
+
 Full team page: [`docs/TEAM.md`](docs/TEAM.md).
 
 ---

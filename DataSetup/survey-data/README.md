@@ -57,4 +57,3 @@ dashboard's assumptions about a "typical Saudi household" load profile. It's pla
 Data Setup because it informs the same appliance-behaviour modelling this toolkit's
 [Appliance Inventory](../README.md#appliance-inventory) documents from direct measurement.
 
-URL : https://claude.ai/artifact/FnYm5E4pc4Ep9qMuwGvMiY

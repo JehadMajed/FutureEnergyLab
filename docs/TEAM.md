@@ -32,4 +32,10 @@
 | Jehad Majed Aldayeh |
 | Omar Amir Fadl |
 
+## Collaborators
+
+| Name | Role | GitHub |
+|---|---|---|
+| Dr. Kemal Aygül | Assistant Professor, Iskenderun Technical University, Türkiye | [@kemal-aygul](https://github.com/kemal-aygul) |
+
 
